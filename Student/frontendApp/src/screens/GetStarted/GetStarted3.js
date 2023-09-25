@@ -1,6 +1,6 @@
 import React from 'react';
 import { View, Text, Image, StyleSheet, Dimensions, TouchableOpacity } from 'react-native';
-import Logo from '../../../assets/images/STARTED1.png';
+import Logo from '../../../assets/images/STARTED3.png';
 import CustomButton from '../../components/CustomButton/CustomButton';
 import { useNavigation } from '@react-navigation/native';
 
@@ -8,11 +8,9 @@ const GetStarted = () => {
   const navigation = useNavigation();
 
   const onGetStartedPressed = () => {
-    navigation.navigate('Started2');
+    navigation.navigate('Homes');
   };
-  const onSkipButtonPressed = () => {
-    navigation.navigate('SignIn');
-  };
+
 
   return (
     <View style={styles.root}>
@@ -24,24 +22,21 @@ const GetStarted = () => {
         <Image source={Logo} resizeMode='contain' style={styles.logoImage} />
       </View>
       <View style={styles.textContainer}>
-        <Text style={styles.appName}>RENTING MADE EASY</Text>
-        <Text style={styles.appDescription}>Your Key to Easy Vehicle Rentals</Text>
+        <Text style={styles.appName}>LET'S RIDE</Text>
+        <Text style={styles.appDescription}>Let us put you in the driver's seat of your adventure</Text>
         <Text style={styles.appContent}>
-        The premier vehicle renting application designed to simplify the process of finding and booking rental cars. With Bulvroom, your journey begins with convenience and ease, as we redefine your travel experience.
+        So, are you ready to use the app and embark on hassle-free travels? With Bulvroom, the road to adventure is just a tap away!
         </Text>
       </View>
       <View style={styles.bottomContainer}>
       <View style={{ flexDirection: 'row', marginTop: 50, }}>
+          <Text style={styles.dot2}>•</Text>
+          <Text style={styles.dot2}>•</Text>
           <Text style={styles.dot}>•</Text>
-          <Text style={styles.dot2}>•</Text>
-          <Text style={styles.dot2}>•</Text>
       </View>
 
         <TouchableOpacity onPress={onGetStartedPressed} style={styles.nextButton}>
-          <Text style={styles.nextButtonText}>Next</Text>
-        </TouchableOpacity>
-        <TouchableOpacity onPress={onSkipButtonPressed} style={styles.skipButton}>
-          <Text style={styles.skipButtonText}>SKIP</Text>
+          <Text style={styles.nextButtonText}>Let's Go</Text>
         </TouchableOpacity>
         
       </View>
@@ -120,6 +115,7 @@ const styles = StyleSheet.create({
   },
   appDescription: {
     color: '#555',
+    textAlign: 'center',
     fontFamily: 'Poppins-Regular',
     fontSize: windowWidth * 0.04,
     marginBottom: 20,
@@ -156,21 +152,6 @@ const styles = StyleSheet.create({
     color: 'white',
     fontFamily: 'Poppins-Bold',
     fontSize: 20,
-  },
-  skipButton: {
-    paddingVertical: 15,
-    borderRadius: 30,
-    alignItems: 'center',
-    paddingHorizontal: 35,
-  },
-
-  skipButtonText: {
-    position: 'absolute',
-    left: 150,
-    color: 'black',
-    textDecorationLine: 'underline',
-    fontFamily: 'Poppins-Bold',
-    fontSize: 15,
   },
 });
 

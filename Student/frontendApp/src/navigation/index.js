@@ -5,11 +5,14 @@ import SignInScreen from '../screens/SignInScreen/SignInScreen';
 import SignUpScreen from '../screens/SignUpScreen/SignUpScreen';
 import HomeScreen from '../screens/HomeScreen/HomeScreen';
 import GetStarted from '../screens/GetStarted/GetStarted';
+import GetStarted2 from '../screens/GetStarted/GetStarted2';
+import GetStarted3 from '../screens/GetStarted/GetStarted3';
 import EnterOtp from '../screens/EnterOTP/EnterOtp';
 import ResetPW from '../screens/ResetPW/ResetPW';
 import SplashScreens from '../screens/SplashScreen/SplashScreen';
 import ForgotScreens from '../screens/ForgotScreen/ForgotScreen';
 import ProfileScreen from '../screens/ProfileScreen/ProfileScreen';
+import RateScreen from '../screens/RateScreen/Rates';
 import FavoriteScreen from '../screens/FavoriteScreen/FavoriteScreen';
 import EditScreen from '../screens/EditScreen/EditScreen';
 import NotificationScreen from '../screens/NotificationScreen/NotificationScreen';
@@ -26,7 +29,7 @@ const Navigation = () => {
   useEffect(() => {
     setTimeout(() => {
       setIsLoading(false);
-    }, 3000); // Delay for 5 seconds (5000 milliseconds)
+    }, 5000); // Delay for 5 seconds (5000 milliseconds)
   }, []);
 
   const Stack = createNativeStackNavigator();
@@ -38,7 +41,9 @@ const Navigation = () => {
   return (
     <NavigationContainer>
       <Stack.Navigator screenOptions={{ headerShown: false }}>
-      <Stack.Screen name="Started" component={GetStarted} />
+        <Stack.Screen name="Started" component={GetStarted} />
+        <Stack.Screen name="Started2" component={GetStarted2} />
+        <Stack.Screen name="Started3" component={GetStarted3} />
         <Stack.Screen name="SignIn" component={SignInScreen} />
         <Stack.Screen name="Forgot" component={ForgotScreens} />
         <Stack.Screen name="OTP" component={EnterOtp} />
@@ -52,6 +57,7 @@ const Navigation = () => {
         <Stack.Screen name="ChatScreen" component={ChatScreen} />
         <Stack.Screen name="NewChat" component={NewChat} />
         <Stack.Screen name="Vehicles" component={Vehicles} />
+        <Stack.Screen name="Rates" component={RateScreen} />
 
 
 

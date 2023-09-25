@@ -17,19 +17,11 @@ const MyComponent = ({ imageSource, label, label2, rate, itemData, onToggleFavor
   return (
 <PaperCard style={styles.card}>
   <View style={styles.fave}>
-    <Image source={imageSource} style={styles.image} />
-    
     {/* Container for text elements */}
     <View style={styles.textContainer}>
       <Text style={styles.label}>{label}</Text>
       <Text style={styles.label2}>{label2}</Text>
-      <Text style={styles.rate}>{rate}/ Day</Text>
-      <TouchableOpacity onPress={toggleFavorite}>
-        <Icon
-          name={isFavorite ? 'heart' : 'heart-outline'}
-          style={[styles.icons, { color: isFavorite ? 'red' : 'gray' }]}
-        />
-      </TouchableOpacity>
+      <Text style={styles.rate}>{rate}</Text>
     </View>
   </View>
 </PaperCard>
@@ -38,30 +30,13 @@ const MyComponent = ({ imageSource, label, label2, rate, itemData, onToggleFavor
 };
 
 const DashBoardScreen = () => {
-  const [searchQuery, setSearchQuery] = useState('');
-  const onChangeSearch = (query) => setSearchQuery(query);
   const navigation = useNavigation();
 
   const [cardData, setCardData] = useState([
-    {
-      id: '1',
-      imageSource: require('../../../assets/images/86.jpg'),
-      label: 'Toyota 86',
-      label2: '2 seater',
-      rate: '$50',
-    },
+
   ]);
-
-  const toggleFavorite = (item, isFavorite) => {
-    const updatedCardData = cardData.map((card) =>
-      card.id === item.id ? { ...card, isFavorite } : card
-    );
-    setCardData(updatedCardData);
-  };
-
-  const navigateToFavoriteScreen = () => {
-    const favoriteItems = cardData.filter((item) => item.isFavorite);
-    navigation.navigate('Favorite', { favoriteItems: cardData.filter(item => item.isFavorite) });
+  const onBackPressed = () => {
+    navigation.navigate('Homes');
   };
 
   const myComponents = cardData.map((item) => (
@@ -72,7 +47,7 @@ const DashBoardScreen = () => {
       label2={item.label2}
       rate={item.rate}
       itemData={item}
-      onToggleFavorite={toggleFavorite}
+
     />
   ));
 
@@ -87,18 +62,35 @@ const DashBoardScreen = () => {
 
   return (
     <View style={styles.container}>
-    <Text style={styles.title}>My Favorites</Text>
-      <ScrollView style={styles.scrollView}>
-        {pairs}
-      </ScrollView>
+<View style={styles.title}>
+  <TouchableOpacity onPress={onBackPressed}>
+    <Icon name="arrow-back" style={styles.back}></Icon>
+  </TouchableOpacity>
+  <View style={styles.titleCenter}>
+    <Icon name="cash-outline" style={styles.title2}></Icon>
+    <Text style={styles.titleText}>Rates Guide</Text>
+  </View>
+</View>
+
+<View style={styles.conta}>
+  <Image
+        source={require('../../../assets/images/tariff.png')}
+        style={styles.img}
+      />
+  </View>
     </View>
   );
 };
 
+const windowWidth = Dimensions.get('window').width;
+const windowHeight = Dimensions.get('window').height;
+
 const styles = StyleSheet.create({
   container: {
+        flex: 1,
     width: width * 1,
     height: height,
+    backgroundColor: '#509D58',
   },
   text: {
     fontSize: 15,
@@ -108,9 +100,7 @@ const styles = StyleSheet.create({
     height: '100%',
     width: '100%', // Occupy the entire width
     marginTop: 10,
-    marginBottom: 10,
-    paddingTop: 10,
-    paddingBottom: 30,
+
   },
   imageContainer: {
     width: '93%', // Occupy the entire width
@@ -130,42 +120,57 @@ const styles = StyleSheet.create({
   fave: {
     flexDirection: 'row',
     marginRight: 15,
-    marginLeft: -5,
   },
   label2: {
     fontSize: 16,
   },
+  conta: {
+    flex: 1,
+    top: -130,
+    alignItems: 'center',
+  },
+  img: {
+    marginTop: 100,
+    width: '100%', // Use the full width of the screen
+    height: '100%', // Use the full height of the screen
+    resizeMode: 'contain', // Adjust the image's aspect ratio to cover the entire screen
+  },
   title: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#2ecc71', // Background color for the header
+    backgroundColor: '#2ecc71',
     color: 'black',
-    textAlign: 'center',
     fontSize: 25,
-    paddingVertical: 10, // Vertical padding for the header
-    paddingHorizontal: 16, // Horizontal padding for the header
-    elevation: 2, // Add shadow to the header for an elevated look (Android)
-    borderBottomWidth: 1, // Add a bottom border for separation
-    borderBottomColor: '#ccc', // Color of the bottom border
+    paddingVertical: 10,
+    paddingHorizontal: 16,
+    elevation: 2,
+    borderBottomWidth: 1,
+    borderBottomColor: '#ccc',
+  },
+  back: {
+    fontSize: 30,
+    color: 'black', // Adjust the color as needed
+  },
+  titleCenter: {
+    flex: 1, // This allows the center content to take up available space
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center', // Center horizontally
+  },
+  title2: {
+    fontSize: 30,
+    color: 'black', // Adjust the color as needed
+  },
+  titleText: {
+    marginLeft: 5,
+    fontSize: 20,
+    fontWeight: 'bold',
+    color: 'black', // Adjust the color as needed
   },
   rate: {
     fontSize: 15,
     color: '#1b944e',
     fontWeight: '800',
-  },
-  searchBarContainer: {
-    marginTop: 13,
-    marginBottom: 10,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    marginHorizontal: 10,
-    width: '100%',
-  },
-  searchBar: {
-    flex: 1,
-    height: 45,
-    backgroundColor: 'white',
   },
   notificationIcon: {
     fontSize: 30,
@@ -177,21 +182,14 @@ const styles = StyleSheet.create({
   card: {
     paddingHorizontal: 5,
     margin: 5,
-    marginBottom: 25,
+
   },
   row: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginHorizontal: 10,
+    flexDirection: 'column',
+
   },
   icons: {
     fontSize: 30,
-  },
-  image: {
-    marginRight: 10,
-    width: 230,
-    height: 150,
-    borderRadius: 5,
   },
 });
 

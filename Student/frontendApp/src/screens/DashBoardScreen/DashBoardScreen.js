@@ -8,6 +8,7 @@ import {
   Text,
   TouchableOpacity,
   Modal,
+  ToastAndroid,
 } from 'react-native';
 import { Searchbar, Card as PaperCard } from 'react-native-paper';
 import Icon from 'react-native-vector-icons/Ionicons';
@@ -31,10 +32,15 @@ const MyComponent = ({
   const [isFavorite, setIsFavorite] = useState(false);
   const [modalVisible, setModalVisible] = useState(false);
   const [showFullImage, setShowFullImage] = useState(false);
+  const [prevIsFavorite, setPrevIsFavorite] = useState(false);
 
   const toggleFavorite = () => {
     setIsFavorite((prevIsFavorite) => !prevIsFavorite);
     onToggleFavorite(itemData, !isFavorite);
+
+    const message = prevIsFavorite ? 'Removed from My Favorites' : 'Added to My Favorites';
+    setPrevIsFavorite(!prevIsFavorite);
+    ToastAndroid.show(message, ToastAndroid.SHORT);
   };
 
   const openModal = () => {
@@ -274,19 +280,22 @@ const DashBoardScreen = () => {
       </View>
 
       <View style={{ flexDirection: 'row', justifyContent: 'space-evenly' }}>
-        <TouchableOpacity>
+      <TouchableOpacity style={styles.activeButton}>
+          <Text style={styles.text}>All</Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.inactiveButton}>
           <Text style={styles.text}>Bicycle</Text>
         </TouchableOpacity>
-        <TouchableOpacity>
+        <TouchableOpacity style={styles.inactiveButton}>
           <Text style={styles.text}>Motorcycle</Text>
         </TouchableOpacity>
-        <TouchableOpacity>
+        <TouchableOpacity style={styles.inactiveButton}>
           <Text style={styles.text}>Sedan</Text>
         </TouchableOpacity>
-        <TouchableOpacity>
+        <TouchableOpacity style={styles.inactiveButton}>
           <Text style={styles.text}>SUV</Text>
         </TouchableOpacity>
-        <TouchableOpacity>
+        <TouchableOpacity style={styles.inactiveButton}>
           <Text style={styles.text}>Van</Text>
         </TouchableOpacity>
       </View>
@@ -326,6 +335,18 @@ const styles = StyleSheet.create({
     flex: 1,
     marginLeft: 5,
     marginRight: 5,
+  },
+  activeButton: {
+    marginLeft: 10,
+    backgroundColor: '#2ecc71',
+    paddingVertical: 3,
+    paddingHorizontal: 12,
+    borderRadius: 15,
+  },
+  inactiveButton: {
+    paddingVertical: 3,
+    paddingHorizontal: 12,
+    borderRadius: 15,
   },
   row: {
     flexDirection: 'row',

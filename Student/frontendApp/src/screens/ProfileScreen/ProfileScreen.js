@@ -20,6 +20,11 @@ const ProfileScreen = () => {
     navigation.navigate('NotifScreen');
   };
 
+  const 
+  onRatesPressed = () => {
+    navigation.navigate('Rates');
+  };
+
   const onEditPressed = () => {
     navigation.navigate('Edit'); // Replace 'EditProfileScreen' with your desired screen name
   };
@@ -59,6 +64,13 @@ const ProfileScreen = () => {
     <View style={styles.itemContainer}>
       <Icon name="newspaper-outline" style={styles.icon} />
       <Text style={styles.itemText}>LEGAL</Text>
+    </View>
+    </TouchableOpacity>
+    <View style={styles.line} />
+    <TouchableOpacity onPress={onRatesPressed}>
+    <View style={styles.itemContainer}>
+      <Icon name="cash-outline" style={styles.icon} />
+      <Text style={styles.itemText}>RATES</Text>
     </View>
     </TouchableOpacity>
     <View style={styles.line} />

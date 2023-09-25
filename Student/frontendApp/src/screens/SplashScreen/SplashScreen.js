@@ -1,58 +1,157 @@
 import React from 'react';
-import { View, Image,StyleSheet} from 'react-native';
-import Logo from '../../../assets/images/bulv.png'
+import { View, Text, Image, StyleSheet, Dimensions,} from 'react-native';
 
-const SplashScreen = () => (
- 
-  <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-          <View style={styles.circle} />
-          <View style={styles.circle2} />
-          <View style={styles.circle3} />
-          <View style={styles.circle4} />
-    <Image style={styles.Logo} source={Logo} />
-  </View>
+import Logo1 from '../../../assets/images/bulv.png';
+
+
+const GetStarted = () => {
+
+  const MyComponent = () => {
+    const [imageDimensions, setImageDimensions] = useState({ width: 0, height: 0 });
   
-);
+    useEffect(() => {
+      const windowWidth = Dimensions.get('window').width;
+      const imageWidth = windowWidth; // Set the image width to the window width
+      const imageHeight = imageWidth * (originalImageHeight / originalImageWidth); // Calculate the image height to maintain aspect ratio
+  
+      setImageDimensions({ width: imageWidth, height: imageHeight });
+    }, []);
+  
+    // Replace these values with your actual image dimensions
+    const originalImageWidth = 800;
+    const originalImageHeight = 600;
+  
+    return (
+      <View>
+        <Image
+          source={{ uri: '../../../assets/images/bulv.png' }}
+          style={{ width: imageDimensions.width, height: imageDimensions.height }}
+        />
+      </View>
+    );
+  };
+  
+  return (
+    <View style={styles.root}>
+      <View style={styles.circle3} />
+      <View style={styles.circle} />
+      <View style={styles.circle2} />
+
+      <View style={styles.imageContainer}>
+        <Image source={Logo1} resizeMode='contain' style={styles.image} />
+      </View>
+
+
+
+    </View>
+  );
+};
+
+const windowWidth = Dimensions.get('window').width;
+const windowHeight = Dimensions.get('window').height;
+
 const styles = StyleSheet.create({
-  Logo: {
-    width: 224,
-    height: 216,
+  root: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#2ecc71',
   },
-    circle: {
-        position: 'absolute',
-        top: -110,
-        left: -15,
-        width: 224,
-        height: 216,
-        borderRadius: 110,
-        backgroundColor: 'rgba(46, 204, 113, 0.45)',  // Adjust the color of the circle as desired
-      },
-      circle2: {
-        position: 'absolute',
-        top: -30,
-        left: -100,
-        width: 224,
-        height: 216,
-        borderRadius: 110,
-        backgroundColor: 'rgba(46, 204, 113, 0.45)',  // Adjust the color of the circle as desired
-      },
-      circle3: {
-        position: 'absolute',
-        bottom: -100,
-        right: -15,
-        width: 224,
-        height: 216,
-        borderRadius: 110,
-        backgroundColor: 'rgba(46, 204, 113, 0.45)',  // Adjust the color of the circle as desired
-      },
-      circle4: {
-        position: 'absolute',
-        bottom: -20,
-        right: -100,
-        width: 224,
-        height: 216,
-        borderRadius: 110,
-        backgroundColor: 'rgba(46, 204, 113, 0.45)',  // Adjust the color of the circle as desired
-      }
-})
-export default SplashScreen;
+  circle: {
+    position: 'absolute',
+    top: windowHeight * 0.306,
+    left: windowWidth * 0.15,
+    width: windowWidth * 0.7, // Increase the size of the circle
+    height: windowWidth * 0.7, // Increase the size of the circle
+    borderRadius: windowWidth * 0.5, // Adjust the border radius accordingly
+    backgroundColor: '#56e894', // Adjust the color of the circle as desired
+  },
+  circle2: {
+    position: 'absolute',
+    top: windowHeight * 0.33,
+    left: windowWidth * 0.20,
+    width: windowWidth * 0.6, // Increase the size of the circle
+    height: windowWidth * 0.6, // Increase the size of the circle
+    borderRadius: windowWidth * 0.5, // Adjust the border radius accordingly
+    backgroundColor: 'white', // Adjust the color of the circle as desired
+  },
+  circle3: {
+    position: 'absolute',
+    top: windowHeight * 0.282,
+    left: windowWidth * 0.10,
+    width: windowWidth * 0.8, // Increase the size of the circle
+    height: windowWidth * 0.8, // Increase the size of the circle
+    borderRadius: windowWidth * 0.5, // Adjust the border radius accordingly
+    backgroundColor: '#3ad67c', // Adjust the color of the circle as desired
+  },
+  imageContainer: {
+    position: 'absolute',
+    top: windowHeight * 0.282,
+    left: windowWidth * 0.10,
+    width: windowWidth * 0.8,
+    height: windowWidth * 0.8,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  imageContainer1: {
+    position: 'absolute',
+    top: windowHeight * 0.092,
+    left: windowWidth * 0.50,
+    width: 2, // Increase the size of the circle
+    height: 2, // Increase the size of the circle
+  },
+  image: {
+    width: '80%',
+    height: '80%',
+  },
+  image1: {
+    position: 'absolute',
+    top: windowHeight * -0.40,
+    left: windowWidth * -1.3,
+    width: windowWidth * 2.2,
+    height: windowWidth * 3.20,
+    opacity: 0.2,
+  },
+  textContainer: {
+    justifyContent: 'center',
+    alignItems: 'center',
+    textAlign: 'center',
+    paddingHorizontal: windowWidth * 0.03,
+  },
+  welcome: {
+    color: 'black',
+    fontFamily: 'Poppins',
+    fontWeight: 'bold',
+    fontSize: windowWidth * 0.04,
+    marginTop: windowHeight * -0.01,
+    marginBottom: windowHeight * 0.01,
+  },
+  welcome1: {
+    color: 'white',
+    fontFamily: 'Poppins',
+    fontWeight: 'bold',
+    fontSize: windowWidth * 0.16,
+    marginTop: windowHeight * 0.25,
+  },
+  content: {
+    fontSize: windowWidth * 0.04,
+    color: '#ffffff',
+    fontFamily: 'Poppins',
+    padding: windowHeight * 0.01,
+    textAlign: 'center',
+  },
+  bottomContainer: {
+    position: 'absolute',
+    bottom: 0,
+    width: '48%',
+    paddingHorizontal: windowWidth * 0.1,
+    paddingBottom: windowHeight * 0.10,
+  },
+  btn: {
+    borderRadius: windowWidth * 0.05,
+    fontSize: windowWidth * 0.04,
+    backgroundColor: 'white',
+  },
+});
+
+export default GetStarted;

@@ -13,8 +13,8 @@ import Logo from '../../../assets/images/bulv.png';
 import CustomInputs from '../../components/CustomInputs/CustomInputs';
 import CustomButton from '../../components/CustomButton/CustomButton';
 import { useNavigation } from '@react-navigation/native';
-import axios from 'axios';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+//import axios from 'axios';
+//import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const { width, height } = Dimensions.get('window');
 
@@ -24,6 +24,10 @@ const SignInScreen = () => {
 
   const navigation = useNavigation();
   const onSignInPressed = () => {
+    navigation.navigate('Homes');
+  };
+
+ /* const onSignInPressed = () => {
     if (username.trim() === '' || password.trim() === '') {
         ToastAndroid.show('Please Enter Username and Password', ToastAndroid.SHORT);
         return;
@@ -43,7 +47,7 @@ const SignInScreen = () => {
             ToastAndroid.show('Error occurred', ToastAndroid.SHORT);
         });
     }
-};
+};*/
 
   const onForgot = () => {
     navigation.navigate('Forgot');
@@ -52,6 +56,8 @@ const SignInScreen = () => {
   const onCreate = () => {
     navigation.navigate('SignUp');
   };
+
+
 
   return (
     <View style={styles.root}>
