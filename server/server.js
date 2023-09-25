@@ -11,7 +11,7 @@ const app = express();
 app.use(cors(
     {
         origin: ["http://localhost:5173"],
-        methods: ["POST", "GET", "PUT", "DELETE"],
+        methods: ["POST", "GET", "PUT", "DELETE", "UPDATE"],
         credentials: true
     }
 ));
@@ -75,12 +75,25 @@ app.get('/get/:id', (req, res) => {
 
 app.put('/update/:id', (req, res) => {
     const id = req.params.id;
-    const sql = "UPDATE employee set salary = ? WHERE id = ?";
-    con.query(sql, [req.body.salary, id], (err, result) => {
-        if(err) return res.json({Error: "update users error in sql"});
-        return res.json({Status: "Success"})
-    })
-})
+    const updatedData = req.body;
+  
+    const sql = 'UPDATE users SET ? WHERE id = ?';
+  
+    con.query(sql, [updatedData, id], (err, result) => {
+      if (err) {
+        console.error('Error updating user data:', err);
+        return res.json({ Status: 'Error', Message: 'Failed to update user data' });
+      }
+  
+      if (result.affectedRows === 1) {
+        // Successfully updated one row
+        return res.json({ Status: 'Success', Message: 'User data updated successfully' });
+      } else {
+        return res.status(404).json({ Status: 'Error', Message: 'User not found' });
+      }
+    });
+  });
+  
 
 app.delete('/delete/:id', (req, res) => {
     const id = req.params.id;
@@ -164,7 +177,7 @@ app.post('/login/app', (req, res) => {
     const email = req.body.email;
     const password = req.body.password;
 
-    const sql = "SELECT * FROM admin WHERE email = ? AND password = ?";
+    const sql = "SELECT * FROM users WHERE email = ? AND password = ?";
 
     con.query(sql, [email, password], (error, results) => {
         if (error) {
@@ -181,10 +194,6 @@ app.post('/login/app', (req, res) => {
         }
     });
 });
-
-
-
-
 
 
 app.post('/employeelogin', (req, res) => {
@@ -223,7 +232,7 @@ app.post('/create', upload.single('profile_pic'), (req, res) => {
     bcrypt.hash(req.body.password.toString(), 10, (err, hash) => {
       if (err) return res.json({ Error: "Error in hashing password" });
   
-      const sql = "INSERT INTO `users` (fName, lName, username, email, password, profile_pic, address, contact, driver_license_1, driver_license_2, valid_id) VALUES ( ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+      const sql = "INSERT INTO `users` (fName, lName, username, email, password, profile_pic, address, contact, driver_license_1, valid_id) VALUES ( ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
   
       const values = [
         req.body.fName,               // Assuming you have a 'fName' field in your form
@@ -235,7 +244,6 @@ app.post('/create', upload.single('profile_pic'), (req, res) => {
         req.body.address,             // Assuming you have an 'address' field in your form
         req.body.contact,
         req.body.driver_license_1,
-        req.body.driver_license_2,
         req.body.valid_id 
 
       ];
@@ -276,6 +284,28 @@ app.post('/option', (req, res) => {
       } else {
         console.log('Data inserted successfully:', result.rows[0]);
         res.status(200).json({ message: 'Data inserted successfully' });
+      }
+    });
+  });
+  
+  app.put('/verify/:id', (req, res) => {
+    const userId = parseInt(req.params.id);
+  
+    // Update the 'status' field in the 'users' table to 'verified' for the given user ID
+    const updateStatusQuery = 'UPDATE users SET status = ? WHERE id = ?';
+    const values = ['verified', userId];
+  
+    con.query(updateStatusQuery, values, (err, results) => {
+      if (err) {
+        console.error('Error updating user status:', err);
+        return res.status(500).json({ Status: 'Error', Message: 'Internal Server Error' });
+      }
+  
+      if (results.affectedRows === 1) {
+        // The query successfully updated one row
+        return res.json({ Status: 'Success', Message: 'User status updated to verified' });
+      } else {
+        return res.status(404).json({ Status: 'Error', Message: 'User not found' });
       }
     });
   });
