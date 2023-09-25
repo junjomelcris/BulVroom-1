@@ -172,20 +172,7 @@ function AddEmployee() {
                     onChange={(e) => setData({ ...data, driver_license_1: e.target.value })}
                   />
                 </div>
-                <div className='mb-3'>
-                  <label htmlFor='license2' className='form-label'>
-                    Driver License 2
-                  </label>
-                  <input
-                    type='text'
-                    className='form-control'
-                    id='license2'
-                    name='driver_license_2'
-                    placeholder='Enter License 2'
-                    autoComplete='off'
-                    onChange={(e) => setData({ ...data, driver_license_2: e.target.value })}
-                  />
-                </div>
+                
                 <div className='mb-3'>
                   <label htmlFor='validId' className='form-label'>
                     Valid ID
