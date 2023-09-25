@@ -9,11 +9,15 @@ import EnterOtp from '../screens/EnterOTP/EnterOtp';
 import ResetPW from '../screens/ResetPW/ResetPW';
 import SplashScreens from '../screens/SplashScreen/SplashScreen';
 import ForgotScreens from '../screens/ForgotScreen/ForgotScreen';
-import JournalScreens from '../screens/JournalScreen/JournalScreen';
-import ProfileScreens from '../screens/ProfileScreen/ProfileScreen';
-import BreathingScreens from '../screens/BreathingScreen/BreathingScreen';
-import Breathe1 from '../screens/BreathingScreen/BreatheTechniques/Breathe1';
-import TestScreen from '../screens/TestScreen/TestScreen';
+import ProfileScreen from '../screens/ProfileScreen/ProfileScreen';
+import FavoriteScreen from '../screens/FavoriteScreen/FavoriteScreen';
+import EditScreen from '../screens/EditScreen/EditScreen';
+import NotificationScreen from '../screens/NotificationScreen/NotificationScreen';
+import ChatScreen from '../screens/ChatScreen/ChatScreen';
+import NewChat from '../screens/ChatScreen/NewChat';
+import Vehicles from '../screens/Vehicles/Vehicles';
+
+
 
 
 const Navigation = () => {
@@ -41,11 +45,15 @@ const Navigation = () => {
         <Stack.Screen name="ResetPW" component={ResetPW} />
         <Stack.Screen name="SignUp" component={SignUpScreen} />
         <Stack.Screen name="Homes" component={HomeScreen} />
-        <Stack.Screen name="Journal" component={JournalScreens} />
-        <Stack.Screen name="Breathe" component={BreathingScreens} />
-        <Stack.Screen name="Profile" component={ProfileScreens} />
-        <Stack.Screen name="Breathe1" component={Breathe1} />
-        <Stack.Screen name="Test" component={TestScreen} />
+        <Stack.Screen name="Profile" component={ProfileScreen} />
+        <Stack.Screen name="Favorite" component={FavoriteScreen} />
+        <Stack.Screen name="Edit" component={EditScreen} />
+        <Stack.Screen name="NotifScreen" component={NotificationScreen} />
+        <Stack.Screen name="ChatScreen" component={ChatScreen} />
+        <Stack.Screen name="NewChat" component={NewChat} />
+        <Stack.Screen name="Vehicles" component={Vehicles} />
+
+
 
       </Stack.Navigator>
     </NavigationContainer>

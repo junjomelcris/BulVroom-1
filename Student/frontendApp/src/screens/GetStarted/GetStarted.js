@@ -38,9 +38,6 @@ const GetStarted = () => {
   
   return (
     <View style={styles.root}>
-          <View style={styles.imageContainer1}>
-        <Image source={Logo1} resizeMode='cover' style={styles.image1} />
-      </View>
       <View style={styles.circle3} />
       <View style={styles.circle} />
       <View style={styles.circle2} />
@@ -48,19 +45,22 @@ const GetStarted = () => {
       <View style={styles.imageContainer}>
         <Image source={Logo} resizeMode='contain' style={styles.image} />
       </View>
+      <View style={styles.imageContainer1}>
+        <Image source={Logo1} resizeMode='cover' style={styles.image1} />
+      </View>
       <View style={styles.textContainer}>
-      <Text style={styles.welcome1}>BulVroom</Text>
+        <Text style={styles.welcome1}>BulVroom</Text>
         <Text style={styles.welcome}>Bulacan-Wide Vehicle Renting App</Text>
         <Text style={styles.content}>
-        Your travel plan is in your hands. With BulVroom, Vehicle renting is now easy with just types and taps. 
-        Save time and effort in booking a vehicle for your trips and other errands. 
-        Let's start your happy driving journey now.
+          Your travel plan is in your hands. With BulVroom, Vehicle renting is now easy with just types and taps. 
+          Save time and effort in booking a vehicle for your trips and other errands. 
+          Let's start your happy driving journey now.
         </Text>
       </View>
       <View style={styles.bottomContainer}>
-      <TouchableOpacity onPress={onGetStartedPressed}>
-        <CustomButton text="Let's Go"/>
-</TouchableOpacity>
+        <TouchableOpacity onPress={onGetStartedPressed}>
+          <CustomButton text="Let's Go"/>
+        </TouchableOpacity>
       </View>
     </View>
   );
@@ -102,33 +102,33 @@ const styles = StyleSheet.create({
     height: windowWidth * 0.8, // Increase the size of the circle
     borderRadius: windowWidth * 0.5, // Adjust the border radius accordingly
     backgroundColor: '#3ad67c', // Adjust the color of the circle as desired
-    
   },
   imageContainer: {
-    justifyContent: 'flex-start',
+    position: 'absolute',
+    top: windowHeight * 0.082,
+    left: windowWidth * 0.10,
+    width: windowWidth * 0.8,
+    height: windowWidth * 0.8,
+    justifyContent: 'center',
     alignItems: 'center',
-    marginTop: -windowHeight * 0.01,
   },
   imageContainer1: {
     position: 'absolute',
     top: windowHeight * 0.092,
     left: windowWidth * 0.50,
     width: 2, // Increase the size of the circle
-    height:  2, // Increase the size of the circle
+    height: 2, // Increase the size of the circle
   },
   image: {
-    position: 'absolute',
-    top: windowHeight * -0.085,
-    left: windowWidth * -0.4,
-    width: windowWidth * 0.8,
-    height: windowWidth * 0.60,
+    width: '80%',
+    height: '80%',
   },
   image1: {
     position: 'absolute',
     top: windowHeight * -0.40,
     left: windowWidth * -1.3,
     width: windowWidth * 2.2,
-    height: windowWidth * 2.90,
+    height: windowWidth * 3.20,
     opacity: 0.2,
   },
   textContainer: {
@@ -165,15 +165,12 @@ const styles = StyleSheet.create({
     width: '48%',
     paddingHorizontal: windowWidth * 0.1,
     paddingBottom: windowHeight * 0.10,
-    
   },
   btn: {
-    
     borderRadius: windowWidth * 0.05,
     fontSize: windowWidth * 0.04,
     backgroundColor: 'white',
   },
-
 });
 
 export default GetStarted;

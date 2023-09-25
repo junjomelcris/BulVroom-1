@@ -173,7 +173,7 @@ const styles = StyleSheet.create({
   },
   imageContainer1: {
     position: 'absolute',
-    top: windowHeight * 0.092,
+    top: windowHeight * .162,
     left: windowWidth * 0.50,
     width: 2, // Increase the size of the circle
     height:  2, // Increase the size of the circle

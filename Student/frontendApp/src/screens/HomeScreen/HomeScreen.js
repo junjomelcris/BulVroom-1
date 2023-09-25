@@ -3,9 +3,9 @@ import { View, Text, StyleSheet,Dimensions } from 'react-native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import Icon from 'react-native-vector-icons/Ionicons';
 import ProfileScreen from '../ProfileScreen/ProfileScreen';
-import NotificationScreen from '../NotificationScreen/NotificationScreen';
 import DashBoardScreen from '../DashBoardScreen/DashBoardScreen';
-import LearnScreen from '../LearnScreen/LearnScreen';
+import ChatScreen from '../ChatScreen/ChatScreen';
+import FavoriteScreen from '../FavoriteScreen/FavoriteScreen';
 
 const { width, height } = Dimensions.get('window');
 const Tab = createBottomTabNavigator();
@@ -17,23 +17,15 @@ const HomeScreens = () => (
   </View>
 );
 
-const SettingsScreens = () => (
-  <View style={styles.container}>
-    <LearnScreen/>
-  </View>
-);
-
-
-
 const ChatScreens = () => (
   <View style={styles.container}>
-    <Text>Chat Screen</Text>
+    <ChatScreen />
   </View>
 );
 
-const NotificationScreens = () => (
+const FaveScreen = () => (
   <View style={styles.container}>
-    <NotificationScreen/>
+        <FavoriteScreen />
   </View>
 );
 
@@ -45,39 +37,44 @@ const ProfileScreens = () => (
 
 const Apps = () => {
   return (
-    <Tab.Navigator
-      screenOptions={({ route }) => ({
-        headerShown: false,
-        tabBarStyle: { backgroundColor: '#2ecc71',color:'black'},
-        tabBarIcon: ({ focused, color, size }) => {
-          let iconName;
+<Tab.Navigator
+  screenOptions={({ route }) => ({
+    headerShown: false,
+    tabBarLabelStyle: { fontWeight: 'bold' },
+    tabBarStyle: { backgroundColor: '#2ecc71' },
+    tabBarIcon: ({ focused, size }) => {
+      let iconName;
 
-          if (route.name === 'Car') {
-            iconName = focused ? 'car' : 'car-outline';
-          } else if (route.name === 'Manage') {
-            iconName = focused ? 'person' : 'person-outline';
-          } else if (route.name === 'Favorite') {
-            iconName = focused ? 'heart' : 'heart-outline';
-          } else if (route.name === 'settings') {
-            iconName = focused ? 'car' : 'car-outline';
-          } 
+      if (route.name === 'Car') {
+        iconName = focused ? 'car' : 'car-outline';
+      } else if (route.name === 'Chat') {
+        iconName = focused ? 'chatbubbles' : 'chatbubbles-outline';
+      } else if (route.name === 'Favorite') {
+        iconName = focused ? 'heart' : 'heart-outline';
+      } else if (route.name === 'Settings') {
+        iconName = focused ? 'settings' : 'settings-outline';
+      }
 
-          return <Icon name={iconName} color={"#ffff"} size={size} />;
-        },
-      })}
-    >
-      <Tab.Screen name="Car" component={HomeScreens}/>
-      <Tab.Screen name="Manage" component={SettingsScreens} />
-      <Tab.Screen name="Favorite" component={ChatScreens} />
-      <Tab.Screen name="Setting" component={ProfileScreens} />
-    </Tab.Navigator>
+      return <Icon name={iconName} color={focused ? 'black' : 'white'} size={size} />;
+    },
+  })}
+  tabBarOptions={{
+    activeTintColor: 'black', // Color when active
+    inactiveTintColor: 'white', // Color when inactive
+  }}
+>
+  <Tab.Screen name="Car" component={HomeScreens} />
+  <Tab.Screen name="Chat" component={ChatScreens} />
+  <Tab.Screen name="Favorite" component={FaveScreen} />
+  <Tab.Screen name="Settings" component={ProfileScreens} />
+</Tab.Navigator>
+
   );
 };
 
 const styles = StyleSheet.create({
   container:{
     width:width * 1,
-    alignSelf:'center'
   }
 });
 

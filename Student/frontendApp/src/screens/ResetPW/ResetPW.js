@@ -130,7 +130,7 @@ const styles = StyleSheet.create({
           },
         image1: {
             position: 'absolute',
-            top: windowHeight * -0.40,
+            top: windowHeight * -0.350,
             left: windowWidth * -1.3,
             width: windowWidth * 2.2,
             height: windowWidth * 2.90,

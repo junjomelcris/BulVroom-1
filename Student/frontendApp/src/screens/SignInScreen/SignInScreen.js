@@ -1,35 +1,34 @@
-import { View, Text ,Image, StyleSheet, useWindowDimensions,ToastAndroid,
-  TouchableOpacity,Dimensions} from 'react-native'
+import React, { useState } from 'react';
+import {
+  View,
+  Text,
+  Image,
+  StyleSheet,
+  TouchableOpacity,
+  Dimensions,
+  ToastAndroid
+} from 'react-native';
 import { TextInput } from 'react-native-paper';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import Logo from '../../../assets/images/bulv.png'
-import React, {useState} from 'react'
+import Logo from '../../../assets/images/bulv.png';
 import CustomInputs from '../../components/CustomInputs/CustomInputs';
 import CustomButton from '../../components/CustomButton/CustomButton';
-import {useNavigation} from '@react-navigation/native';
+import { useNavigation } from '@react-navigation/native';
+import axios from 'axios';
 
-const {width,height} = Dimensions.get('window');
+const { width, height } = Dimensions.get('window');
 
 const SignInScreen = () => {
-    const {height} = useWindowDimensions();
-    const [username, setUsername] = useState('');
-    const [password, setPassword] = useState('');
+  const [username, setUsername] = useState('');
+  const [password, setPassword] = useState('');
 
+  const navigation = useNavigation();
+  const onSignInPressed = () =>{
 
-
-    const navigation = useNavigation();
-    //BTN Function
-
-    const onSignInPressed = () =>{
-      navigation.navigate('Homes');
-    };
-    
-    /* const onSignInPressed = () =>{
       if(username.trim() === '' || password.trim() === ''){
         ToastAndroid.show('Please Enter Username and Password',ToastAndroid.SHORT);
         return;
       }else{
-        axios.post ('http://192.168.1.83:5000/login/app',{
+        axios.post ('http:/192.168.100.152:8082/login/app',{
           username:username,
           password:password,
         }).then((response) => {
@@ -49,100 +48,115 @@ const SignInScreen = () => {
         }
         });
       }  
-    }; */
+    }; 
 
-    const onForgot = () =>{
-      navigation.navigate('Forgot');
-    };
+  const onForgot = () => {
+    navigation.navigate('Forgot');
+  };
 
-    const onCreate = () =>{
-      //console.warn('Sign Up');
+  const onCreate = () => {
+    navigation.navigate('SignUp');
+  };
 
-      navigation.navigate('SignUp');
-    };
   return (
     <View style={styles.root}>
-    
-       <View style={styles.circle} />
-          
-      <Image source={Logo} style={[styles.logo, {height:height * 0.3}]}  resizeMode='contain'/>
-      <CustomInputs 
-       mode="outlined"
-       label="Username"
-       placeholder="Enter Username"
-       onChangeText={(e) => setUsername(e)}
-     />
-      <CustomInputs
-       mode="outlined"
-       label="Password"
-       placeholder="Enter Password"
-       onChangeText={(e) => setPassword(e)}
-       secureTextEntry={true}/>
-      <Text style={styles.forgot} onPress={onForgot}>Forgot Password</Text>
-        <TouchableOpacity  onPress={onSignInPressed} style={{width:width * 0.90}}>
-          
-        
-        <CustomButton 
-       
-        mode="elevated" 
-        text="Sign in" />
+      <View style={styles.circle} />
+      <View style={styles.header}>
+        <Image source={Logo} style={styles.logo} resizeMode='contain' />
+      </View>
+      <View style={styles.imageContainer1}>
+        <Image source={Logo} resizeMode='cover' style={styles.image1} />
+      </View>
+      <View style={styles.content}>
+        <CustomInputs
+          mode="outlined"
+          label="Email/Username"
+          placeholder="Enter Username"
+          onChangeText={(e) => setUsername(e)}
+        />
+        <CustomInputs
+          mode="outlined"
+          label="Password"
+          placeholder="Enter Password"
+          onChangeText={(e) => setPassword(e)}
+          secureTextEntry={true}
+        />
+        <Text style={styles.forgot} onPress={onForgot}>
+          Forgot Password
+        </Text>
+        <TouchableOpacity onPress={onSignInPressed}>
+          <CustomButton mode="elevated" text="Sign in" />
         </TouchableOpacity>
-
-        <Text style={styles.text1}>Don't have an Account?  <Text style={styles.text2} onPress={onCreate}>Create one</Text></Text>
+        <Text style={styles.text1}>
+          Don't have an Account?{' '}
+          <Text style={styles.text2} onPress={onCreate}>
+            Create one
+          </Text>
+        </Text>
+      </View>
     </View>
-  )
-}
+  );
+};
+
+const windowWidth = Dimensions.get('window').width;
+const windowHeight = Dimensions.get('window').height;
 
 const styles = StyleSheet.create({
-        root:{
-            alignItems:'center',
-            backgroundColor:'#2ecc71',
-            width:width * 1,
-            height:height * 1,
-        },
-        circle: {
-          position: 'absolute',
-          top: 50,
-          left: 75,
-          width: 244,
-          height: 236,
-          borderRadius: 200,
-          backgroundColor: 'white',  // Adjust the color of the circle as desired
-          shadowColor: 'black',
-          shadowOffset: { width: 0, height: 5 },
-          shadowOpacity: 0.5,
-          shadowRadius: 4,
-          elevation: 5,
-        },
-
-        logo:{
-          
-            maxWidth:500,
-            maxHeight: 400,
-            width:width * 0.70,
-            marginVertical:50,
-            
-        },
-        forgot:{
-          textDecorationLine: 'underline',
-            fontSize:16,
-            color:'black',
-            marginVertical:10
-            
-        },
-        text1:{
-        fontFamily:'poppins',
-        fontSize:14,
-        color:'white',
-        marginVertical:'20%',
-        letterSpacing:1.5,
-        },
-
-        text2:{
-        fontSize:16,
-        color:'black', 
-        textDecorationLine: 'underline',
-        }
+  root: {
+    flex: 1,
+    backgroundColor: '#2ecc71',
+  },
+  image1: {
+    position: 'absolute',
+    top: (height - windowWidth * 4.50) / 2, // Center vertically
+    left: (width - windowWidth * 2.2) / 2, // Center horizontally
+    width: windowWidth * 2.2,
+    height: windowWidth * 2.90,
+    opacity: 0.2,
+  },
+  circle: {
+    position: 'absolute',
+    top: (height - width * 1.61) / 2, // Adjust the top position
+    left: (width - width * 0.6) / 2, // Adjust the left position
+    width: width * 0.6,
+    height: width * 0.6,
+    borderRadius: width * 0.3, // Half the width to create a circle
+    backgroundColor: 'white',
+    zIndex: 1,
+  },
+  header: {
+    alignItems: 'center',
+    paddingTop: height * 0.1,
+    zIndex: 2, // Ensure the logo is in front of the circle
+  },
+  logo: {
+    width: width * 0.6, // Adjust the size of the logo as needed
+    height: width * 0.6,
+  },
+  content: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingHorizontal: 16,
+  },
+  forgot: {
+    textDecorationLine: 'underline',
+    fontSize: 16,
+    color: 'black',
+    marginVertical: 10,
+  },
+  text1: {
+    fontFamily: 'poppins',
+    fontSize: 14,
+    color: 'white',
+    marginTop: 20,
+    letterSpacing: 1.5,
+  },
+  text2: {
+    fontSize: 16,
+    color: 'black',
+    textDecorationLine: 'underline',
+  },
 });
 
-export default SignInScreen
+export default SignInScreen;
