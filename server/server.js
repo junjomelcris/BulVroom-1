@@ -143,8 +143,11 @@ app.get('/vCount', (req, res) => {
 
 
 app.post('/login', (req, res) => {
+    const email = req.body.email;
+    const password = req.body.password;
+    
     const sql = "SELECT * FROM admin Where email = ? AND  password = ?";
-    con.query(sql, [req.body.email, req.body.password], (err, result) => {
+    con.query(sql, [email, password], (err, result) => {
         if(err) return res.json({Status: "Error", Error: "Error in runnig query"});
         if(result.length > 0) {
             const id = result[0].id;
@@ -156,6 +159,33 @@ app.post('/login', (req, res) => {
         }
     })
 })
+
+app.post('/login/app', (req, res) => {
+    const email = req.body.email;
+    const password = req.body.password;
+
+    const sql = "SELECT * FROM admin WHERE email = ? AND password = ?";
+
+    con.query(sql, [email, password], (error, results) => {
+        if (error) {
+            console.error(error);
+            return res.status(500).json({ message: "Internal server error" });
+        }
+
+        if (results.length > 0) {
+            // User with matching email and password found
+            return res.status(200).json({ message: "User found" });
+        } else {
+            // No user with matching email and password
+            return res.status(404).json({ message: "User not found" });
+        }
+    });
+});
+
+
+
+
+
 
 app.post('/employeelogin', (req, res) => {
     const sql = "SELECT * FROM employee Where email = ?";

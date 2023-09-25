@@ -14,6 +14,7 @@ import CustomInputs from '../../components/CustomInputs/CustomInputs';
 import CustomButton from '../../components/CustomButton/CustomButton';
 import { useNavigation } from '@react-navigation/native';
 import axios from 'axios';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const { width, height } = Dimensions.get('window');
 
@@ -22,33 +23,27 @@ const SignInScreen = () => {
   const [password, setPassword] = useState('');
 
   const navigation = useNavigation();
-  const onSignInPressed = () =>{
-
-      if(username.trim() === '' || password.trim() === ''){
-        ToastAndroid.show('Please Enter Username and Password',ToastAndroid.SHORT);
+  const onSignInPressed = () => {
+    if (username.trim() === '' || password.trim() === '') {
+        ToastAndroid.show('Please Enter Username and Password', ToastAndroid.SHORT);
         return;
-      }else{
-        axios.post ('http:/192.168.100.152:8082/login/app',{
-          username:username,
-          password:password,
+    } else {
+        axios.post('http://192.168.100.152:8082/login/app', {
+            email: username,
+            password: password,
         }).then((response) => {
-          console.log(response.data.message);
-        if(response.data.message === 'User found'){
-          
-          AsyncStorage.setItem('username', username);
-          AsyncStorage.setItem('id', response.data.id.toString());
-          setUsername(''); // Clear the username input
-          setPassword(''); // Clear the password input
-          navigation.navigate('Started');
-          
-        }
-        else
-        {
-          ToastAndroid.show('User not Exist',ToastAndroid.SHORT);
-        }
+            console.log(response.data.message);
+            if (response.data.message === 'User found') {
+                navigation.navigate('Homes');
+            } else {
+                ToastAndroid.show('User not Exist', ToastAndroid.SHORT);
+            }
+        }).catch((error) => {
+            console.error('Error in POST request:', error);
+            ToastAndroid.show('Error occurred', ToastAndroid.SHORT);
         });
-      }  
-    }; 
+    }
+};
 
   const onForgot = () => {
     navigation.navigate('Forgot');
