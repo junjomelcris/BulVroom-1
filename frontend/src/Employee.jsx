@@ -1,6 +1,6 @@
 import axios from 'axios';
 import React, { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 
 function Employee() {
   const [data, setData] = useState([]);
@@ -18,18 +18,20 @@ function Employee() {
       .catch((err) => console.log(err));
   }, []);
 
+  const navigate = useNavigate();
   const handleDelete = (id) => {
-    axios.delete('http://localhost:8082/delete/' + id)
+    axios
+      .delete('http://localhost:8082/delete/' + id)
       .then((res) => {
-        if (res.data.Status === "Success") {
-          window.location.reload(true);
+        if (res.data.Status === 'Success') {
+          window.location.href = '/employee';
+           // Navigate to the /employee page
         } else {
-          alert("Error");
+          alert('Error');
         }
       })
       .catch((err) => console.log(err));
-  }
-
+  };
   const handleVerify = () => {
     // You can implement the logic to verify selected users here.
     // selectedUsers array contains the user IDs that were selected for verification.

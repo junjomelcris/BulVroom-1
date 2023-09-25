@@ -4,7 +4,7 @@ import React, { useEffect, useState } from 'react'
 function Home() {
   const [adminCount, setAdminCount] = useState()
   const [employeeCount, setEmployeeCount] = useState()
-  const [salary, setSalary] = useState()
+  const [vCount, setvCount] = useState()
 
   useEffect(() => {
     axios.get('http://localhost:8082/adminCount')
@@ -15,6 +15,11 @@ function Home() {
     axios.get('http://localhost:8082/userCount')
 		.then(res => {
 			setEmployeeCount(res.data[0].users)
+		}).catch(err => console.log(err));
+
+    axios.get('http://localhost:8082/vCount')
+		.then(res => {
+			setvCount(res.data[0].vehicles)
 		}).catch(err => console.log(err));
 
   
@@ -47,7 +52,7 @@ function Home() {
           </div>
           <hr />
           <div className=''>
-            <h5>Total: {salary}</h5>
+            <h5>Total: {vCount}</h5>
           </div>
         </div>
       </div>

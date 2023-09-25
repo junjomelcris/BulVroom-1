@@ -23,11 +23,18 @@ function Dashboard() {
 	}, [])
 
 	const handleLogout = () => {
-		axios.get('http://localhost:8082/logout')
-		.then(res => {
-			navigate('/start')
-		}).catch(err => console.log(err));
-	}
+		const confirmLogout = window.confirm("Are you sure you want to logout?");
+	  
+		if (confirmLogout) {
+		  axios
+			.get('http://localhost:8082/logout')
+			.then((res) => {
+			  navigate('/login');
+			})
+			.catch((err) => console.log(err));
+		}
+	  };
+	  
 	return (
 		<div className="container-fluid">
 			<div className="row flex-nowrap">

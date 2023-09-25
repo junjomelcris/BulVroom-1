@@ -61,14 +61,14 @@ function Vehicles() {
         <table className='table'>
           <thead>
             <tr>
+              <th>Type</th>
               <th>Make</th>
               <th>Model</th>
-              <th>Year</th>
-              <th>Color</th>
+              <th>Image</th>
+              <th>Features</th>
               <th>License Plate</th>
               <th>Description</th>
               <th>Rental Price per Day</th>
-              <th>Status</th>
               <th>Verification Status</th>
               <th>Action</th>
             </tr>
@@ -76,14 +76,14 @@ function Vehicles() {
           <tbody>
             {vehicles.map((vehicle, index) => (
               <tr key={index}>
-                <td>{vehicle.Make}</td>
-                <td>{vehicle.Model}</td>
-                <td>{vehicle.Year}</td>
-                <td>{vehicle.Color}</td>
+                <td>{vehicle.type}</td>
+                <td>{vehicle.make}</td>
+                <td>{vehicle.model}</td>
+                <td>{vehicle.vehicle_image}</td>
+                <td>{vehicle.feature}</td>
                 <td>{vehicle.LicensePlate}</td>
                 <td>{vehicle.Description}</td>
-                <td>${vehicle.RentalPrice.toFixed(2)}</td>
-                <td>{vehicle.Status}</td>
+                <td>P{vehicle.RentalPrice.toFixed(2)}</td>
                 <td>{vehicle.VerificationStatus}</td>
                 <td>
                   <div className="d-flex align-items-center">
@@ -95,8 +95,8 @@ function Vehicles() {
                     <span className="ms-2">Confirm</span>
                   </div>
                   <div className="mt-2">
-                    <Link to={`/editVehicle/${vehicle.VehicleID}`} className='btn btn-primary btn-sm me-2'>Edit</Link>
-                    <button onClick={() => handleDelete(vehicle.VehicleID)} className='btn btn-sm btn-danger'>Delete</button>
+                    <Link to={`/editVehicle/${vehicle.id}`} className='btn btn-primary btn-sm me-2'>Edit</Link>
+                    <button onClick={() => handleDelete(vehicle.id)} className='btn btn-sm btn-danger'>Delete</button>
                   </div>
                 </td>
               </tr>

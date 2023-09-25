@@ -11,10 +11,11 @@ const app = express();
 app.use(cors(
     {
         origin: ["http://localhost:5173"],
-        methods: ["POST", "GET", "PUT"],
+        methods: ["POST", "GET", "PUT", "DELETE"],
         credentials: true
     }
 ));
+
 app.use(cookieParser());
 app.use(express.json());
 app.use(express.static('public'));
@@ -54,6 +55,14 @@ app.get('/getUsers', (req, res) => {
         return res.json({Status: "Success", Result: result})
     })
 })
+app.get('/getVehicles', (req, res) => {
+    const sql = "SELECT * FROM vehicles";
+    con.query(sql, (err, result) => {
+        if(err) return res.json({Error: "Get users error in sql"});
+        return res.json({Status: "Success", Result: result})
+    })
+})
+
 
 app.get('/get/:id', (req, res) => {
     const id = req.params.id;
@@ -76,6 +85,15 @@ app.put('/update/:id', (req, res) => {
 app.delete('/delete/:id', (req, res) => {
     const id = req.params.id;
     const sql = "DELETE FROM users WHERE id = ?";
+    con.query(sql, [id], (err, result) => {
+        if(err) return res.json({Error: "delete users error in sql"});
+        return res.json({Status: "Success"})
+    })
+})
+
+app.delete('/deleteVehicle/:id', (req, res) => {
+    const id = req.params.id;
+    const sql = "DELETE FROM vehicles WHERE id = ?";
     con.query(sql, [id], (err, result) => {
         if(err) return res.json({Error: "delete users error in sql"});
         return res.json({Status: "Success"})
@@ -114,14 +132,15 @@ app.get('/userCount', (req, res) => {
         return res.json(result);
     })
 })
-
-app.get('/salary', (req, res) => {
-    const sql = "Select sum(salary) as sumOfSalary from employee";
+app.get('/vCount', (req, res) => {
+    const sql = "Select count(id) as vehicles from vehicles";
     con.query(sql, (err, result) => {
         if(err) return res.json({Error: "Error in runnig query"});
         return res.json(result);
     })
 })
+
+
 
 app.post('/login', (req, res) => {
     const sql = "SELECT * FROM admin Where email = ? AND  password = ?";
@@ -137,22 +156,6 @@ app.post('/login', (req, res) => {
         }
     })
 })
-
-app.post('/login/app', (req, res) => {
-    const sql = "SELECT * FROM admin Where email = ? AND  password = ?";
-    con.query(sql, [req.body.email, req.body.password], (err, result) => {
-        if(err) return res.json({Status: "Error", Error: "Error in runnig query"});
-        if(result.length > 0) {
-            const id = result[0].id;
-            const token = jwt.sign({role: "admin"}, "jwt-secret-key", {expiresIn: '1d'});
-            res.cookie('token', token);
-            return res.json({Status: "Success"})
-        } else {
-            return res.json({Status: "Error", Error: "Wrong Email or Password"});
-        }
-    })
-})
-
 
 app.post('/employeelogin', (req, res) => {
     const sql = "SELECT * FROM employee Where email = ?";
@@ -197,7 +200,7 @@ app.post('/create', upload.single('profile_pic'), (req, res) => {
         req.body.lName,               // Assuming you have a 'lName' field in your form
         req.body.username,            // Assuming you have a 'username' field in your form
         req.body.email,               // Assuming you have an 'email' field in your form
-        hash,                          // Assuming 'is_verified' is initially set to false
+        hash,                     // Assuming 'is_verified' is initially set to false
         req.file.filename,            // Assuming this is the filename of the uploaded profile picture
         req.body.address,             // Assuming you have an 'address' field in your form
         req.body.contact,
@@ -222,41 +225,32 @@ app.post('/create', upload.single('profile_pic'), (req, res) => {
     });
 });
 
-  app.post('/pages/users', (req, res) => {
-    console.log(req.body); // Log the received request body
 
-    // Hash the password using bcrypt
-    bcrypt.hash(req.body.password, 10, (err, hashedPassword) => {
-        if (err) {
-            console.error("Error hashing password:", err);
-            return res.json({ Status: "Error", Error: "Failed to hash the password" });
-        }
-
-        const sql = "INSERT INTO users (name, email, lastName, password, age, contact, address) VALUES (?, ?, ?, ?, ?, ?, ?)";
-        const values = [
-            req.body.name,
-            req.body.email,
-            req.body.lastName,
-            hashedPassword, // Store the hashed password in password column
-            req.body.age,
-            req.body.contact,
-            req.body.address
-        ];
-
-        console.log("SQL Query:", sql); // Log the SQL query for debugging
-        console.log("Values:", values); // Log the values being inserted for debugging
-
-        con.query(sql, values, (err, result) => {
-            if (err) {
-                console.error("Error during INSERT:", err);
-                return res.json({ Status: "Error", Error: "Failed to add user to the database" });
-            }
-
-            console.log("Insertion Successful");
-            return res.json({ Status: "Success", Message: "User added to the database" });
-        });
+// Endpoint to save selected options
+app.post('/option', (req, res) => {
+    const { selectedOptions } = req.body;
+  
+    // Ensure that the table name matches the actual table name in your database
+    const tableName = 'YourTable'; // Replace with your actual table name
+  
+    // Insert the data into the table using a parameterized query
+    const query = {
+      text: 'INSERT INTO ' + tableName + ' (Data) VALUES ($1) RETURNING *',
+      values: [selectedOptions],
+    };
+  
+    con.query(query, (err, result) => {
+      if (err) {
+        console.error('Error inserting data:', err);
+        res.status(500).json({ message: 'Error inserting data' });
+      } else {
+        console.log('Data inserted successfully:', result.rows[0]);
+        res.status(200).json({ message: 'Data inserted successfully' });
+      }
     });
-});
+  });
+  
+  
 
 app.listen(8082, ()=> {
     console.log("Running");
