@@ -13,8 +13,8 @@ import Logo from '../../../assets/images/bulv.png';
 import CustomInputs from '../../components/CustomInputs/CustomInputs';
 import CustomButton from '../../components/CustomButton/CustomButton';
 import { useNavigation } from '@react-navigation/native';
-//import axios from 'axios';
-//import AsyncStorage from '@react-native-async-storage/async-storage';
+import axios from 'axios';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const { width, height } = Dimensions.get('window');
 
@@ -23,11 +23,11 @@ const SignInScreen = () => {
   const [password, setPassword] = useState('');
 
   const navigation = useNavigation();
-  const onSignInPressed = () => {
+   /*const onSignInPressed = () => {
     navigation.navigate('Homes');
-  };
+  };*/
 
- /* const onSignInPressed = () => {
+ const onSignInPressed = () => {
     if (username.trim() === '' || password.trim() === '') {
         ToastAndroid.show('Please Enter Username and Password', ToastAndroid.SHORT);
         return;
@@ -37,7 +37,7 @@ const SignInScreen = () => {
             password: password,
         }).then((response) => {
             console.log(response.data.message);
-            if (response.data.message === 'User found') {
+            if (response.data.message === 'Success') {
                 navigation.navigate('Homes');
             } else {
                 ToastAndroid.show('User not Exist', ToastAndroid.SHORT);
@@ -47,7 +47,7 @@ const SignInScreen = () => {
             ToastAndroid.show('Error occurred', ToastAndroid.SHORT);
         });
     }
-};*/
+};
 
   const onForgot = () => {
     navigation.navigate('Forgot');

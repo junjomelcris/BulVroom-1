@@ -177,23 +177,38 @@ app.post('/login/app', (req, res) => {
     const email = req.body.email;
     const password = req.body.password;
 
-    const sql = "SELECT * FROM users WHERE email = ? AND password = ?";
+    const sql = "SELECT * FROM users WHERE email = ?";
 
-    con.query(sql, [email, password], (error, results) => {
+    con.query(sql, [email], (error, results) => {
         if (error) {
             console.error(error);
             return res.status(500).json({ message: "Internal server error" });
         }
 
         if (results.length > 0) {
-            // User with matching email and password found
-            return res.status(200).json({ message: "User found" });
+            const hashedPassword = results[0].password;
+
+            // Compare the hashed password with the plaintext password
+            bcrypt.compare(password, hashedPassword, (err, result) => {
+                if (err) {
+                    // Handle error
+                    return res.status(500).json({ message: "Internal server error" });
+                }
+
+                if (result) {
+                    // Passwords match, user is authenticated
+                    return res.status(200).json({ message: "Success " });
+                } else {
+                    // Passwords don't match
+                    return res.status(401).json({ message: "Incorrect password" });
+                }
+            });
         } else {
-            // No user with matching email and password
+            // No user with matching email found
             return res.status(404).json({ message: "User not found" });
         }
     });
-}); 
+});
 
 
 app.post('/employeelogin', (req, res) => {
