@@ -197,15 +197,15 @@ app.post('/login/app', (req, res) => {
 
                 if (result) {
                     // Passwords match, user is authenticated
-                    return res.status(200).json({ message: "Success " });
+                    return res.status(200).json({ message: "Success" });
                 } else {
                     // Passwords don't match
-                    return res.status(401).json({ message: "Incorrect password" });
+                    return res.status(401).json({ message: "incorrect" });
                 }
             });
         } else {
             // No user with matching email found
-            return res.status(404).json({ message: "User not found" });
+            return res.status(404).json({ message: "notfound" });
         }
     });
 });
@@ -308,7 +308,28 @@ app.post('/option', (req, res) => {
   
     // Update the 'status' field in the 'users' table to 'verified' for the given user ID
     const updateStatusQuery = 'UPDATE users SET status = ? WHERE id = ?';
-    const values = ['verified', userId];
+    const values = ['approved', userId];
+  
+    con.query(updateStatusQuery, values, (err, results) => {
+      if (err) {
+        console.error('Error updating user status:', err);
+        return res.status(500).json({ Status: 'Error', Message: 'Internal Server Error' });
+      }
+  
+      if (results.affectedRows === 1) {
+        // The query successfully updated one row
+        return res.json({ Status: 'Success', Message: 'User status updated to verified' });
+      } else {
+        return res.status(404).json({ Status: 'Error', Message: 'User not found' });
+      }
+    });
+  });
+  app.put('/disApp/:id', (req, res) => {
+    const userId = parseInt(req.params.id);
+  
+    // Update the 'status' field in the 'users' table to 'verified' for the given user ID
+    const updateStatusQuery = 'UPDATE users SET status = ? WHERE id = ?';
+    const values = ['disapproved', userId];
   
     con.query(updateStatusQuery, values, (err, results) => {
       if (err) {

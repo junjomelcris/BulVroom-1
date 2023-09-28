@@ -38,7 +38,7 @@ function Employee() {
   };
   
   const handleVerify = (id) => {
-    const confirmVerify = window.confirm('Are you sure you want to verify this user?');
+    const confirmVerify = window.confirm('Are you sure you want to approve this user?');
 
     if (confirmVerify) {
       axios
@@ -48,7 +48,30 @@ function Employee() {
             // Update the status locally in the state
             const updatedData = data.map((users) => {
               if (users.id === id) {
-                return { ...users, status: 'Verified' };
+                return { ...users, status: 'approved' };
+              }
+              return users;
+            });
+            setData(updatedData);
+          } else {
+            alert('Error');
+          }
+        })
+        .catch((err) => console.log(err));
+    }
+  };
+  const handleDisApp = (id) => {
+    const confirmVerify = window.confirm('Are you sure you want to disapprove this user?');
+
+    if (confirmVerify) {
+      axios
+        .put(`http://localhost:8082/disApp/${id}`)
+        .then((res) => {
+          if (res.data.Status === 'Success') {
+            // Update the status locally in the state
+            const updatedData = data.map((users) => {
+              if (users.id === id) {
+                return { ...users, status: 'disapproved' };
               }
               return users;
             });
@@ -61,13 +84,39 @@ function Employee() {
     }
   };
 
+  const [searchQuery, setSearchQuery] = useState('');
+  const handleSearchInputChange = (event) => {
+    const query = event.target.value;
+    setSearchQuery(query);
+  
+    // Use the filter method to find users whose data matches the search query
+    const filteredUsers = data.filter((users) => {
+      const fullName = `${users.fName} ${users.lName}`.toLowerCase();
+      return fullName.includes(query.toLowerCase());
+    });
+  
+    setData(filteredUsers);
+  };
+
+
 
   return (
     <div className='px-5 py-3'>
       <div className='d-flex justify-content-center mt-2'>
         <h3>USER MANAGEMENT</h3>
       </div>
-      <Link to="/create" className='btn btn-success'>Add User</Link>
+
+      {/*<Link to="/create" className='btn btn-success '>Add User</Link>*/}
+      <div className="d-flex justify-content-start mt-2">
+        <input
+          type="text"
+          placeholder="Search by name"
+          value={searchQuery}
+          onChange={handleSearchInputChange}
+          className="form-control w-25"
+        />
+      </div>
+
       <div className='mt-3'>
         <table className='table'>
           <thead>
@@ -107,8 +156,9 @@ function Employee() {
               <td>
                 
                 <div className="mt-2">
-                  <button onClick={() => handleVerify(users.id)} className='btn btn-sm btn-warning me-2'>Verify</button>
-                  <Link to={`/employeeEdit/` + users.id} className='btn btn-primary btn-sm me-2'>Edit</Link>
+                  <button onClick={() => handleVerify(users.id)} className='btn btn-sm btn-success me-2'>Approve</button>
+                  <button onClick={() => handleDisApp(users.id)} className='btn btn-sm btn-dark me-2'>Disapprove</button>
+                 {/*<Link to={`/employeeEdit/` + users.id} className='btn btn-primary btn-sm me-2'>Edit</Link>}*/}
                   <button onClick={() => handleDelete(users.id)} className='btn btn-sm btn-danger'>Delete</button>
                 </div>
               </td>

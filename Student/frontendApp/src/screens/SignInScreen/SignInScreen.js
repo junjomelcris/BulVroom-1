@@ -39,9 +39,15 @@ const SignInScreen = () => {
             console.log(response.data.message);
             if (response.data.message === 'Success') {
                 navigation.navigate('Homes');
-            } else {
-                ToastAndroid.show('User not Exist', ToastAndroid.SHORT);
-            }
+            } 
+            else if (response.data.message === 'incorrect') {
+              ToastAndroid.show('Incorrect password', ToastAndroid.SHORT);
+              return;
+          } 
+          else if (response.data.message === 'notfound') {
+            ToastAndroid.show('User not found', ToastAndroid.SHORT);
+            return;
+        } 
         }).catch((error) => {
             console.error('Error in POST request:', error);
             ToastAndroid.show('Error occurred', ToastAndroid.SHORT);
