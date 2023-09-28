@@ -6,30 +6,32 @@ import bcrypt from 'bcrypt'
 import jwt from 'jsonwebtoken'
 import multer from 'multer'
 import path from 'path'
+import dotenv from 'dotenv'
 
-const dotenv = require('dotenv');
-dotenv.config(); 
+dotenv.config();
 
 const app = express();
-app.use(cors(
-    {
-        origin: ["http://localhost:5173"],
-        methods: ["POST", "GET", "PUT", "DELETE", "UPDATE"],
-        credentials: true
-    }
-));
-
-app.use(cookieParser());
 app.use(express.json());
-app.use(express.static('public'));
+app.use(cors());
 
+
+
+// Connection to the database
 const con = mysql.createConnection({
-    host: process.env.HOST,
-    user: process.env.USER,
-    password: process.env.PASSWORD,
-    database: process.env.DATABASE
-})
+  host: process.env.HOST,
+  user: process.env.USER,
+  password: process.env.PASSWORD,
+  database: process.env.DATABASE,
+});
 
+// Establish the database connection
+con.connect((err) => {
+  if (err) {
+    console.error('Failed to connect to the database:', err);
+  } else {
+    console.log('Connected to the database');
+  }
+});
 const storage = multer.diskStorage({
     destination: (req, file, cb) => {
         cb(null, 'public/images')
