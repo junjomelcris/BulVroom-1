@@ -45,13 +45,6 @@ const upload = multer({
     storage: storage
 })
 
-con.connect(function(err) {
-    if(err) {
-        console.log("Error in Connection");
-    } else {
-        console.log("Connected");
-    }
-})
 
 app.get('/getUsers', (req, res) => {
     const sql = "SELECT * FROM users";
