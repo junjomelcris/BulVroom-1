@@ -21,10 +21,10 @@ app.use(express.json());
 app.use(express.static('public'));
 
 const con = mysql.createConnection({
-    host: "localhost",
-    user: "root",
-    password: "",
-    database: "bulroomcap"
+    host: "163.44.242.10",
+    user: "uhfgmqwf_bulvroom",
+    password: "Louie_001432",
+    database: "uhfgmqwf_bulroomcap"
 })
 
 const storage = multer.diskStorage({
@@ -348,6 +348,6 @@ app.post('/option', (req, res) => {
   
   
 
-app.listen(8082, ()=> {
+app.listen('https://bulvroom.onrender.com', ()=> {
     console.log("Running");
 })
