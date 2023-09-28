@@ -7,6 +7,9 @@ import jwt from 'jsonwebtoken'
 import multer from 'multer'
 import path from 'path'
 
+const dotenv = require('dotenv');
+dotenv.config(); 
+
 const app = express();
 app.use(cors(
     {
@@ -21,10 +24,10 @@ app.use(express.json());
 app.use(express.static('public'));
 
 const con = mysql.createConnection({
-    host: "163.44.242.10",
-    user: "uhfgmqwf_bulvroom",
-    password: "Louie_001432",
-    database: "uhfgmqwf_bulroomcap"
+    host: process.env.HOST,
+    user: process.env.USER,
+    password: process.env.PASSWORD,
+    database: process.env.DATABASE
 })
 
 const storage = multer.diskStorage({
@@ -348,6 +351,6 @@ app.post('/option', (req, res) => {
   
   
 
-app.listen('https://bulvroom.onrender.com', ()=> {
+app.listen(process.env.PORT, ()=> {
     console.log("Running");
 })
