@@ -1,34 +1,38 @@
-import axios from 'axios';
 import React, { useEffect, useState } from 'react';
+import axios from 'axios';
 import { Link, useNavigate } from 'react-router-dom';
 
 function Employee() {
   const [data, setData] = useState([]);
+  const [filter, setFilter] = useState('all'); // 'all', 'approved', 'pending', 'disapproved'
+  const [dropdownOpen, setDropdownOpen] = useState(false); // To manage dropdown visibility
 
   useEffect(() => {
-    axios.get('http://localhost:8082/getUsers')
+    axios
+      .get('http://localhost:8082/getUsers')
       .then((res) => {
-        if (res.data.Status === "Success") {
+        if (res.data.Status === 'Success') {
           setData(res.data.Result);
         } else {
-          alert("Error");
+          alert('Error');
         }
       })
       .catch((err) => console.log(err));
   }, []);
 
   const navigate = useNavigate();
+
   const handleDelete = (id) => {
-    // Display a confirmation dialog to the user
     const confirmDelete = window.confirm('Are you sure you want to delete this user?');
-  
+
     if (confirmDelete) {
       axios
         .delete('http://localhost:8082/delete/' + id)
         .then((res) => {
           if (res.data.Status === 'Success') {
-            window.location.href = '/employee';
-            // Navigate to the /employee page
+            // Filter out the deleted user from the data
+            const updatedData = data.filter((user) => user.id !== id);
+            setData(updatedData);
           } else {
             alert('Error');
           }
@@ -36,7 +40,7 @@ function Employee() {
         .catch((err) => console.log(err));
     }
   };
-  
+
   const handleVerify = (id) => {
     const confirmVerify = window.confirm('Are you sure you want to approve this user?');
 
@@ -46,11 +50,11 @@ function Employee() {
         .then((res) => {
           if (res.data.Status === 'Success') {
             // Update the status locally in the state
-            const updatedData = data.map((users) => {
-              if (users.id === id) {
-                return { ...users, status: 'approved' };
+            const updatedData = data.map((user) => {
+              if (user.id === id) {
+                return { ...user, status: 'approved' };
               }
-              return users;
+              return user;
             });
             setData(updatedData);
           } else {
@@ -60,20 +64,21 @@ function Employee() {
         .catch((err) => console.log(err));
     }
   };
-  const handleDisApp = (id) => {
-    const confirmVerify = window.confirm('Are you sure you want to disapprove this user?');
 
-    if (confirmVerify) {
+  const handleDisApp = (id) => {
+    const confirmDisapprove = window.confirm('Are you sure you want to disapprove this user?');
+
+    if (confirmDisapprove) {
       axios
         .put(`http://localhost:8082/disApp/${id}`)
         .then((res) => {
           if (res.data.Status === 'Success') {
             // Update the status locally in the state
-            const updatedData = data.map((users) => {
-              if (users.id === id) {
-                return { ...users, status: 'disapproved' };
+            const updatedData = data.map((user) => {
+              if (user.id === id) {
+                return { ...user, status: 'disapproved' };
               }
-              return users;
+              return user;
             });
             setData(updatedData);
           } else {
@@ -84,21 +89,17 @@ function Employee() {
     }
   };
 
-  const [searchQuery, setSearchQuery] = useState('');
-  const handleSearchInputChange = (event) => {
-    const query = event.target.value;
-    setSearchQuery(query);
-  
-    // Use the filter method to find users whose data matches the search query
-    const filteredUsers = data.filter((users) => {
-      const fullName = `${users.fName} ${users.lName}`.toLowerCase();
-      return fullName.includes(query.toLowerCase());
-    });
-  
-    setData(filteredUsers);
+  const handleFilterChange = (newFilter) => {
+    setFilter(newFilter);
   };
 
-
+  const filteredData = data.filter((user) => {
+    if (filter === 'all') return true;
+    if (filter === 'approved' && user.status === 'approved') return true;
+    if (filter === 'pending' && user.status === 'pending') return true;
+    if (filter === 'disapproved' && user.status === 'disapproved') return true;
+    return false;
+  });
 
   return (
     <div className='px-5 py-3'>
@@ -106,15 +107,34 @@ function Employee() {
         <h3>USER MANAGEMENT</h3>
       </div>
 
-      {/*<Link to="/create" className='btn btn-success '>Add User</Link>*/}
-      <div className="d-flex justify-content-start mt-2">
-        <input
-          type="text"
-          placeholder="Search by name"
-          value={searchQuery}
-          onChange={handleSearchInputChange}
-          className="form-control w-25"
-        />
+      {/* Filter dropdown */}
+      <div className='d-flex justify-content-start mt-2'>
+        <div className='dropdown'>
+          <button
+            className='btn btn-filter dropdown-toggle'
+            type='button'
+            id='filterDropdown'
+            data-bs-toggle='dropdown'
+            aria-expanded={dropdownOpen}
+            onClick={() => setDropdownOpen(!dropdownOpen)}
+          >
+            FILTER {dropdownOpen ? <span>&#9650;</span> : <span>&#9660;</span>}
+          </button>
+          <ul className={`dropdown-menu ${dropdownOpen ? 'show' : ''}`} aria-labelledby='filterDropdown'>
+            <li onClick={() => handleFilterChange('all')}>
+              <button className={`dropdown-item ${filter === 'all' ? 'active' : ''}`}>All</button>
+            </li>
+            <li onClick={() => handleFilterChange('approved')}>
+              <button className={`dropdown-item ${filter === 'approved' ? 'active' : ''}`}>Approved</button>
+            </li>
+            <li onClick={() => handleFilterChange('pending')}>
+              <button className={`dropdown-item ${filter === 'pending' ? 'active' : ''}`}>Pending</button>
+            </li>
+            <li onClick={() => handleFilterChange('disapproved')}>
+              <button className={`dropdown-item ${filter === 'disapproved' ? 'active' : ''}`}>Disapproved</button>
+            </li>
+          </ul>
+        </div>
       </div>
 
       <div className='mt-3'>
@@ -134,41 +154,39 @@ function Employee() {
               <th>Action</th>
             </tr>
           </thead>
-                  <tbody>
-          {data.map((users, index) => (
-            <tr key={index}>
-              <td>{users.fName}</td>
-              <td>{users.lName}</td>
-              <td>
-                <img
-                  src={`http://localhost:8082/images/` + users.profile_pic}
-                  alt=""
-                  className='users_image'
-                />
-              </td>
-              <td>{users.username}</td>
-              <td>{users.email}</td>
-              <td>{users.address}</td>
-              <td>{users.contact}</td>
-              <td>{users.driver_license_1}</td>
-              <td>{users.valid_id}</td>
-              <td>{users.status}</td>
-              <td>
-                
-                <div className="mt-2">
-                  <button onClick={() => handleVerify(users.id)} className='btn btn-sm btn-success me-2'>Approve</button>
-                  <button onClick={() => handleDisApp(users.id)} className='btn btn-sm btn-dark me-2'>Disapprove</button>
-                 {/*<Link to={`/employeeEdit/` + users.id} className='btn btn-primary btn-sm me-2'>Edit</Link>}*/}
-                  <button onClick={() => handleDelete(users.id)} className='btn btn-sm btn-danger'>Delete</button>
-                </div>
-              </td>
-            </tr>
-          ))}
-        </tbody>
+          <tbody>
+            {filteredData.map((user, index) => (
+              <tr key={index}>
+                <td>{user.fName}</td>
+                <td>{user.lName}</td>
+                <td>
+                  <img
+                    src={`http://localhost:8082/images/` + user.profile_pic}
+                    alt=""
+                    className='users_image'
+                  />
+                </td>
+                <td>{user.username}</td>
+                <td>{user.email}</td>
+                <td>{user.address}</td>
+                <td>{user.contact}</td>
+                <td>{user.driver_license_1}</td>
+                <td>{user.valid_id}</td>
+                <td>{user.status}</td>
+                <td>
+                  <div className="mt-2">
+                    <button onClick={() => handleVerify(user.id)} className='btn btn-sm btn-success me-2'>Approve</button>
+                    <button onClick={() => handleDisApp(user.id)} className='btn btn-sm btn-dark me-2'>Disapprove</button>
+                    <button onClick={() => handleDelete(user.id)} className='btn btn-sm btn-danger'>Delete</button>
+                  </div>
+                </td>
+              </tr>
+            ))}
+          </tbody>
         </table>
       </div>
     </div>
-  )
+  );
 }
 
 export default Employee;
