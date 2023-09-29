@@ -9,10 +9,17 @@ import path from 'path'
 import dotenv from 'dotenv'
 
 dotenv.config();
-
 const app = express();
+app.use(cors(
+    {
+        origin: ["http://localhost:5173"],
+        methods: ["POST", "GET", "PUT"],
+        credentials: true
+    }
+));
+app.use(cookieParser());
 app.use(express.json());
-app.use(cors());
+app.use(express.static('public'));
 
 
 
@@ -32,6 +39,9 @@ con.connect((err) => {
     console.log('Connected to the database');
   }
 });
+
+
+
 const storage = multer.diskStorage({
     destination: (req, file, cb) => {
         cb(null, 'public/images')
@@ -45,6 +55,13 @@ const upload = multer({
     storage: storage
 })
 
+con.connect(function(err) {
+    if(err) {
+        console.log("Error in Connection");
+    } else {
+        console.log("Connected");
+    }
+})
 
 app.get('/getUsers', (req, res) => {
     const sql = "SELECT * FROM users";
