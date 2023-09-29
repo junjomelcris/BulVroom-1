@@ -13,7 +13,7 @@ const app = express();
 app.use(cors(
     {
         origin: ["http://localhost:5173"],
-        methods: ["POST", "GET", "PUT"],
+        methods: ["POST", "GET", "PUT", "DELETE", "UPDATE"],
         credentials: true
     }
 ));
@@ -55,13 +55,7 @@ const upload = multer({
     storage: storage
 })
 
-con.connect(function(err) {
-    if(err) {
-        console.log("Error in Connection");
-    } else {
-        console.log("Connected");
-    }
-})
+
 
 app.get('/getUsers', (req, res) => {
     const sql = "SELECT * FROM users";
