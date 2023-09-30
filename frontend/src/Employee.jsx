@@ -9,7 +9,7 @@ function Employee() {
 
   useEffect(() => {
     axios
-      .get('http://localhost:8082/getUsers')
+      .get('https://bulvroom.onrender.com/getUsers')
       .then((res) => {
         if (res.data.Status === 'Success') {
           setData(res.data.Result);
@@ -27,7 +27,7 @@ function Employee() {
 
     if (confirmDelete) {
       axios
-        .delete('http://localhost:8082/delete/' + id)
+        .delete('https://bulvroom.onrender.com/delete/' + id)
         .then((res) => {
           if (res.data.Status === 'Success') {
             // Filter out the deleted user from the data
@@ -46,7 +46,7 @@ function Employee() {
 
     if (confirmVerify) {
       axios
-        .put(`http://localhost:8082/verify/${id}`)
+        .put(`https://bulvroom.onrender.com/verify/${id}`)
         .then((res) => {
           if (res.data.Status === 'Success') {
             // Update the status locally in the state
@@ -70,7 +70,7 @@ function Employee() {
 
     if (confirmDisapprove) {
       axios
-        .put(`http://localhost:8082/disApp/${id}`)
+        .put(`https://bulvroom.onrender.com/disApp/${id}`)
         .then((res) => {
           if (res.data.Status === 'Success') {
             // Update the status locally in the state
@@ -161,7 +161,7 @@ function Employee() {
                 <td>{user.lName}</td>
                 <td>
                   <img
-                    src={`http://localhost:8082/images/` + user.profile_pic}
+                    src={`https://bulvroom.onrender.com/images/` + user.profile_pic}
                     alt=""
                     className='users_image'
                   />

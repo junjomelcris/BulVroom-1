@@ -7,7 +7,7 @@ function Read() {
   const [user, setUser] = useState(null);
 
   useEffect(() => {
-    axios.get(`http://localhost:8081/read/${id}`)
+    axios.get(`https://bulvroom.onrender.com/read/${id}`)
       .then(res => {
         console.log(res);
         setUser(res.data[0]);

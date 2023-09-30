@@ -15,7 +15,7 @@ function Login() {
 
     const handleSubmit = (event) => {
         event.preventDefault();
-        axios.post('http://localhost:8082/login', values)
+        axios.post('https://bulvroom.onrender.com/login', values)
         .then(res => {
             if(res.data.Status === 'Success') {
                 navigate('/');

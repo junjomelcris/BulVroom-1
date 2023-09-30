@@ -5,7 +5,7 @@ function Dashcontent() {
 
   useEffect(() => {
     // Fetch user data from the backend API
-    fetch('/api/getRegisteredUsersCount')
+    fetch('https://bulvroom.onrender.com/api/getRegisteredUsersCount')
       .then((response) => {
         if (!response.ok) {
           throw new Error('Network response was not ok');

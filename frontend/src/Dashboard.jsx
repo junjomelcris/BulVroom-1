@@ -7,7 +7,7 @@ function Dashboard() {
 	const navigate = useNavigate()
 	axios.defaults.withCredentials = true;
 	useEffect(()=>{
-		axios.get('http://localhost:8082/dashboard')
+		axios.get('https://bulvroom.onrender.com/dashboard')
 		.then(res => {
 			if(res.data.Status === "Success") {
 				if(res.data.role === "admin") {
@@ -27,7 +27,7 @@ function Dashboard() {
 	  
 		if (confirmLogout) {
 		  axios
-			.get('http://localhost:8082/logout')
+			.get('https://bulvroom.onrender.com/logout')
 			.then((res) => {
 			  navigate('/login');
 			})

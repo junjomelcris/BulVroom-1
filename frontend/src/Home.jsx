@@ -7,17 +7,17 @@ function Home() {
   const [vCount, setvCount] = useState()
 
   useEffect(() => {
-    axios.get('http://localhost:8082/adminCount')
+    axios.get('https://bulvroom.onrender.com/adminCount')
 		.then(res => {
 			setAdminCount(res.data[0].admin)
 		}).catch(err => console.log(err));
 
-    axios.get('http://localhost:8082/userCount')
+    axios.get('https://bulvroom.onrender.com/userCount')
 		.then(res => {
 			setEmployeeCount(res.data[0].users)
 		}).catch(err => console.log(err));
 
-    axios.get('http://localhost:8082/vCount')
+    axios.get('https://bulvroom.onrender.com/vCount')
 		.then(res => {
 			setvCount(res.data[0].vehicles)
 		}).catch(err => console.log(err));
