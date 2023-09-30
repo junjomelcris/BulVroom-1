@@ -17,7 +17,6 @@ function App() {
   return (
     <BrowserRouter>
     <Routes>
-      
       <Route path='/' element={<Dashboard />}>
         <Route path='' element={<Home />}></Route>
         <Route path='/employee' element={<Employee />}></Route>

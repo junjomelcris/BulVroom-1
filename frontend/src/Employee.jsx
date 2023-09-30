@@ -106,7 +106,7 @@ function Employee() {
       <div className='d-flex justify-content-center mt-2'>
         <h3>USER MANAGEMENT</h3>
       </div>
-
+      <Link to="/create" className='btn btn-success'>Add Users</Link>
       {/* Filter dropdown */}
       <div className='d-flex justify-content-start mt-2'>
         <div className='dropdown'>
