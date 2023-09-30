@@ -16,9 +16,7 @@ function Dashboard() {
 					const id = res.data.id;
 					navigate('/employeedetail/'+id)
 				}
-			} else {
-				navigate('/start')
-			}
+			} 
 		})
 	}, [])
 
