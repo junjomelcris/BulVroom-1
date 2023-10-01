@@ -9,12 +9,10 @@ import {
   Dimensions,
 } from 'react-native';
 import { TextInput } from 'react-native-paper';
-import Logo from '../../../assets/images/bulv.png';
-import CustomInputs from '../../components/CustomInputs/CustomInputs';
-import CustomButton from '../../components/CustomButton/CustomButton';
-import { useNavigation } from '@react-navigation/native';
-import ImagePicker from 'react-native-image-picker';
+import * as ImagePicker from 'react-native-image-picker'
 import Icon from 'react-native-vector-icons/Ionicons';
+import {useNavigation} from '@react-navigation/native';
+import CustomInputs from '../../components/CustomInputs/CustomInputs';
 
 const { width, height } = Dimensions.get('window');
 
@@ -27,6 +25,36 @@ const SignUpScreen = () => {
   const [password, setPassword] = useState('');
   const [number, setContact] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
+
+  const selectProfilePicture = () => {
+    const options = {
+      title: 'Select Profile Picture',
+      storageOptions: {
+        skipBackup: true,
+        path: 'images',
+      },
+    };
+
+    ImagePicker.launchImageLibrary(options, (response) => {
+      if (response.didCancel) {
+        console.log('User cancelled image picker');
+      } else if (response.error) {
+        console.log('ImagePicker Error: ', response.error);
+      } else if (response.customButton) {
+        console.log('User tapped custom button: ', response.customButton);
+      } else {
+        setSelectedImage(response.uri);
+      }
+    });
+  };
+
+  const uploadDriverLicense = () => {
+    // Implement the logic for uploading the driver's license image here
+  };
+
+  const uploadValidId = () => {
+    // Implement the logic for uploading the valid ID image here
+  };
 
   const navigation = useNavigation();
 
@@ -44,17 +72,6 @@ const SignUpScreen = () => {
 
   const onBackPressed = () => {
     navigation.navigate('Homes');
-  };
-
-  const selectImage = () => {
-    const options = {
-      title: 'Select Profile Picture',
-      storageOptions: {
-        skipBackup: true,
-        path: 'images',
-      },
-    };
-
   };
 
   const isValidContactNumber = (text) => {
@@ -80,86 +97,88 @@ const SignUpScreen = () => {
       </View>
       <ScrollView style={styles.scrollView}>
         <View style={styles.content}>
-          <View style={styles.circle} />
-          <Image
-          style={styles.circle2}
-            source={require('../../../assets/images/luwi.jpg')}
-          />
-          {/* Profile Image */}
-          <TouchableOpacity onPress={selectImage} style={styles.imageContainer}>
+
+          <TouchableOpacity onPress={selectProfilePicture} style={styles.imageContainer}>
             {selectedImage ? (
-              <Image source={{ uri: selectedImage }} style={styles.selectedImage} />
+              <Image
+                source={{ uri: selectedImage }}
+                style={styles.selectedImage}
+              />
             ) : (
               <Text style={styles.selectImageText}>Select Profile Picture</Text>
             )}
           </TouchableOpacity>
+
+          {/* New image container */}
+          <View style={styles.newImageContainer}>
+            {selectedImage ? (
+              <Image
+                source={{ uri: selectedImage }}
+                style={styles.selectedImage}
+              />
+            ) : (
+              <Text style={styles.selectImageText}>No Image Selected</Text>
+            )}
+          </View>
+
           <View style={styles.id}>
-            <TouchableOpacity onPress={selectImage} style={styles.imageContainer1}>
-              {selectedImage ? (
-                <Image source={{ uri: selectedImage }} style={styles.selectedImage} />
-              ) : (
-                <Text style={styles.selectImageText1}>Upload Driver's License</Text>
-              )}
+            <TouchableOpacity onPress={uploadDriverLicense} style={styles.imageContainer1}>
+              {/* Implement logic for driver's license image */}
             </TouchableOpacity>
-            <TouchableOpacity onPress={selectImage} style={styles.imageContainer1}>
-              {selectedImage ? (
-                <Image source={{ uri: selectedImage }} style={styles.selectedImage} />
-              ) : (
-                <Text style={styles.selectImageText1}>Upload Valid ID</Text>
-              )}
+            <TouchableOpacity onPress={uploadValidId} style={styles.imageContainer1}>
+              {/* Implement logic for valid ID image */}
             </TouchableOpacity>
           </View>
+
           <View style={styles.container1}>
-          <TextInput
-            label="First Name"
-            value={"Cristian Louie"}
-            onChangeText={(text) => setFirstName(text)}
-            editable={false}
-            style={{ pointerEvents: 'none', marginBottom: 20,}}
-          />
-          
-          <TextInput
-            label="Last Name"
-            value={"Concepcion"}
-            onChangeText={(text) => setLastName(text)}
-            editable={false}
-            style={{ pointerEvents: 'none', marginBottom: 20,}}
-          />
-          <TextInput
-            label="Address"
-            value={"282, Purok 4, Liciada, Bustos, Bulacan"}
-            onChangeText={(text) => setAddress(text)}
-            editable={false}
-            style={{ pointerEvents: 'none', marginBottom: 20,}}
-          />
-          <TextInput
-            label="Email"
-            value={"louieconcepcion18@gmail.com"}
-            onChangeText={(text) => setEmail(text)}
-            editable={false}
-            style={{ pointerEvents: 'none',}}
-          />
+            <TextInput
+              label="First Name"
+              value={"Cristian Louie"}
+              onChangeText={(text) => setFirstName(text)}
+              editable={false}
+              style={{ pointerEvents: 'none', marginBottom: 20 }}
+            />
+
+            <TextInput
+              label="Last Name"
+              value={"Concepcion"}
+              onChangeText={(text) => setLastName(text)}
+              editable={false}
+              style={{ pointerEvents: 'none', marginBottom: 20 }}
+            />
+            <TextInput
+              label="Address"
+              value={"282, Purok 4, Liciada, Bustos, Bulacan"}
+              onChangeText={(text) => setAddress(text)}
+              editable={false}
+              style={{ pointerEvents: 'none', marginBottom: 20 }}
+            />
+            <TextInput
+              label="Email"
+              value={"louieconcepcion18@gmail.com"}
+              onChangeText={(text) => setEmail(text)}
+              editable={false}
+              style={{ pointerEvents: 'none' }}
+            />
           </View>
-<CustomInputs
-  label="Contact Number"
-  value={number}
-  keyboardType="numeric"
-  onChangeText={(text) => {
-    // Remove any non-numeric characters
-    const numericValue = text.replace(/[^0-9]/g, '');
+          <CustomInputs
+            label="Contact Number"
+            value={number}
+            keyboardType="numeric"
+            onChangeText={(text) => {
+              // Remove any non-numeric characters
+              const numericValue = text.replace(/[^0-9]/g, '');
 
-    // Check if the numeric value is exactly 10 digits
-    if (numericValue.length <= 11) {
-      const formattedValue =
-        numericValue.length === 0
-          ? numericValue
-          :numericValue;
+              // Check if the numeric value is exactly 10 digits
+              if (numericValue.length <= 11) {
+                const formattedValue =
+                  numericValue.length === 0 ? numericValue : numericValue;
 
-      setContact(formattedValue);
-    }
-  }}
-/>
-<TouchableOpacity onPress={onChangePass} style={styles.changeButton}>
+                setContact(formattedValue);
+              }
+            }}
+          />
+          <TouchableOpacity onPress={onChangePass} style={styles.changeButton}>
             <Text style={styles.changeButtonText}>Change Password</Text>
           </TouchableOpacity>
           <TouchableOpacity onPress={onSignUpPressed} style={styles.saveButton}>
@@ -196,7 +215,7 @@ const styles = StyleSheet.create({
     paddingHorizontal:10,
     marginVertical:5,
     marginTop:20,
-},
+  },
   title: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -292,8 +311,8 @@ const styles = StyleSheet.create({
   },
   logo: {
     position: 'absolute',
-    width: width * 0.6,
-    height: width * 0.7,
+    width: windowWidth * 0.6,
+    height: windowWidth * 0.7,
   },
   imageContainer: {
     alignItems: 'center',
@@ -303,6 +322,10 @@ const styles = StyleSheet.create({
     marginBottom: 15,
     marginLeft: 5,
     marginTop: 10,
+  },
+  newImageContainer: {
+    alignItems: 'center',
+    marginBottom: 20,
   },
   selectedImage: {
     width: 100,

@@ -35,7 +35,7 @@ const SignUpScreen = () => {
        console.warn('Password not the same');
      } else {
        axios
-         .post('http://192.168.100.152:8082/register/app', {
+         .post('https://bulvroom.onrender.com/register/app', {
            fName :fName,
            lName :lName,
            email : email,

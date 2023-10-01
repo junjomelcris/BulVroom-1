@@ -33,7 +33,7 @@ const SignInScreen = () => {
         ToastAndroid.show('Please Enter Username and Password', ToastAndroid.SHORT);
         return;
     } else {
-        axios.post('http://192.168.100.152:8082/login/app', {
+        axios.post('https://bulvroom.onrender.com/login/app', {
             email: username,
             password: password,
         }).then((response) => {

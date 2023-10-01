@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import SignInScreen from '../screens/SignInScreen/SignInScreen';
@@ -19,9 +19,8 @@ import NotificationScreen from '../screens/NotificationScreen/NotificationScreen
 import ChatScreen from '../screens/ChatScreen/ChatScreen';
 import NewChat from '../screens/ChatScreen/NewChat';
 import Vehicles from '../screens/Vehicles/Vehicles';
-
-
-
+import DashBoardScreen from '../screens/DashBoardScreen/DashBoardScreen'; // Import DashBoardScreen
+import AddVehicle from '../screens/Vehicles/AddVehicle';
 
 const Navigation = () => {
   const [isLoading, setIsLoading] = useState(true);
@@ -58,9 +57,10 @@ const Navigation = () => {
         <Stack.Screen name="NewChat" component={NewChat} />
         <Stack.Screen name="Vehicles" component={Vehicles} />
         <Stack.Screen name="Rates" component={RateScreen} />
-
-
-
+        <Stack.Screen name="AddVehicle" component={AddVehicle} />
+        
+        {/* Add DashBoardScreen route with the parameter */}
+        <Stack.Screen name="DashBoardScreen" component={DashBoardScreen} />
       </Stack.Navigator>
     </NavigationContainer>
   );
