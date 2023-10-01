@@ -159,10 +159,14 @@ const DashBoardScreen = () => {
               <Text>Make: {vehicle.make}</Text>
               <Text>Model: {vehicle.model}</Text>
               <Text>Type: {vehicle.type}</Text>
+              <Text>Transmission: {vehicle.transmission}</Text>
+              <Text>Gas Type: {vehicle.gas}</Text>
               <Text>Features: {vehicle.features}</Text>
+              <Text>Seating Capacity: {vehicle.seatingCapacity}</Text>
               <Text>License Plate: {vehicle.plate}</Text>
               <Text>Description: {vehicle.description}</Text>
               <Text>Rental Price: {vehicle.rate}</Text>
+              <Text>Security Deposit: {vehicle.deposit}</Text>
             </PaperCard>
           ))}
       </ScrollView>

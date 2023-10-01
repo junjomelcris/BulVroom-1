@@ -44,10 +44,14 @@ const newVehicle = route.params?.newVehicle;
       <Text>Make: {item.make}</Text>
       <Text>Model: {item.model}</Text>
       <Text>Type: {item.type}</Text>
+      <Text>Transmission: {item.transmission}</Text>
+      <Text>Gas Type: {item.gas}</Text>
       <Text>Features: {item.features}</Text>
+      <Text>Seating Capacity: {item.seatingCapacity}</Text>
       <Text>License Plate: {item.plate}</Text>
       <Text>Description: {item.description}</Text>
       <Text>Rental Price: {item.rate}</Text>
+      <Text>Security Deposit: {item.deposit}</Text>
       {/* You can add more details or customize this section as needed */}
       <TouchableOpacity onPress={() => toggleFavorite(item, !item.isFavorite)}>
         <Icon name={item.isFavorite ? 'star' : 'star-outline'} size={30} color={item.isFavorite ? 'yellow' : 'gray'} />
