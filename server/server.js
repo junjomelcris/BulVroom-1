@@ -289,46 +289,85 @@ app.post('/create', upload.single('profile_pic'), (req, res) => {
 });
 
 app.post('/register/app', (req, res) => {
-  const fName = req.body.fName;
-  const lName = req.body.lName;
-  const email = req.body.email;
-  const password = req.body.password;
-  const address = req.body.address;
-  const contact = req.body.contact;
-
-  // Check if the email already exists
-  const checkEmailQuery = 'SELECT * FROM users WHERE email = ?';
-  con.query(checkEmailQuery, [email], (err, result) => {
-    if (err) {
-      console.error('Failed to check email:', err);
-      res.status(500).json({ message: 'Server error' });
-    } else {
-      if (result.length > 0) {
-        // User already exists
-        res.status(400).json({ message: 'email already exists' });
+    const fName = req.body.fName;
+    const lName = req.body.lName;
+    const email = req.body.email;
+    const password = req.body.password;
+    const address = req.body.address;
+    const contact = req.body.contact;
+  
+    const checkUsernameQuery = 'SELECT * FROM users WHERE email = ?';
+    con.query(checkUsernameQuery, [email], (err, result) => {
+      if (err) {
+        console.error('Failed to check email:', err);
+        res.send({ message: 'Server error' });
       } else {
-        // Email is available, proceed with registration
-        bcrypt.hash(password, 10, (hashErr, hashedPassword) => {
-          if (hashErr) {
-            console.error('Failed to hash password:', hashErr);
-            res.status(500).json({ message: 'Server error' });
-          } else {
-            // Insert user data into the database
-            const insertUserQuery = 'INSERT INTO users (fName, lName, email, password, address, contact) VALUES (?, ?, ?, ?, ?, ?)';
-            con.query(insertUserQuery, [fName, lName, email, hashedPassword, address, contact], (insertErr, insertResult) => {
-              if (insertErr) {
-                console.error('Failed to register user:', insertErr);
-                res.status(500).json({ message: 'Server error' });
-              } else {
-                res.status(201).json({ message: 'User registered successfully' });
-              }
-            });
-          }
-        });
+        if (result.length > 0) {
+          // User already exists
+          res.send({ message: 'email already exists' });
+        } else {
+          // Username is available, proceed with registration
+          bcrypt.hash(password, 10, (hashErr, hashedPassword) => {
+            if (hashErr) {
+              console.error('Failed to hash password:', hashErr);
+              res.send({ message: 'Server error' });
+            } else {
+              
+              const insertUserQuery = 'INSERT INTO users (fName, lName, email, password, address, contact) VALUES (?, ?, ?, ?, ?, ?)';
+              con.query(insertUserQuery, [fName,lName, email, hashedPassword, address, contact], (insertErr, insertResult) => {
+                if (insertErr) {
+                  console.error('Failed to register user:', insertErr);
+                  res.send({ message: 'Server error' });
+                } else {
+                  // Send verification email
+                  const verificationLink =`This is your Verification Code:${verificationToken}`; // Replace with your verification link
+                sendVerificationEmail(email, verificationLink); // Send verification email
+  
+                  res.send({ message: 'User registered successfully' });
+                }
+              });
+            }
+          });
+        }
       }
-    }
+    });
   });
-});
+
+  function generateVerificationToken() {
+    // Generate a random token
+    const token = Math.random().toString(36).substr(2);
+    return token;
+  }
+  
+  // Function to send a verification email
+  function sendVerificationEmail(email, verificationLink) {
+    // Create a transporter for sending emails (replace with your email service provider details)
+    const transporter = nodemailer.createTransport({
+      service: 'gmail',
+      auth: {
+        user: 'mindmattersstdominic@gmail.com',
+        pass: 'swutnhnnzxmdjytp',
+      },
+    });
+  
+    // Setup email data
+    const mailOptions = {
+      from: 'mindmattersstdominic@gmail.com',
+      to: email,
+      subject: 'Email Verification',
+      html: `<p>Thank you for registering. Please click the following link to verify your email:</p>
+             <a href="${verificationLink}">${verificationLink}</a>`,
+    };
+  
+    // Send the email
+    transporter.sendMail(mailOptions, (error, info) => {
+      if (error) {
+        console.error('Failed to send verification email:', error);
+      } else {
+        console.log('Verification email sent:', info.response);
+      }
+    });
+  }
 
 
 // Endpoint to save selected options
