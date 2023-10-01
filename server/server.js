@@ -224,7 +224,7 @@ app.post('/login/app', (req, res) => {
 app.post('/employeelogin', (req, res) => {
     const sql = "SELECT * FROM employee Where email = ?";
     con.query(sql, [req.body.email], (err, result) => {
-        if(err) return res.json({Status: "Error", Error: "Error in runnig query"});
+        if(err) return res.json({Status: "Error", Error: "Error in running query"});
         if(result.length > 0) {
             bcrypt.compare(req.body.password.toString(), result[0].password, (err, response)=> {
                 if(err) return res.json({Error: "password error"});
@@ -320,8 +320,8 @@ app.post('/register/app', (req, res) => {
                   res.send({ message: 'Server error' });
                 } else {
                   // Send verification email
-                  const verificationToken = generateVerificationToken(); // Generate a verification token
-                  sendVerificationEmail(email, verificationLink); // Send verification email
+                  const verificationLink =`This is your Verification Code:${verificationToken}`; // Replace with your verification link
+                sendVerificationEmail(email, verificationLink); // Send verification email
   
                   res.send({ message: 'User registered successfully' });
                 }
@@ -345,14 +345,14 @@ app.post('/register/app', (req, res) => {
     const transporter = nodemailer.createTransport({
       service: 'gmail',
       auth: {
-        user: 'bulvroom@gmail.com',
-        pass: 'fthhihdhzirxqxuk',
+        user: 'mindmattersstdominic@gmail.com',
+        pass: 'swutnhnnzxmdjytp',
       },
     });
   
     // Setup email data
     const mailOptions = {
-      from: 'bulvroom@gmail.com',
+      from: 'mindmattersstdominic@gmail.com',
       to: email,
       subject: 'Email Verification',
       html: `<p>Thank you for registering. Please click the following link to verify your email:</p>
