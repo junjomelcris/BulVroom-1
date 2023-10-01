@@ -7,7 +7,7 @@ function Vehicles() {
   const [selectedVehicles, setSelectedVehicles] = useState([]);
 
   useEffect(() => {
-    axios.get('http://localhost:8082/getVehicles')
+    axios.get('https://bulvroom.onrender.com/getVehicles')
       .then((res) => {
         if (res.data.Status === "Success") {
           setVehicles(res.data.Result);
@@ -19,7 +19,7 @@ function Vehicles() {
   }, []);
 
   const handleDelete = (id) => {
-    axios.delete(`http://localhost:8082/deleteVehicle/${id}`)
+    axios.delete(`https://bulvroom.onrender.com/deleteVehicle/${id}`)
       .then((res) => {
         if (res.data.Status === "Success") {
           window.location.reload(true);

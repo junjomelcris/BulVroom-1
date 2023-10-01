@@ -22,7 +22,7 @@ function Create() {
     const confirmation = window.confirm('Confirm insertion of this user?');
 
     if (confirmation) {
-      axios.post('http://localhost:8081/pages/users', values)
+      axios.post('https://bulvroom.onrender.com/pages/users', values)
         .then(res => {
           console.log(res);
           Navigate('/pages/users');

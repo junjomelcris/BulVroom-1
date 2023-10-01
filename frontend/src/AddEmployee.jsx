@@ -38,7 +38,7 @@ function AddEmployee() {
       formData.append('profile_pic', data.profile_pic);
 
       axios
-        .post('http://localhost:8082/create', formData)
+        .post('http://bulvroom.onrender.com/create', formData)
         .then((res) => {
           console.log(res);
           navigate('/employee');
