@@ -11,7 +11,6 @@ function AddEmployee() {
     address: '',
     contact: '',
     driver_license_1: '',
-    driver_license_2: '',
     valid_id: '',
     profile_pic: null,
   });
@@ -33,7 +32,6 @@ function AddEmployee() {
       formData.append('address', data.address);
       formData.append('contact', data.contact);
       formData.append('driver_license_1', data.driver_license_1);
-      formData.append('driver_license_2', data.driver_license_2);
       formData.append('valid_id', data.valid_id);
       formData.append('profile_pic', data.profile_pic);
 
