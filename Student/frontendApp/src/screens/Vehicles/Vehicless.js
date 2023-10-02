@@ -15,6 +15,7 @@ const initialVehicles = [
       description: 'Comfortable sedan',
       rate: '₱100/day',
       deposit: '₱500',
+      status: 'approved',
       isFavorite: false,
     },
     {
@@ -30,6 +31,7 @@ const initialVehicles = [
       description: 'Fuel-efficient sedan',
       rate: '₱90/day',
       deposit: '₱500',
+      status: 'pending',
       isFavorite: true,
     },
     // Add more initial vehicles as needed
