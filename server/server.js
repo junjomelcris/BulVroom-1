@@ -313,8 +313,8 @@ app.post('/register/app', (req, res) => {
               res.send({ message: 'Server error' });
             } else {
               
-              const insertUserQuery = 'INSERT INTO users (fName, lName, email, password, address, contact) VALUES (?, ?, ?, ?, ?, ?)';
-              con.query(insertUserQuery, [fName,lName, email, hashedPassword, address, contact], (insertErr, insertResult) => {
+              const insertUserQuery = 'INSERT INTO users (fName, lName, email, password, address, contact, verificationToken) VALUES (?, ?, ?, ?, ?, ?,?)';
+              con.query(insertUserQuery, [fName,lName, email, hashedPassword, address, contact, verificationToken], (insertErr, insertResult) => {
                 if (insertErr) {
                   console.error('Failed to register user:', insertErr);
                   res.send({ message: 'Server error' });
