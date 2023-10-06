@@ -23,6 +23,7 @@ const ChatScreens = () => (
   </View>
 );
 
+
 const FaveScreen = () => (
   <View style={styles.container}>
         <FavoriteScreen />
@@ -47,8 +48,8 @@ const Apps = () => {
 
       if (route.name === 'Car') {
         iconName = focused ? 'car' : 'car-outline';
-      } else if (route.name === 'Chat') {
-        iconName = focused ? 'chatbubbles' : 'chatbubbles-outline';
+      } else if (route.name === 'Search') {
+        iconName = focused ? 'search' : 'search';
       } else if (route.name === 'Favorite') {
         iconName = focused ? 'heart' : 'heart-outline';
       } else if (route.name === 'Settings') {
@@ -64,7 +65,8 @@ const Apps = () => {
   }}
 >
   <Tab.Screen name="Car" component={HomeScreens} />
-  <Tab.Screen name="Chat" component={ChatScreens} />
+  {/*<Tab.Screen name="Search" component={SearchScreens} />*/}
+  <Tab.Screen name="Search" component={ChatScreens} />
   <Tab.Screen name="Favorite" component={FaveScreen} />
   <Tab.Screen name="Settings" component={ProfileScreens} />
 </Tab.Navigator>

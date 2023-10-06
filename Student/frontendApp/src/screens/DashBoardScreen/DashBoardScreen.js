@@ -13,7 +13,6 @@ import {
 import { Card as PaperCard } from 'react-native-paper';
 import Icon from 'react-native-vector-icons/Ionicons';
 import { useNavigation } from '@react-navigation/native';
-import { Linking } from 'react-native';
 
 // Import the getVehicles function from vehicless.js
 import { getVehicles } from '../../screens/Vehicles/Vehicless';
@@ -22,8 +21,8 @@ const { width, height } = Dimensions.get('window');
 
 const images = [
   require('../../../assets/images/offer.png'),
-  require('../../../assets/images/luwi.jpg'),
-  require('../../../assets/images/eltom.jpg'),
+  require('../../../assets/images/TEST.png'),
+  require('../../../assets/images/TEST2.png'),
   // Add more image sources as needed
 ];
 
@@ -64,6 +63,22 @@ const DashBoardScreen = () => {
     setVehicles(fetchedVehicles);
   }, []);
 
+  const handleCardPress = (vehicle) => {
+    // Navigate to the DashboardVehicles screen and pass the vehicle details
+    navigation.navigate('DashboardVehicles', { vehicle });
+  };
+
+  const toggleBookmark = (vehicle) => {
+    // Check if the vehicle is already bookmarked
+    const isBookmarked = vehicle.isBookmarked || false;
+
+    // Toggle the bookmark status
+    vehicle.isBookmarked = !isBookmarked;
+
+    // Force re-render by updating the state
+    setVehicles([...vehicles]);
+  };
+
   return (
     <View style={styles.container}>
       <ScrollView
@@ -84,7 +99,7 @@ const DashBoardScreen = () => {
         ))}
       </ScrollView>
 
-      <View style={{ flexDirection: 'row', justifyContent: 'space-evenly', marginTop: -225, }}>
+      <View style={{ flexDirection: 'row', justifyContent: 'space-evenly', marginTop: -205, }}>
         <TouchableOpacity
           style={
             selectedCategory === 'All'
@@ -148,6 +163,7 @@ const DashBoardScreen = () => {
       </View>
 
       <ScrollView style={styles.scrollView}>
+      <View style={styles.cardContainer}>
         {/* Display your vehicle data here based on the selected category */}
         {vehicles
           .filter((vehicle) => {
@@ -155,20 +171,36 @@ const DashBoardScreen = () => {
             return vehicle.type === selectedCategory;
           })
           .map((vehicle) => (
+            <TouchableOpacity
+                key={vehicle.id}
+                style={styles.cardTouchable}
+                onPress={() => handleCardPress(vehicle)}
+              >
             <PaperCard key={vehicle.id} style={styles.card}>
-              <Text>Make: {vehicle.make}</Text>
-              <Text>Model: {vehicle.model}</Text>
-              <Text>Type: {vehicle.type}</Text>
-              <Text>Transmission: {vehicle.transmission}</Text>
-              <Text>Gas Type: {vehicle.gas}</Text>
-              <Text>Features: {vehicle.features}</Text>
-              <Text>Seating Capacity: {vehicle.seatingCapacity}</Text>
-              <Text>License Plate: {vehicle.plate}</Text>
-              <Text>Description: {vehicle.description}</Text>
-              <Text>Rental Price: {vehicle.rate}</Text>
-              <Text>Security Deposit: {vehicle.deposit}</Text>
+            <Image source={require('../../../assets/images/sample.png')} style={styles.VecImage} />
+              <Text style={styles.vehicleName}> {vehicle.make} {vehicle.model}</Text>
+              <View style={styles.ratings}>
+              <Icon name="star" style={styles.star}></Icon>
+              <Icon name="star" style={styles.star}></Icon>
+              <Icon name="star" style={styles.star}></Icon>
+              <Icon name="star" style={styles.star}></Icon>
+              <Icon name="star" style={styles.star}></Icon>
+              </View>
+              <Text style={styles.seater}>{vehicle.seatingCapacity}-Seater</Text>
+              <View style={styles.saveContainer}>
+              <Text style={styles.price}>{vehicle.rate}/DAY</Text>
+              <TouchableOpacity onPress={() => toggleBookmark(vehicle)}>
+                  <Icon
+                    name={vehicle.isBookmarked ? 'bookmark' : 'bookmark-outline'}
+                    style={styles.save}
+                  />
+                </TouchableOpacity>
+              </View>
+              
             </PaperCard>
+            </TouchableOpacity>
           ))}
+          </View>
       </ScrollView>
     </View>
   );
@@ -176,8 +208,49 @@ const DashBoardScreen = () => {
 
 const styles = StyleSheet.create({
   container: {
+    FLEX: 1,
     width: width * 1,
     height: height,
+    marginTop: -28,
+
+  },
+  ratings: {
+    flexDirection: 'row', // Arrange cards horizontally
+  },
+  saveContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  save: {
+    marginLeft: 45,
+    fontSize: 28,
+    color: '#2ecc71'
+  },
+  price: {
+    color: '#2ecc71',
+    fontWeight: 800,
+  },
+  star: {
+    color: '#FF5733',
+    fontSize: 13,
+  },
+  seater: {
+    fontSize: 15,
+  },
+  vehicleName: {
+    color: 'black',
+    fontSize: 18,
+    marginLeft: -3,
+  },
+  VecImage: {
+    width: 130, // Set the width of the image
+    height: 110, // Set the height of the image
+    marginRight: 10, // Add some margin to separate the image from text
+    borderRadius: 15,
+  },
+  cardTouchable: {
+    width: '48%',
+    
   },
   text: {
     fontSize: 15,
@@ -185,17 +258,26 @@ const styles = StyleSheet.create({
   },
   pagination: {
     width: width,
-    margin: 5,
+    paddingTop: 15,
     alignItems: 'center',
+    paddingHorizontal: 20,
   },
   scrollView: {
     height: '100%',
     width: '100%',
     marginTop: 10,
-    marginBottom: 10,
+    marginBottom: 30,
     paddingTop: 10,
     paddingBottom: 30,
     marginLeft: -10,
+    
+  },
+    cardContainer: {
+    flexDirection: 'row', // Arrange cards horizontally
+
+    flexWrap: 'wrap', // Wrap cards to the next row when needed
+
+    justifyContent: 'space-evenly',
   },
   activeButton: {
     marginLeft: 10,
@@ -222,7 +304,10 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     padding: 16,
     marginBottom: 16,
+    width: 160,
     elevation: 4,
+    marginLeft: 18,
+    
   },
 });
 

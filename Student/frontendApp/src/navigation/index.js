@@ -20,7 +20,12 @@ import ChatScreen from '../screens/ChatScreen/ChatScreen';
 import NewChat from '../screens/ChatScreen/NewChat';
 import Vehicles from '../screens/Vehicles/Vehicles';
 import DashBoardScreen from '../screens/DashBoardScreen/DashBoardScreen'; // Import DashBoardScreen
+import DashboardVehicles from '../screens/DashBoardScreen/DashboardVehicles';
 import AddVehicle from '../screens/Vehicles/AddVehicle';
+import VehicleDetailsScreen from '../screens/Vehicles/VehicleDetailsScreen';
+import RenterBookings from '../screens/BookingScreen/RenterBookings';
+//import BookingScreen from '../screens/BookingScreen/BookingScreen';
+
 
 const Navigation = () => {
   const [isLoading, setIsLoading] = useState(true);
@@ -58,6 +63,11 @@ const Navigation = () => {
         <Stack.Screen name="Vehicles" component={Vehicles} />
         <Stack.Screen name="Rates" component={RateScreen} />
         <Stack.Screen name="AddVehicle" component={AddVehicle} />
+        <Stack.Screen name="VehicleDetailsScreen" component={VehicleDetailsScreen} />
+        <Stack.Screen name="DashboardVehicles" component={DashboardVehicles} />
+        <Stack.Screen name="RenterBookings" component={RenterBookings} />
+        {/*<Stack.Screen name="BookingScreen" component={BookingScreen} />*/}
+
         
         {/* Add DashBoardScreen route with the parameter */}
         <Stack.Screen name="DashBoardScreen" component={DashBoardScreen} />

@@ -30,7 +30,7 @@ const DashboardScreen = () => {
 
   const onCarCardPress = (item) => {
     // Navigate to the 'CarDetails' screen and pass the car data
-    navigation.navigate('VehicleDetailsScreen', { car: item });
+    navigation.navigate('RenterBookings', { car: item });
   };
 
   const onBackPressed = () => {
@@ -46,7 +46,7 @@ const DashboardScreen = () => {
   const approveVehicle = (item) => {
     // Change the status of the vehicle to "approved"
     item.status = 'APPROVED';
-    Alert.alert('Success', 'The vehicle has been approved.');
+    Alert.alert('Success', 'Moved to done bookings.');
     // You may want to update the backend or perform other actions here.
 
     // Reload the data by refetching the vehicles from the source
@@ -76,7 +76,7 @@ const DashboardScreen = () => {
       </View>
       {item.status === 'PENDING' && (
         <TouchableOpacity onPress={() => approveVehicle(item)} style={styles.approveButton}>
-          <Text style={styles.approveButtonText}>Approve</Text>
+          <Text style={styles.approveButtonText}>Mark as done</Text>
         </TouchableOpacity>
       )}
     </TouchableOpacity>
@@ -89,25 +89,22 @@ const DashboardScreen = () => {
           <Icon name="arrow-back" style={styles.backIcon}></Icon>
         </TouchableOpacity>
         <View style={styles.titleCenter}>
-          <Icon name="car" style={styles.carIcon}></Icon>
-          <Text style={styles.titleText}>My Vehicles</Text>
+          <Icon name="book" style={styles.carIcon}></Icon>
+          <Text style={styles.titleText}>  My Bookings</Text>
         </View>
       </View>
-      <TouchableOpacity onPress={onAddPress} style={styles.addButton}>
-        <Text style={styles.addButtonText}>Add Vehicle</Text>
-      </TouchableOpacity>
       <View style={styles.filterButtons}>
           <TouchableOpacity
             onPress={() => setShowPending(true)}
             style={[styles.filterButton, showPending && styles.activeFilterButton]}
           >
-            <Text style={[styles.filterButtonText, showPending && styles.activeFilterButtonText]}>Pending</Text>
+            <Text style={[styles.filterButtonText, showPending && styles.activeFilterButtonText]}>On Process</Text>
           </TouchableOpacity>
           <TouchableOpacity
             onPress={() => setShowPending(false)}
             style={[styles.filterButton, !showPending && styles.activeFilterButton]}
           >
-            <Text style={[styles.filterButtonText, !showPending && styles.activeFilterButtonText]}>Approved</Text>
+            <Text style={[styles.filterButtonText, !showPending && styles.activeFilterButtonText]}>Done</Text>
           </TouchableOpacity>
         </View>
       <ScrollView style={styles.scrollView}>
@@ -217,6 +214,7 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
   filterButtons: {
+    marginTop: 25,
     flexDirection: 'row',
 
     alignSelf: 'flex-start',

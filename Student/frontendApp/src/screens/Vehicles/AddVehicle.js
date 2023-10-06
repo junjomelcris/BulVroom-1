@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
-import { View, StyleSheet, Text, TouchableOpacity, ScrollView, TextInput } from 'react-native';
+import { View, StyleSheet, Text, TouchableOpacity, ScrollView, TextInput, } from 'react-native';
 import { RadioButton, Checkbox } from 'react-native-paper';
 import { useNavigation } from '@react-navigation/native';
+import Icon from 'react-native-vector-icons/Ionicons';
+import MapView, { Marker } from 'react-native-maps';
 
 const AddVehicleScreen = () => {
   const [vehicleMake, setVehicleMake] = useState('');
@@ -13,10 +15,20 @@ const AddVehicleScreen = () => {
   const [gasType, setGasType] = useState('Diesel');
   const [licensePlate, setLicensePlate] = useState('');
   const [description, setDescription] = useState('');
+  const [phonenum, setPhoneNum] = useState('');
   const [rentalPrice, setRentalPrice] = useState('');
   const [secDeposit, setSecDeposit] = useState('');
   const [isChecked, setIsChecked] = useState(false);
-  const [status, setStatus] = useState('pending'); // Add status state
+  const [status, setStatus] = useState('PENDING');
+
+  const [vehicleLocation, setVehicleLocation] = useState({
+    latitude: 0, // Replace with your default latitude
+    longitude: 0, // Replace with your default longitude
+  });
+
+  const updateVehicleLocation = (location) => {
+    setVehicleLocation(location);
+  };
 
   const navigation = useNavigation();
 
@@ -49,9 +61,19 @@ const AddVehicleScreen = () => {
     }
   };
 
+  const onBackPressed = () => {
+    // Use the navigate method to go back to the previous screen
+    navigation.goBack();
+  };
+
   const handleRentalPriceChange = (text) => {
     const numericText = text.replace(/[^0-9]/g, '');
     setRentalPrice(numericText);
+  };
+
+  const handlePhoneNumChange = (text) => {
+    const numericText = text.replace(/[^0-9]/g, '');
+    setPhoneNum(numericText);
   };
 
   const handleSecDepositChange = (text) => {
@@ -73,9 +95,10 @@ const AddVehicleScreen = () => {
         features: selectedFeatures.join(', '),
         plate: licensePlate,
         description: description,
+        phone: phonenum,
         rate: `₱${rentalPrice}`,
         deposit: `₱${secDeposit}`,
-        status: status, // Include status in the new vehicle object
+        status: status,
       };
 
       navigation.navigate('Vehicles', { newVehicle: newVehicle });
@@ -84,19 +107,44 @@ const AddVehicleScreen = () => {
     }
   };
 
-  const featuresRows = vehicleFeaturesData.reduce((result, item, index) => {
-    if (index % 3 === 0) {
-      result.push([]);
-    }
-    result[result.length - 1].push(item);
-    return result;
-  }, []);
+  const renderFeatureCheckboxes = () => {
+    return vehicleFeaturesData.map((feature) => (
+      <View style={styles.featureRow} key={feature}>
+        <Checkbox
+          status={selectedFeatures.includes(feature) ? 'checked' : 'unchecked'}
+          onPress={() => toggleFeature(feature)}
+          color="#2ecc71" // Adjust the color
+        />
+        <Text style={styles.featureText}>{feature}</Text>
+      </View>
+    ));
+  };
 
   return (
     <ScrollView contentContainerStyle={styles.scrollContainer}>
-      <View style={styles.container}>
-        <Text style={styles.title}>Add a Vehicle</Text>
+      <View style={styles.titleBar}>
+        <TouchableOpacity onPress={onBackPressed}>
+          <Icon name="arrow-back" style={styles.backIcon}></Icon>
+        </TouchableOpacity>
+        <View style={styles.titleCenter}>
+          <Icon name="car" style={styles.carIcon}></Icon>
+          <Text style={styles.titleText}> Add Vehicle</Text>
+        </View>
+        </View>
+        <View style={styles.container}>
         <View style={styles.inputContainer}>
+        
+        <TouchableOpacity style={styles.imageContainer}>
+              <Text style={styles.selectImageText}>Select 5 Photos</Text>
+            
+          </TouchableOpacity>
+
+          {/* New image container */}
+          <View style={styles.newImageContainer}>
+   
+              <Text style={styles.selectImageText2}>No Images Selected</Text>
+            
+          </View>
           <TextInput
             style={styles.input}
             placeholder="Vehicle Make"
@@ -111,98 +159,56 @@ const AddVehicleScreen = () => {
             value={vehicleModel}
             onChangeText={(text) => setVehicleModel(text)}
           />
-            {/* Radio buttons for vehicle type */}
-            <Text style={styles.featuresLabel}>Vehicle Type:</Text>
+          {/* Radio buttons for vehicle type */}
+          <Text style={styles.featuresLabel}>Vehicle Type:</Text>
           <View style={styles.radioContainer}>
-            <View style={styles.radioGroup}>
-              <RadioButton
-                value="Motorcycle"
-                status={vehicleType === 'Motorcycle' ? 'checked' : 'unchecked'}
-                onPress={() => setVehicleType('Motorcycle')}
-              />
-              <Text>Motorcycle</Text>
-            </View>
-            <View style={styles.radioGroup}>
-              <RadioButton
-                value="Sedan"
-                status={vehicleType === 'Sedan' ? 'checked' : 'unchecked'}
-                onPress={() => setVehicleType('Sedan')}
-              />
-              <Text>Sedan</Text>
-            </View>
-            <View style={styles.radioGroup}>
-              <RadioButton
-                value="SUV"
-                status={vehicleType === 'SUV' ? 'checked' : 'unchecked'}
-                onPress={() => setVehicleType('SUV')}
-              />
-              <Text>SUV</Text>
-            </View>
+            {['Motorcycle', 'Sedan', 'SUV', 'Van', 'Others'].map((type) => (
+              <View style={styles.radioGroup} key={type}>
+                <RadioButton
+                  value={type}
+                  status={vehicleType === type ? 'checked' : 'unchecked'}
+                  onPress={() => setVehicleType(type)}
+                  color="#2ecc71" // Adjust the color
+                />
+                <Text style={styles.radioText}>{type}</Text>
+              </View>
+            ))}
           </View>
+          <Text style={styles.featuresLabel}>Transmission Type:</Text>
+      <View style={styles.radioContainer}>
+        <View style={styles.radioGroup}>
+          <RadioButton
+            value="Manual"
+            status={transmission === 'Manual' ? 'checked' : 'unchecked'}
+            onPress={() => setTransmission('Manual')}
+            color="#2ecc71" // Adjust the color
+          />
+          <Text style={styles.radioText}>Manual</Text>
+        </View>
+        <View style={styles.radioGroup}>
+          <RadioButton
+            value="Automatic"
+            status={transmission === 'Automatic' ? 'checked' : 'unchecked'}
+            onPress={() => setTransmission('Automatic')}
+            color="#2ecc71" // Adjust the color
+          />
+          <Text style={styles.radioText}>Automatic</Text>
+        </View>
+      </View>
+          {/* Gas Type radio buttons */}
+          <Text style={styles.featuresLabel}>Gas Type:</Text>
           <View style={styles.radioContainer}>
-            <View style={styles.radioGroup}>
-              <RadioButton
-                value="Pickup"
-                status={vehicleType === 'Pickup' ? 'checked' : 'unchecked'}
-                onPress={() => setVehicleType('Pickup')}
-              />
-              <Text>Pickup</Text>
-            </View>
-            <View style={styles.radioGroup}>
-              <RadioButton
-                value="Others"
-                status={vehicleType === 'Others' ? 'checked' : 'unchecked'}
-                onPress={() => setVehicleType('Others')}
-              />
-              <Text>Others</Text>
-            </View>
-          </View>
-          <Text style={styles.featuresLabel}>Transmission:</Text>
-          <View style={styles.radioContainer}>
-            <View style={styles.radioGroup}>
-              <RadioButton
-                value="Manual"
-                status={transmission === 'Manual' ? 'checked' : 'unchecked'}
-                onPress={() => setTransmission('Manual')}
-              />
-              <Text>Manual</Text>
-            </View>
-            <View style={styles.radioGroup}>
-              <RadioButton
-                value="Automatic"
-                status={transmission === 'Automatic' ? 'checked' : 'unchecked'}
-                onPress={() => setTransmission('Automatic')}
-              />
-              <Text>Automatic</Text>
-            </View>
-          </View>
-         {/* Gas Type radio buttons */}
-         <Text style={styles.featuresLabel}>Gas Type:</Text>
-          <View style={styles.radioContainer}>
-            <View style={styles.radioGroup}>
-              <RadioButton
-                value="Diesel"
-                status={gasType === 'Diesel' ? 'checked' : 'unchecked'}
-                onPress={() => setGasType('Diesel')}
-              />
-              <Text>Diesel</Text>
-            </View>
-            <View style={styles.radioGroup}>
-              <RadioButton
-                value="Premium"
-                status={gasType === 'Premium' ? 'checked' : 'unchecked'}
-                onPress={() => setGasType('Premium')}
-              />
-              <Text>Premium</Text>
-            </View>
-            <View style={styles.radioGroup}>
-              <RadioButton
-                value="Unleaded"
-                status={gasType === 'Unleaded' ? 'checked' : 'unchecked'}
-                onPress={() => setGasType('Unleaded')}
-              />
-              <Text>Unleaded</Text>
-            </View>
+            {['Diesel', 'Premium', 'Unleaded'].map((type) => (
+              <View style={styles.radioGroup} key={type}>
+                <RadioButton
+                  value={type}
+                  status={gasType === type ? 'checked' : 'unchecked'}
+                  onPress={() => setGasType(type)}
+                  color="#2ecc71" // Adjust the color
+                />
+                <Text style={styles.radioText}>{type}</Text>
+              </View>
+            ))}
           </View>
           {/* Seating capacity picker */}
           <Text style={styles.featuresLabel}>Seating Capacity:</Text>
@@ -217,8 +223,32 @@ const AddVehicleScreen = () => {
           </View>
           <View style={styles.featureContainer}>
             <Text style={styles.featuresLabel}>Vehicle Features:</Text>
-            {/* ...other features checkboxes... */}
+            {renderFeatureCheckboxes()}
           </View>
+         { /* <View style={styles.mapContainer}>
+        <MapView
+          style={styles.map}
+          region={{
+            latitude: vehicleLocation.latitude,
+            longitude: vehicleLocation.longitude,
+            latitudeDelta: 0.005,
+            longitudeDelta: 0.005,
+          }}
+          onPress={(event) => {
+            // Update the vehicle's location when the map is pressed
+            updateVehicleLocation(event.nativeEvent.coordinate);
+          }}
+        >
+          <Marker
+            coordinate={{
+              latitude: vehicleLocation.latitude,
+              longitude: vehicleLocation.longitude,
+            }}
+            title="Vehicle Location"
+            description="Pin the vehicle's location"
+          />
+        </MapView>
+      </View> */ }
           <TextInput
             style={styles.input}
             placeholder="License Plate"
@@ -235,6 +265,14 @@ const AddVehicleScreen = () => {
             onChangeText={(text) => setDescription(text)}
             multiline={true}
             numberOfLines={4}
+          />
+            <TextInput
+            style={styles.input}
+            placeholder="Phone Number"
+            placeholderTextColor="#888"
+            keyboardType="numeric"
+            value={phonenum}
+            onChangeText={(text) => handlePhoneNumChange(text)}
           />
           <TextInput
             style={styles.input}
@@ -257,6 +295,7 @@ const AddVehicleScreen = () => {
             <Checkbox
               status={isChecked ? 'checked' : 'unchecked'}
               onPress={() => setIsChecked(!isChecked)}
+              color="#2ecc71" // Adjust the color
             />
             <Text style={styles.checkboxLabel}>I agree to the terms and conditions</Text>
           </View>
@@ -265,22 +304,84 @@ const AddVehicleScreen = () => {
           </TouchableOpacity>
         </View>
       </View>
+      
     </ScrollView>
   );
 };
 
+
 const styles = StyleSheet.create({
   scrollContainer: {
     flexGrow: 1,
-    padding: 16,
+  },
+  backIcon: {
+    fontSize: 30,
+    color: 'white',
   },
   container: {
     padding: 16,
   },
-  title: {
-    fontSize: 18,
-    fontWeight: 'bold',
+  carIcon: {
+    fontSize: 30,
+    color: 'white',
+  },
+  titleCenter: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginLeft: 10,
+  },
+  imageContainer: {
+    alignItems: 'center',
     marginBottom: 20,
+  },
+  titleText: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    color: 'white',
+  },
+  selectImageText: {
+
+    marginBottom: -20,
+    backgroundColor: 'white', // Background color
+    color: 'black',             // Text color
+    fontSize: 16,
+    padding: 10,                // Add padding for better UI
+    borderRadius: 5,            // Add border radius for rounded corners
+    textAlign: 'center',        // Center text horizontally
+  },
+  selectImageText2: {
+    marginBottom: 20,
+    color: 'black',             // Text color
+    fontSize: 16,
+    padding: 10,                // Add padding for better UI
+    borderRadius: 5,            // Add border radius for rounded corners
+    textAlign: 'center',        // Center text horizontally
+  },
+  header: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 20,
+  },
+  backButton: {
+    marginRight: 20,
+    padding: 8,
+  },
+  titleBar: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#2ecc71',
+    paddingHorizontal: 16,
+    paddingVertical: 10,
+    borderBottomWidth: 1,
+    borderBottomColor: '#ccc',
+  },
+  backButtonText: {
+    fontSize: 18,
+    color: '#2ecc71', // Green color
+  },
+  title: {
+    fontSize: 24, // Increase the font size for emphasis
+    fontWeight: 'bold',
     textAlign: 'center',
   },
   inputContainer: {
@@ -288,10 +389,10 @@ const styles = StyleSheet.create({
   },
   input: {
     borderBottomWidth: 1,
-    borderColor: '#888',
-    marginBottom: 10,
-    padding: 8,
-    fontSize: 16,
+    borderColor: '#2ecc71', // Change the border color
+    marginBottom: 20, // Increase the margin for better spacing
+    padding: 12, // Increase padding for better readability
+    fontSize: 18, // Increase font size for better visibility
   },
   multiLineInput: {
     height: 120,
@@ -299,10 +400,10 @@ const styles = StyleSheet.create({
   },
   radioContainer: {
     marginBottom: 20,
-    flexDirection: 'row',
+    flexDirection: 'column', // Display radio buttons in a column
   },
   featuresLabel: {
-    fontSize: 16,
+    fontSize: 18, // Increase font size for better readability
     fontWeight: 'bold',
     marginBottom: 10,
   },
@@ -311,17 +412,21 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginBottom: 10,
   },
+  radioText: {
+    fontSize: 16,
+    marginLeft: 10,
+  },
   addButton: {
     backgroundColor: '#2ecc71',
-    paddingHorizontal: 16,
-    paddingVertical: 10,
+    paddingHorizontal: 20, // Increase padding for better touch target
+    paddingVertical: 12, // Increase padding for better touch target
     borderRadius: 5,
     alignSelf: 'center',
-    marginTop: 10,
+    marginTop: 20, // Increase margin for better spacing
   },
   addButtonText: {
     color: 'white',
-    fontSize: 16,
+    fontSize: 18, // Increase font size for better visibility
     fontWeight: 'bold',
   },
   seatingCapacityPicker: {
@@ -340,7 +445,7 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
   seatingCapacityValue: {
-    fontSize: 16,
+    fontSize: 18, // Increase font size for better visibility
     fontWeight: 'bold',
     marginHorizontal: 10,
   },
@@ -349,15 +454,19 @@ const styles = StyleSheet.create({
   },
   featureRow: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
+    alignItems: 'center',
     marginBottom: 10,
+  },
+  featureText: {
+    fontSize: 16,
+    marginLeft: 10,
   },
   checkboxContainer: {
     flexDirection: 'row',
     alignItems: 'center',
   },
   checkboxLabel: {
-    fontSize: 16,
+    fontSize: 18, // Increase font size for better readability
     marginLeft: 10,
   },
 });

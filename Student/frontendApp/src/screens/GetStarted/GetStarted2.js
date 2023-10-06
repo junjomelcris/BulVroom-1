@@ -11,14 +11,16 @@ const GetStarted = () => {
     navigation.navigate('Started3');
   };
 
+
   return (
     <View style={styles.root}>
-    
+    <View style={styles.circlenimage}>
       <View style={styles.circleBackground}>
         <View style={styles.circle} />
       </View>
       <View style={styles.imageContainer}>
         <Image source={Logo} resizeMode='contain' style={styles.logoImage} />
+      </View>
       </View>
       <View style={styles.textContainer}>
         <Text style={styles.appName}>DIVERSE FLEET</Text>
@@ -28,16 +30,14 @@ const GetStarted = () => {
         </Text>
       </View>
       <View style={styles.bottomContainer}>
-      <View style={{ flexDirection: 'row', marginTop: 50, }}>
+        <View style={{ flexDirection: 'row', marginTop: 50, }}>
           <Text style={styles.dot2}>•</Text>
           <Text style={styles.dot}>•</Text>
           <Text style={styles.dot2}>•</Text>
-      </View>
-
+        </View>
         <TouchableOpacity onPress={onGetStartedPressed} style={styles.nextButton}>
           <Text style={styles.nextButtonText}>Next</Text>
         </TouchableOpacity>
-        
       </View>
     </View>
   );
@@ -54,12 +54,12 @@ const styles = StyleSheet.create({
   },
   circleBackground: {
     position: 'absolute',
-    top: windowHeight * 0.17,
+    top: windowHeight * 0.17 - windowWidth * 0.4, // Adjusted position for centering
     left: windowWidth * 0.1,
     width: windowWidth * 0.8,
     height: windowWidth * 0.8,
     borderRadius: windowWidth * 0.4,
-    backgroundColor: 'transparent', // Make the background transparent
+    backgroundColor: 'transparent',
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -73,28 +73,20 @@ const styles = StyleSheet.create({
     marginHorizontal: 15,
   },
   circle: {
-    top: windowHeight * -0.06,
-    left: windowWidth * 0.0,
     width: windowWidth * 0.9,
     height: windowWidth * 0.9,
-    borderRadius: windowWidth * 0.5,
-    backgroundColor: '#2ec771', // Set the background color here
-  },
-  circle1: {
-    position: 'absolute',
-    top: windowHeight * 0.05,
-    left: windowWidth * 0.0,
-    width: windowWidth * 0.05,
-    height: windowWidth * 0.05,
-    borderRadius: windowWidth * 0.5,
-    backgroundColor: '#2ec771', // Set the background color here
+    borderRadius: windowWidth * 0.45,
+    backgroundColor: '#2ec771',
   },
   imageContainer: {
-    top: windowHeight * -0.089,
+    top: windowHeight * 0.109 - windowWidth * 0.35, // Adjusted position for centering
     left: windowWidth * 0.0,
-    width: windowWidth, // Use the entire width
+    width: windowWidth,
     justifyContent: 'center',
     alignItems: 'center',
+  },
+  circlenimage: {
+    marginTop: 40,
   },
   logoImage: {
     width: '70%',
@@ -114,10 +106,10 @@ const styles = StyleSheet.create({
   },
   appDescription: {
     color: '#555',
-    textAlign: 'center',
     fontFamily: 'Poppins-Regular',
     fontSize: windowWidth * 0.04,
     marginBottom: 20,
+    textAlign: 'center',
   },
   appContent: {
     fontSize: windowWidth * 0.04,
@@ -151,6 +143,20 @@ const styles = StyleSheet.create({
     color: 'white',
     fontFamily: 'Poppins-Bold',
     fontSize: 20,
+  },
+  skipButton: {
+    paddingVertical: 15,
+    borderRadius: 30,
+    alignItems: 'center',
+    paddingHorizontal: 35,
+  },
+  skipButtonText: {
+    position: 'absolute',
+    left: 150,
+    color: 'black',
+    textDecorationLine: 'underline',
+    fontFamily: 'Poppins-Bold',
+    fontSize: 15,
   },
 });
 
