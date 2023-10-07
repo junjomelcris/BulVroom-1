@@ -93,6 +93,34 @@ function Vehicles() {
     setFilter(newFilter);
   };
 
+  const fetchOwnerUsername = async (id) => {
+    try {
+      const response = await axios.get(`https://bulvroom.onrender.com/getUsername/${id}`);
+      if (response.data.Status === 'Success') {
+        return response.data.Result.username;
+      } else {
+        return 'N/A';
+      }
+    } catch (error) {
+      console.error(error);
+      return 'N/A';
+    }
+  };
+
+  useEffect(() => {
+    const fetchData = async () => {
+      const updatedVehicles = await Promise.all(
+        vehicles.map(async (vehicle) => {
+          const username = await fetchOwnerUsername(vehicle.id);
+          return { ...vehicle, ownerUsername: username };
+        })
+      );
+      setVehicles(updatedVehicles);
+    };
+
+    fetchData();
+  }, [vehicles]);
+
   const filteredData = vehicles.filter((vehicle) => {
     if (filter === 'all') return true;
     if (filter === 'approved' && vehicle.status === 'approved') return true;
@@ -154,6 +182,7 @@ function Vehicles() {
               <th>Rate</th>
               <th>Deposit</th>
               <th>Status</th>
+              <th>Owner Username</th>
               <th>Action</th>
             </tr>
           </thead>
@@ -173,6 +202,7 @@ function Vehicles() {
                 <td>{vehicle.rate}</td>
                 <td>{vehicle.deposit}</td>
                 <td>{vehicle.status}</td>
+                <td>{vehicle.ownerUsername}</td> {/* Display the owner's username */}
                 <td>
                   <div className="mt-2">
                     <button onClick={() => handleApprove(vehicle.vehicle_id)} className='btn btn-sm btn-success me-2'>Approve</button>

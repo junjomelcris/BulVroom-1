@@ -532,6 +532,29 @@ app.post('/createVehicle', (req, res) => {
   });
 });
 
+app.get('/getUsername/:id', (req, res) => {
+  const userId = req.params.userId;
+
+  // Query the database to retrieve the username based on user_id
+  const query = 'SELECT username FROM users WHERE id = ?'; // Assuming your users table has a 'username' column
+
+  // Execute the query
+  con.query(query, [userId], (error, results) => {
+    if (error) {
+      console.error(error);
+      return res.status(500).json({ Status: 'Error', Message: 'Failed to fetch username' });
+    }
+
+    // Check if a user with the given user_id exists
+    if (results.length === 0) {
+      return res.status(404).json({ Status: 'Error', Message: 'User not found' });
+    }
+
+    // Retrieve and send the username in the response
+    const username = results[0].username;
+    res.json({ Status: 'Success', Result: { username } });
+  });
+});
 
 
 //-------------------------
