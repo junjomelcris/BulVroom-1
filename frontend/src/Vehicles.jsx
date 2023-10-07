@@ -96,16 +96,14 @@ function Vehicles() {
   const fetchOwnerUsername = async (id) => {
     try {
       const response = await axios.get(`https://bulvroom.onrender.com/getUsername/${id}`);
-      if (response.data.Status === 'Success') {
-        return response.data.Result.username;
-      } else {
-        return 'N/A';
-      }
+      console.log(response.data); // Log the response for debugging
+      return response.data.Result.username;
     } catch (error) {
       console.error(error);
-      return 'N/A';
+      throw error;
     }
   };
+  
 
   useEffect(() => {
     const fetchData = async () => {

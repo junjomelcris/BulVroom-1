@@ -533,13 +533,13 @@ app.post('/createVehicle', (req, res) => {
 });
 
 app.get('/getUsername/:id', (req, res) => {
-  const userId = req.params.userId;
+  const id = req.params.id;
 
   // Query the database to retrieve the username based on user_id
   const query = 'SELECT username FROM users WHERE id = ?'; // Assuming your users table has a 'username' column
 
   // Execute the query
-  con.query(query, [userId], (error, results) => {
+  con.query(query, [id], (error, results) => {
     if (error) {
       console.error(error);
       return res.status(500).json({ Status: 'Error', Message: 'Failed to fetch username' });
