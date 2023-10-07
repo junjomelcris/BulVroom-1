@@ -187,6 +187,7 @@ function Vehicles() {
           <tbody>
             {filteredData.map((vehicle, index) => (
               <tr key={index}>
+                <td>{vehicle.ownerUsername}</td> {/* Display the owner's username */}
                 <td>{vehicle.make}</td>
                 <td>{vehicle.model}</td>
                 <td>{vehicle.type}</td>
@@ -200,7 +201,7 @@ function Vehicles() {
                 <td>{vehicle.rate}</td>
                 <td>{vehicle.deposit}</td>
                 <td>{vehicle.status}</td>
-                <td>{vehicle.ownerUsername}</td> {/* Display the owner's username */}
+                
                 <td>
                   <div className="mt-2">
                     <button onClick={() => handleApprove(vehicle.vehicle_id)} className='btn btn-sm btn-success me-2'>Approve</button>

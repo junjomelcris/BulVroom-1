@@ -550,9 +550,6 @@ app.get('/getUsername/:id', (req, res) => {
       return res.status(404).json({ Status: 'Error', Message: 'User not found' });
     }
 
-    // Retrieve and send the username in the response
-    const username = results[0].username;
-    res.json({ Status: 'Success', Result: { username } });
   });
 });
 
