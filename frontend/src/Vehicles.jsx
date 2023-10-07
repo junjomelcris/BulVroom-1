@@ -7,19 +7,6 @@ function Vehicles() {
   const [filter, setFilter] = useState('all'); // 'all', 'approved', 'pending', 'disapproved'
   const [dropdownOpen, setDropdownOpen] = useState(false); // To manage dropdown visibility
 
-  useEffect(() => {
-    axios
-      .get('https://bulvroom.onrender.com/getVehicles') // Update the API endpoint
-      .then((res) => {
-        if (res.data.Status === 'Success') {
-          setVehicles(res.data.Result); // Update the state variable
-        } else {
-          alert('Error');
-        }
-      })
-      .catch((err) => console.log(err));
-  }, []);
-
   const navigate = useNavigate();
 
   const handleDelete = (vehicleId) => {
@@ -96,28 +83,55 @@ function Vehicles() {
   const fetchOwnerUsername = async (id) => {
     try {
       const response = await axios.get(`https://bulvroom.onrender.com/getUsername/${id}`);
-      console.log(response.data); // Log the response for debugging
-      return response.data.Result.username;
+      if (response.data.Status === 'Success') {
+        return response.data.Result.username;
+      } else {
+        console.error('Error fetching username');
+        return ''; // Return an empty string in case of an error
+      }
     } catch (error) {
-      console.error(error);
-      throw error;
+      console.error('Error fetching username:', error);
+      return ''; // Return an empty string in case of an error
     }
   };
-  
 
   useEffect(() => {
     const fetchData = async () => {
-      const updatedVehicles = await Promise.all(
-        vehicles.map(async (vehicle) => {
-          const username = await fetchOwnerUsername(vehicle.id);
-          return { ...vehicle, ownerUsername: username };
-        })
-      );
-      setVehicles(updatedVehicles);
+      try {
+        const response = await axios.get('https://bulvroom.onrender.com/getVehicles');
+        if (response.data.Status === 'Success') {
+          const vehiclesData = response.data.Result;
+
+          // Create a map to store owner usernames
+          const ownerUsernamesMap = new Map();
+
+          // Fetch owner usernames and store them in the map
+          await Promise.all(
+            vehiclesData.map(async (vehicle) => {
+              if (!ownerUsernamesMap.has(vehicle.id)) {
+                const username = await fetchOwnerUsername(vehicle.id);
+                ownerUsernamesMap.set(vehicle.id, username);
+              }
+            })
+          );
+
+          // Update the state with vehicles and owner usernames
+          const vehiclesWithUsernames = vehiclesData.map((vehicle) => ({
+            ...vehicle,
+            ownerUsername: ownerUsernamesMap.get(vehicle.id) || '', // Use the stored username from the map
+          }));
+
+          setVehicles(vehiclesWithUsernames);
+        } else {
+          alert('Error');
+        }
+      } catch (err) {
+        console.error(err);
+      }
     };
 
     fetchData();
-  }, [vehicles]);
+  }, []);
 
   const filteredData = vehicles.filter((vehicle) => {
     if (filter === 'all') return true;
@@ -167,7 +181,7 @@ function Vehicles() {
         <table className='table'>
           <thead>
             <tr>
-              <th>Make</th>
+              <th>Owner Username</th>
               <th>Model</th>
               <th>Type</th>
               <th>Seating Capacity</th>
@@ -180,7 +194,7 @@ function Vehicles() {
               <th>Rate</th>
               <th>Deposit</th>
               <th>Status</th>
-              <th>Owner Username</th>
+              <th>Make</th>
               <th>Action</th>
             </tr>
           </thead>
