@@ -521,7 +521,7 @@ app.post('/createVehicle', (req, res) => {
   ];
 
   // Execute the INSERT query
-  mysqlConnection.query(insertQuery, values, (error, results) => {
+  con.query(insertQuery, values, (error, results) => {
     if (error) {
       console.error('Error creating a new vehicle:', error);
       res.status(500).json({ Status: 'Error', Message: 'Failed to create a new vehicle' });
