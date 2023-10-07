@@ -106,7 +106,7 @@ function Vehicles() {
       <div className='d-flex justify-content-center mt-2'>
         <h3>VEHICLE MANAGEMENT</h3>
       </div>
-      <Link to="/create-vehicle" className='btn btn-success'>Add Vehicles</Link>
+      <Link to="/addvehicle" className='btn btn-success'>Add Vehicles</Link>
       {/* Filter dropdown */}
       <div className='d-flex justify-content-start mt-2'>
         <div className='dropdown'>

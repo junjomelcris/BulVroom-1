@@ -482,6 +482,55 @@ app.delete('/deleteVehicle/:id', (req, res) => {
   })
 })
 
+app.post('/createVehicle', (req, res) => {
+  const {
+    id,
+    make,
+    model,
+    type,
+    seatingCapacity,
+    transmission,
+    gas,
+    features,
+    plate,
+    description,
+    phone,
+    rate,
+    deposit,
+  } = req.body;
+
+  // Construct the INSERT SQL query
+  const insertQuery = `INSERT INTO vehicles (id, make, model, type, seatingCapacity, transmission, gas, features, plate, description, phone, rate, deposit) 
+                       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
+
+  // Define the values to be inserted into the database
+  const values = [
+    id,
+    make,
+    model,
+    type,
+    seatingCapacity,
+    transmission,
+    gas,
+    features.join(','), // Assuming features is an array, join them into a comma-separated string
+    plate,
+    description,
+    phone,
+    rate,
+    deposit,
+  ];
+
+  // Execute the INSERT query
+  mysqlConnection.query(insertQuery, values, (error, results) => {
+    if (error) {
+      console.error('Error creating a new vehicle:', error);
+      res.status(500).json({ Status: 'Error', Message: 'Failed to create a new vehicle' });
+    } else {
+      console.log('Vehicle created successfully');
+      res.status(200).json({ Status: 'Success', Message: 'Vehicle created successfully' });
+    }
+  });
+});
 
 
 

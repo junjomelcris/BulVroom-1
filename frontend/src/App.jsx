@@ -11,7 +11,7 @@ import Start from './Start'
 import EmployeeDetail from './EmployeeDetail'
 import EmployeeLogin from './EmployeeLogin'
 import Vehicles from './Vehicles'
-
+import AddVehicle from './AddVehicle'
 
 function App() {
   return (
@@ -24,6 +24,7 @@ function App() {
         <Route path='/profile' element={<Profile />}></Route>
         <Route path='/saveData' element={<Profile />}></Route>
         <Route path='/create' element={<AddEmployee />}></Route>
+        <Route path='/addvehicle' element={<AddVehicle />}></Route>
         <Route path='/employeeEdit/:id' element={<EditEmployee />}></Route>
       
       <Route path='/login' element={<Login />}></Route>
