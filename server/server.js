@@ -546,10 +546,13 @@ app.get('/getUsername/:id', (req, res) => {
     }
 
     // Check if a user with the given user_id exists
-    if (results.length === 0) {
+    else if (results.length === 0) {
       return res.status(404).json({ Status: 'Error', Message: 'User not found' });
-    }
+    }else{
 
+    // Retrieve and send the username in the response
+    const username = results[0].username;
+    res.json({ Status: 'Success', Result: { username } });}
   });
 });
 
