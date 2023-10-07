@@ -114,14 +114,7 @@ app.delete('/delete/:id', (req, res) => {
     })
 })
 
-app.delete('/deleteVehicle/:id', (req, res) => {
-    const id = req.params.id;
-    const sql = "DELETE FROM vehicles WHERE id = ?";
-    con.query(sql, [id], (err, result) => {
-        if(err) return res.json({Error: "delete users error in sql"});
-        return res.json({Status: "Success"})
-    })
-})
+
 
 const verifyUser = (req, res, next) => {
     const token = req.cookies.token;
@@ -479,6 +472,20 @@ app.put('/vdisApp/:id', (req, res) => {
     }
   });
 });
+
+app.delete('/deleteVehicle/:id', (req, res) => {
+  const id = req.params.id;
+  const sql = "DELETE FROM vehicles WHERE vehicle_id = ?";
+  con.query(sql, [id], (err, result) => {
+      if(err) return res.json({Error: "delete users error in sql"});
+      return res.json({Status: "Success"})
+  })
+})
+
+
+
+
+//-------------------------
 
 app.listen(process.env.PORT, ()=> {
     console.log("Running");
