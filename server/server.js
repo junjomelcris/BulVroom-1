@@ -246,6 +246,12 @@ app.get('/logout', (req, res) => {
     return res.json({Status: "Success"});
 })
 
+app.get('/logout/app', (req, res) => {
+  res.clearCookie('token');
+  return res.json({Status: "Success"});
+})
+
+
 app.post('/create', upload.single('profile_pic'), (req, res) => {
     bcrypt.hash(req.body.password.toString(), 10, (err, hash) => {
       if (err) return res.json({ Error: "Error in hashing password" });
@@ -305,7 +311,7 @@ app.post('/register/app', (req, res) => {
               console.error('Failed to hash password:', hashErr);
               res.send({ message: 'Server error' });
             } else {
-              
+              const verificationToken = generateVerificationToken();  
               const insertUserQuery = 'INSERT INTO users (fName, lName, email, password, address, contact, verificationToken) VALUES (?, ?, ?, ?, ?, ?,?)';
               con.query(insertUserQuery, [fName,lName, email, hashedPassword, address, contact, verificationToken], (insertErr, insertResult) => {
                 if (insertErr) {
@@ -313,7 +319,8 @@ app.post('/register/app', (req, res) => {
                   res.send({ message: 'Server error' });
                 } else {
                   // Send verification email
-                  const verificationLink =`This is your Verification Code:${verificationToken}`; // Replace with your verification link
+                  const verificationLink = `This is your Verification Code: ${verificationToken}`;
+ // Replace with your verification link
                 sendVerificationEmail(email, verificationLink); // Send verification email
   
                   res.send({ message: 'User registered successfully' });

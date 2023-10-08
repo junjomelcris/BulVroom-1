@@ -40,6 +40,10 @@ const DashboardVehicles = ({ route }) => {
     Linking.openURL(`tel:${phoneNumber}`);
   };
   
+  const navigateToBookingScreen = () => {
+    // Navigate to the BookingScreen
+    navigation.navigate('BookingScreen');
+  };
 
   const toggleDescription = () => {
     setIsDescriptionExpanded(!isDescriptionExpanded);
@@ -141,6 +145,8 @@ const DashboardVehicles = ({ route }) => {
 )}
         <Text style={styles.head}>Security Deposit</Text>
         <Text>{vehicle.deposit}</Text>
+        <Text style={styles.head}>Pick up/Drop off Location</Text>
+        <Text>{vehicle.pickupDropoffLocation}</Text>
         <Text style={styles.head}>More pictures</Text>
         <View style={styles.contain}>
       <View style={styles.collage}>
@@ -172,11 +178,11 @@ const DashboardVehicles = ({ route }) => {
     </View>
       </ScrollView>
       <View style={styles.booknow}>
-  <TouchableOpacity>
-    <View style={styles.titleCenter}>
-      <Text style={styles.titleText}>Book Now</Text>
-    </View>
-  </TouchableOpacity>
+      <TouchableOpacity onPress={navigateToBookingScreen} style={styles.bookNowButton}>
+        <View style={styles.titleCenter}>
+          <Text style={styles.titleText}>Book Now</Text>
+        </View>
+      </TouchableOpacity>
 </View>
     </View>
   );

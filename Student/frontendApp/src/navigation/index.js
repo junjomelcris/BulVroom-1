@@ -24,6 +24,7 @@ import DashboardVehicles from '../screens/DashBoardScreen/DashboardVehicles';
 import AddVehicle from '../screens/Vehicles/AddVehicle';
 import VehicleDetailsScreen from '../screens/Vehicles/VehicleDetailsScreen';
 import RenterBookings from '../screens/BookingScreen/RenterBookings';
+import BookingScreen from '../screens/BookingScreen/BookingScreen';
 //import BookingScreen from '../screens/BookingScreen/BookingScreen';
 
 
@@ -66,6 +67,7 @@ const Navigation = () => {
         <Stack.Screen name="VehicleDetailsScreen" component={VehicleDetailsScreen} />
         <Stack.Screen name="DashboardVehicles" component={DashboardVehicles} />
         <Stack.Screen name="RenterBookings" component={RenterBookings} />
+        <Stack.Screen name="BookingScreen" component={BookingScreen} />
         {/*<Stack.Screen name="BookingScreen" component={BookingScreen} />*/}
 
         

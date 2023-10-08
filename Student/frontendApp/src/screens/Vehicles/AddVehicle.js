@@ -20,6 +20,7 @@ const AddVehicleScreen = () => {
   const [secDeposit, setSecDeposit] = useState('');
   const [isChecked, setIsChecked] = useState(false);
   const [status, setStatus] = useState('PENDING');
+  const [pickupDropoffLocation, setPickupDropoffLocation] = useState('');
 
   const [vehicleLocation, setVehicleLocation] = useState({
     latitude: 0, // Replace with your default latitude
@@ -50,6 +51,8 @@ const AddVehicleScreen = () => {
       setSelectedFeatures([...selectedFeatures, feature]);
     }
   };
+
+
 
   const incrementSeatingCapacity = () => {
     setSeatingCapacity(seatingCapacity + 1);
@@ -225,30 +228,7 @@ const AddVehicleScreen = () => {
             <Text style={styles.featuresLabel}>Vehicle Features:</Text>
             {renderFeatureCheckboxes()}
           </View>
-         { /* <View style={styles.mapContainer}>
-        <MapView
-          style={styles.map}
-          region={{
-            latitude: vehicleLocation.latitude,
-            longitude: vehicleLocation.longitude,
-            latitudeDelta: 0.005,
-            longitudeDelta: 0.005,
-          }}
-          onPress={(event) => {
-            // Update the vehicle's location when the map is pressed
-            updateVehicleLocation(event.nativeEvent.coordinate);
-          }}
-        >
-          <Marker
-            coordinate={{
-              latitude: vehicleLocation.latitude,
-              longitude: vehicleLocation.longitude,
-            }}
-            title="Vehicle Location"
-            description="Pin the vehicle's location"
-          />
-        </MapView>
-      </View> */ }
+        
           <TextInput
             style={styles.input}
             placeholder="License Plate"
@@ -265,6 +245,13 @@ const AddVehicleScreen = () => {
             onChangeText={(text) => setDescription(text)}
             multiline={true}
             numberOfLines={4}
+          />
+             <TextInput
+            style={styles.input}
+            placeholder="Pickup/Drop-off Location"
+            placeholderTextColor="#888"
+            value={pickupDropoffLocation}
+            onChangeText={(text) => setPickupDropoffLocation(text)}
           />
             <TextInput
             style={styles.input}
