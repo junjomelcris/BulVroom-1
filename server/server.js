@@ -311,7 +311,8 @@ app.post('/register/app', (req, res) => {
               console.error('Failed to hash password:', hashErr);
               res.send({ message: 'Server error' });
             } else {
-              const verificationToken = generateVerificationToken();  
+
+              const verificationToken = generateVerificationToken();
               const insertUserQuery = 'INSERT INTO users (fName, lName, email, password, address, contact, verificationToken) VALUES (?, ?, ?, ?, ?, ?,?)';
               con.query(insertUserQuery, [fName,lName, email, hashedPassword, address, contact, verificationToken], (insertErr, insertResult) => {
                 if (insertErr) {
