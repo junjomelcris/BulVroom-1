@@ -559,7 +559,7 @@ app.post('/createVehicle/app', (req, res) => {
   } = req.body;
 
   // Construct the INSERT SQL query
-  const insertQuery = `INSERT INTO vehicles (userId, make, model, type, seatingCapacity, transmission, gas, features, plate, description, phone, rate, deposit, dateAdded, status) 
+  const insertQuery = `INSERT INTO vehicles (id, make, model, type, seatingCapacity, transmission, gas, features, plate, description, phone, rate, deposit, dateAdded, status) 
                        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
 
   // Define the values to be inserted into the database
