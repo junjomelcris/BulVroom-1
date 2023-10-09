@@ -617,6 +617,24 @@ app.get('/getUsername/:id', (req, res) => {
   });
 });
 
+app.get('/api/approved-vehicles', (req, res) => {
+  // Query your database to fetch approved vehicles
+  // Replace the database query with your actual query code
+  const query = 'SELECT * FROM vehicles WHERE status = ?';
+  const status = 'approved';
+
+  // Execute the query to fetch approved vehicles
+  con.query(query, [status], (err, results) => {
+    if (err) {
+      console.error('Error fetching approved vehicles:', err);
+      return res.status(500).json({ Status: 'Error', Message: 'Internal Server Error' });
+    }
+
+    // Send the list of approved vehicles as a JSON response
+    res.status(200).json(results);
+  });
+});
+
 
 //-------------------------
 

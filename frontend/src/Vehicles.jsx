@@ -182,6 +182,7 @@ function Vehicles() {
           <thead>
             <tr>
               <th>Owner Username</th>
+              <th>Make</th>
               <th>Model</th>
               <th>Type</th>
               <th>Seating Capacity</th>
@@ -194,7 +195,7 @@ function Vehicles() {
               <th>Rate</th>
               <th>Deposit</th>
               <th>Status</th>
-              <th>Make</th>
+              
               <th>Action</th>
             </tr>
           </thead>
