@@ -19,6 +19,7 @@ const AddVehicle = () => {
     rate: '',
     deposit: '',
     dateAdded: new Date().toISOString(),
+    pickupDropoffLocation: '',
     status: 'pending',
   });
   const [isTypeModalVisible, setTypeModalVisible] = useState(false);
@@ -253,6 +254,12 @@ const AddVehicle = () => {
         placeholder="Security Deposit"
         keyboardType="numeric"
         onChangeText={(text) => setVehicleData({ ...vehicleData, deposit: text })}
+      />
+
+      <TextInput
+        style={styles.input}
+        placeholder="Pickup/Dropoff Location"
+        onChangeText={(text) => setVehicleData({ ...vehicleData, pickupDropoffLocation: text })}
       />
 
       <TouchableOpacity

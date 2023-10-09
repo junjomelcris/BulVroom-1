@@ -1,58 +1,22 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   StyleSheet,
-  Image,
   ScrollView,
-  Dimensions,
   Text,
   TouchableOpacity,
+  Image,
 } from 'react-native';
 import { Card as PaperCard } from 'react-native-paper';
 import Icon from 'react-native-vector-icons/Ionicons';
 import { useNavigation } from '@react-navigation/native';
-import axios from 'axios'; // Import Axios for making API requests
-
-const { width } = Dimensions.get('window');
-
-const images = [
-  require('../../../assets/images/offer.png'),
-  require('../../../assets/images/TEST.png'),
-  require('../../../assets/images/TEST2.png'),
-  // Add more image sources as needed
-];
+import axios from 'axios';
 
 const DashBoardScreen = () => {
   const navigation = useNavigation();
   const [selectedCategory, setSelectedCategory] = useState('All');
-  const [isFavorite, setIsFavorite] = useState(false);
-  const [modalVisible, setModalVisible] = useState(false);
-  const [showFullImage, setShowFullImage] = useState(false);
-  const [prevIsFavorite, setPrevIsFavorite] = useState(false);
-  const [activeSlide, setActiveSlide] = useState(0);
-  const [vehicles, setVehicles] = useState([]); // State to store vehicle data
-
-  const scrollViewRef = useRef(null);
-
-  useEffect(() => {
-    const interval = setInterval(() => {
-      if (activeSlide < images.length - 1) {
-        scrollViewRef.current.scrollTo({
-          x: (activeSlide + 1) * width,
-          animated: true,
-        });
-        setActiveSlide(activeSlide + 1);
-      } else {
-        scrollViewRef.current.scrollTo({ x: 0, animated: true });
-        setActiveSlide(0);
-      }
-    }, 5000); // Change image every 5 seconds
-
-    return () => {
-      clearInterval(interval);
-    };
-  }, [activeSlide]);
-
+  const [vehicles, setVehicles] = useState([]);
+  
   useEffect(() => {
     // Fetch approved vehicle data when the component mounts
     fetchApprovedVehicles();
@@ -75,11 +39,8 @@ const DashBoardScreen = () => {
   };
 
   const toggleBookmark = (vehicle) => {
-    // Check if the vehicle is already bookmarked
-    const isBookmarked = vehicle.isBookmarked || false;
-
     // Toggle the bookmark status
-    vehicle.isBookmarked = !isBookmarked;
+    vehicle.isBookmarked = !vehicle.isBookmarked;
 
     // Force re-render by updating the state
     setVehicles([...vehicles]);
@@ -87,31 +48,9 @@ const DashBoardScreen = () => {
 
   return (
     <View style={styles.container}>
-      <ScrollView
-        ref={scrollViewRef}
-        style={styles.scrollView}
-        horizontal
-        pagingEnabled
-        showsHorizontalScrollIndicator={false}
-        onMomentumScrollEnd={(event) => {
-          const slideIndex = Math.ceil(event.nativeEvent.contentOffset.x / width);
-          setActiveSlide(slideIndex);
-        }}
-      >
-        {images.map((image, index) => (
-          <View key={index} style={styles.pagination}>
-            <Image source={image} style={styles.offer} />
-          </View>
-        ))}
-      </ScrollView>
-
-      <View style={{ flexDirection: 'row', justifyContent: 'space-evenly', marginTop: -205 }}>
-        {/* Your category filter buttons */}
-      </View>
-
       <ScrollView style={styles.scrollView}>
         <View style={styles.cardContainer}>
-          {/* Display your approved vehicle data here */}
+          {/* Display approved vehicle data here */}
           {vehicles.map((vehicle) => (
             <TouchableOpacity
               key={vehicle.id}
@@ -119,16 +58,25 @@ const DashBoardScreen = () => {
               onPress={() => handleCardPress(vehicle)}
             >
               <PaperCard key={vehicle.id} style={styles.card}>
-                <Image source={require('../../../assets/images/sample.png')} style={styles.VecImage} />
-                <Text style={styles.vehicleName}> {vehicle.make} {vehicle.model}</Text>
+                {/* Replace this with your actual vehicle image */}
+                <Image
+                  source={require('../../../assets/images/sample.png')}
+                  style={styles.VecImage}
+                />
+                <Text style={styles.vehicleName}>
+                  {vehicle.make} {vehicle.model}
+                </Text>
                 <View style={styles.ratings}>
+                  {/* Replace this with your actual rating */}
                   <Icon name="star" style={styles.star}></Icon>
                   <Icon name="star" style={styles.star}></Icon>
                   <Icon name="star" style={styles.star}></Icon>
                   <Icon name="star" style={styles.star}></Icon>
                   <Icon name="star" style={styles.star}></Icon>
                 </View>
-                <Text style={styles.seater}>{vehicle.seatingCapacity}-Seater</Text>
+                <Text style={styles.seater}>
+                  {vehicle.seatingCapacity}-Seater
+                </Text>
                 <View style={styles.saveContainer}>
                   <Text style={styles.price}>{vehicle.rate}/DAY</Text>
                   <TouchableOpacity onPress={() => toggleBookmark(vehicle)}>
@@ -148,9 +96,7 @@ const DashBoardScreen = () => {
 };
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
+  
   ratings: {
     flexDirection: 'row',
   },
@@ -161,7 +107,7 @@ const styles = StyleSheet.create({
   save: {
     marginLeft: 45,
     fontSize: 28,
-    color: '#2ecc71'
+    color: '#2ecc71',
   },
   price: {
     color: '#2ecc71',
@@ -188,16 +134,6 @@ const styles = StyleSheet.create({
   cardTouchable: {
     width: '48%',
   },
-  text: {
-    fontSize: 15,
-    fontWeight: '800',
-  },
-  pagination: {
-    width: width,
-    paddingTop: 15,
-    alignItems: 'center',
-    paddingHorizontal: 20,
-  },
   scrollView: {
     height: '100%',
     width: '100%',
@@ -211,14 +147,6 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     flexWrap: 'wrap',
     justifyContent: 'space-evenly',
-  },
-  offer: {
-    width: 360,
-    height: 210,
-    marginLeft: 15,
-    marginTop: -10,
-    marginBottom: 10,
-    padding: 10,
   },
   card: {
     backgroundColor: '#fff',

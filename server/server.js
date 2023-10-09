@@ -556,13 +556,14 @@ app.post('/createVehicle/app', (req, res) => {
     deposit,
     dateAdded,
     status,
+    pickupDropoffLocation, // Add pickupDropoffLocation to the request body
   } = req.body;
 
-  // Construct the INSERT SQL query
-  const insertQuery = `INSERT INTO vehicles (id, make, model, type, seatingCapacity, transmission, gas, features, plate, description, phone, rate, deposit, dateAdded, status) 
-                       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
+  // Construct the INSERT SQL query with the pickupDropoffLocation field
+  const insertQuery = `INSERT INTO vehicles (id, make, model, type, seatingCapacity, transmission, gas, features, plate, description, phone, rate, deposit, dateAdded, status, pickupDropoffLocation) 
+                       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
 
-  // Define the values to be inserted into the database
+  // Define the values to be inserted into the database, including pickupDropoffLocation
   const values = [
     userId,
     make,
@@ -579,6 +580,7 @@ app.post('/createVehicle/app', (req, res) => {
     deposit,
     dateAdded,
     status,
+    pickupDropoffLocation, // Add pickupDropoffLocation to the values array
   ];
 
   // Execute the INSERT query
@@ -592,6 +594,7 @@ app.post('/createVehicle/app', (req, res) => {
     }
   });
 });
+
 
 app.get('/getUsername/:id', (req, res) => {
   const id = req.params.id;
