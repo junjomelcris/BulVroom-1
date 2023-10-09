@@ -5,46 +5,56 @@ import {
   Image,
   StyleSheet,
   ScrollView,
-  TextInput,
   TouchableOpacity,
-  Dimensions,
+  Linking,
+  Platform,
 } from 'react-native';
 import { Card } from 'react-native-paper';
 import Icon from 'react-native-vector-icons/Ionicons';
-import { useNavigation } from '@react-navigation/native';
-const { width, height } = Dimensions.get('window');
+import { useNavigation, useRoute } from '@react-navigation/native';
+import DateTimePicker from '@react-native-community/datetimepicker';
 
-const ChatScreen = () => {
-  const [message, setMessage] = useState('');
-  const [chatMessages, setChatMessages] = useState([
-    // Sample chat messages (you can replace these with your data)
-    { id: '1', sender: 'Sender', message: 'Hello, I want to rent this car' },
-    //{ id: '2', sender: 'Receiver', message: 'My Toyota 86 is available on Wednesday. Just let me know.' },
-  ]);
+const BookingScreen = () => {
+  const navigation = useNavigation();
+  const route = useRoute();
+  const location = 'purok 4 liciada bustos bulacan'; // Replace with the actual pickup/dropoff location
+  const [showDatePicker, setShowDatePicker] = useState(false);
+  const [selectedDate, setSelectedDate] = useState(new Date());
 
-  const sendMessage = () => {
-    if (message.trim() === '') {
-      // Don't send empty messages
-      return;
-    }
+  // Extract vehicle make, model, and key image from the route params
+  const { vehicleMake, vehicleModel, vehiclepickupDropoffLocation } = route.params;
 
-    // Create a new chat message
-    const newMessage = {
-      id: `${chatMessages.length + 1}`,
-      sender: 'Sender', // You can change this to the actual sender
-      message: message,
-    };
-
-    // Add the new message to the chatMessages state
-    setChatMessages([...chatMessages, newMessage]);
-
-    // Clear the input field
-    setMessage('');
+  const openMapsApp = () => {
+    const mapUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(
+      location
+    )}`;
+    Linking.openURL(mapUrl)
+      .then((result) => {
+        if (result) {
+          console.log('Opened maps successfully');
+        } else {
+          console.log('Unable to open maps');
+        }
+      })
+      .catch((error) => {
+        console.error('Error opening maps: ', error);
+      });
   };
-  const navigation = useNavigation(); // Initialize the navigation object
-  onBackPressed = () => {
-    navigation.navigate('Homes');
+
+  const showDateTimePicker = () => {
+    setShowDatePicker(true);
   };
+
+  const onDateChange = (event, selected) => {
+    const currentDate = selected || selectedDate;
+    setShowDatePicker(Platform.OS === 'ios');
+    setSelectedDate(currentDate);
+  };
+
+  const onBackPressed = () => {
+    navigation.goBack();
+  };
+
   return (
     <View style={styles.container}>
       <View style={styles.title}>
@@ -53,6 +63,30 @@ const ChatScreen = () => {
         </TouchableOpacity>
         <Text style={styles.titleText}> Booking Information</Text>
       </View>
+      <Image
+        source={require('../../../assets/images/sample.png')}
+        style={styles.KeyImage}
+      />
+      <Text style={styles.vehicleInfo}>
+        {vehicleMake} {vehicleModel} of Owner Name
+      </Text>
+      <TouchableOpacity onPress={openMapsApp}>
+        <Text>{vehiclepickupDropoffLocation} Clickable to</Text>
+      </TouchableOpacity>
+
+      <TouchableOpacity onPress={showDateTimePicker}>
+        <Text>Select Date and Time</Text>
+      </TouchableOpacity>
+
+      {showDatePicker && (
+        <DateTimePicker
+          value={selectedDate}
+          mode="datetime"
+          is24Hour={true}
+          display="default"
+          onChange={onDateChange}
+        />
+      )}
     </View>
   );
 };
@@ -70,20 +104,23 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     elevation: 2,
   },
+  KeyImage: {
+    marginTop: 10,
+    width: 335,
+    height: 210,
+    marginLeft: -3,
+    borderRadius: 15,
+  },
   back: {
     fontSize: 30,
-    color: 'black',
+    color: 'white',
   },
   titleText: {
     marginLeft: 5,
     fontSize: 20,
     fontWeight: 'bold',
-    color: 'black',
-  },
-  scrollView: {
-    flex: 1,
-    padding: 10,
+    color: 'white',
   },
 });
 
-export default ChatScreen;
+export default BookingScreen;

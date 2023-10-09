@@ -41,8 +41,12 @@ const DashboardVehicles = ({ route }) => {
   };
   
   const navigateToBookingScreen = () => {
-    // Navigate to the BookingScreen
-    navigation.navigate('BookingScreen');
+    navigation.navigate('BookingScreen', {
+      vehicleMake: vehicle.make,
+      vehicleModel: vehicle.model,
+      vehicleKeyImage: vehicle.keyImage, // Replace with the actual key image property name
+      vehiclepickupDropoffLocation: vehicle.pickupDropoffLocation,
+    });
   };
 
   const toggleDescription = () => {
@@ -179,10 +183,10 @@ const DashboardVehicles = ({ route }) => {
       </ScrollView>
       <View style={styles.booknow}>
       <TouchableOpacity onPress={navigateToBookingScreen} style={styles.bookNowButton}>
-        <View style={styles.titleCenter}>
-          <Text style={styles.titleText}>Book Now</Text>
-        </View>
-      </TouchableOpacity>
+  <View style={styles.titleCenter}>
+    <Text style={styles.titleText}>Book Now</Text>
+  </View>
+</TouchableOpacity>
 </View>
     </View>
   );

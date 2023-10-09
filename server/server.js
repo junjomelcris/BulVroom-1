@@ -539,6 +539,59 @@ app.post('/createVehicle', (req, res) => {
     }
   });
 });
+app.post('/createVehicle/app', (req, res) => {
+  const {
+    userId,
+    make,
+    model,
+    type,
+    seatingCapacity,
+    transmission,
+    gas,
+    features,
+    plate,
+    description,
+    phone,
+    rate,
+    deposit,
+    dateAdded,
+    status,
+  } = req.body;
+
+  // Construct the INSERT SQL query
+  const insertQuery = `INSERT INTO vehicles (userId, make, model, type, seatingCapacity, transmission, gas, features, plate, description, phone, rate, deposit, dateAdded, status) 
+                       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
+
+  // Define the values to be inserted into the database
+  const values = [
+    userId,
+    make,
+    model,
+    type,
+    seatingCapacity,
+    transmission,
+    gas,
+    features.join(','), // Assuming features is an array, join them into a comma-separated string
+    plate,
+    description,
+    phone,
+    rate,
+    deposit,
+    dateAdded,
+    status,
+  ];
+
+  // Execute the INSERT query
+  con.query(insertQuery, values, (error, results) => {
+    if (error) {
+      console.error('Error creating a new vehicle:', error);
+      res.status(500).json({ Status: 'Error', Message: 'Failed to create a new vehicle' });
+    } else {
+      console.log('Vehicle created successfully');
+      res.status(200).json({ Status: 'Success', Message: 'Vehicle created successfully' });
+    }
+  });
+});
 
 app.get('/getUsername/:id', (req, res) => {
   const id = req.params.id;
