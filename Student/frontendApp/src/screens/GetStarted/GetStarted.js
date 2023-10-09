@@ -11,7 +11,7 @@ const GetStarted = () => {
     navigation.navigate('Started2');
   };
   const onSkipButtonPressed = () => {
-    navigation.navigate('SignIn');
+    navigation.navigate('Homes');
   };
 
   return (

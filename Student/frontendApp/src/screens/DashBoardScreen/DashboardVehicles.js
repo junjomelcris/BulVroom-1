@@ -28,15 +28,30 @@ const DashboardVehicles = ({ route }) => {
   };
 
   const openMessagingApp = () => {
-    const recipientNumber = `${vehicle.phonenum}`;
+    const recipientNumber = `${vehicle.phone}`;
     const messageBody = `I'm Interested in renting your vehicle: ${vehicle.make} ${vehicle.model}`;
     Linking.openURL(`sms:${recipientNumber}?body=${encodeURIComponent(messageBody)}`);
   };
   
+  const openMaps = () => {
+    const location = vehicle.pickupDropoffLocation;
+    const url = `https://www.google.com/maps/search/?api=1&query=${location}`;
   
+    Linking.openURL(url)
+      .then((result) => {
+        if (result) {
+          console.log('Opened Maps successfully');
+        } else {
+          console.error('Failed to open Maps');
+        }
+      })
+      .catch((error) => {
+        console.error('Error opening Maps:', error);
+      });
+  };
   
   const openCallingApp = () => {
-    const phoneNumber = vehicle.phonenum; // Assuming that vehicle.deposit contains the phone number
+    const phoneNumber = vehicle.phone; // Assuming that vehicle.deposit contains the phone number
     Linking.openURL(`tel:${phoneNumber}`);
   };
   
@@ -49,9 +64,10 @@ const DashboardVehicles = ({ route }) => {
     });
   };
 
-  const toggleDescription = () => {
-    setIsDescriptionExpanded(!isDescriptionExpanded);
-  };
+// Function to toggle the description expansion state
+const toggleDescription = () => {
+  setIsDescriptionExpanded(!isDescriptionExpanded);
+};
 
   return (
     <View style={styles.container}>
@@ -62,12 +78,14 @@ const DashboardVehicles = ({ route }) => {
       </View>
 
       <ScrollView style={styles.scrollContainer}>
+      <View style={styles.keyy}>
          <TouchableOpacity onPress={toggleModal} style={styles.keyImageContainer}>
           <Image
             source={require('../../../assets/images/sample.png')}
             style={styles.KeyImage}
           />
         </TouchableOpacity>
+        </View>
         <Modal
           transparent={true}
           visible={isModalVisible}
@@ -128,29 +146,35 @@ const DashboardVehicles = ({ route }) => {
         <Text style={styles.head}>Plate Number</Text>
         <Text>{vehicle.plate}</Text>
         <Text style={styles.head}>Description</Text>
-{isDescriptionExpanded ? (
-  <>
-    <Text>{vehicle.description}</Text>
-    <View style={styles.see}>
-      <TouchableOpacity onPress={toggleDescription}>
-        <Text style={styles.showLess}>Show Less</Text>
-      </TouchableOpacity>
-    </View>
-  </>
-) : (
-  <>
-    <Text numberOfLines={3}>{vehicle.description}</Text>
-    <View style={styles.see}>
-      <TouchableOpacity onPress={toggleDescription}>
-        <Text style={styles.seeMore}>See More</Text>
-      </TouchableOpacity>
+    {isDescriptionExpanded ? (
+      <>
+        <Text>{vehicle.description}</Text>
+        <View style={styles.see}>
+          <TouchableOpacity onPress={toggleDescription}>
+            <Text style={styles.showLess}>Show Less</Text>
+          </TouchableOpacity>
+        </View>
+      </>
+    ) : (
+      <>
+        <Text>{vehicle.description.substring(0, 100)}...</Text>
+        <View style={styles.see}>
+          <TouchableOpacity onPress={toggleDescription}>
+            <Text style={styles.showMore}>See More</Text>
+          </TouchableOpacity>
     </View>
   </>
 )}
         <Text style={styles.head}>Security Deposit</Text>
         <Text>{vehicle.deposit}</Text>
-        <Text style={styles.head}>Pick up/Drop off Location</Text>
-        <Text>{vehicle.pickupDropoffLocation}</Text>
+        <View>
+    <Text style={styles.head}>Pick up/Drop off Location</Text>
+    <TouchableOpacity onPress={openMaps}>
+      <Text style={{ color: 'blue', textDecorationLine: 'underline' }}>
+        {vehicle.pickupDropoffLocation}
+      </Text>
+    </TouchableOpacity>
+  </View>
         <Text style={styles.head}>More pictures</Text>
         <View style={styles.contain}>
       <View style={styles.collage}>
@@ -195,7 +219,8 @@ const DashboardVehicles = ({ route }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 16,
+    paddingHorizontal: 16,
+    paddingTop: 16,
   },
   modalOverlay: {
     flex: 1,
@@ -243,6 +268,11 @@ const styles = StyleSheet.create({
   },
   vehicleDetailsInner: {
     alignItems: 'center',
+  },
+  keyy: {
+    flex: 1,
+  alignItems: 'center', // Center horizontally
+  justifyContent: 'center', // Center vertically (optional)
   },
   vehicleDetailTitle: {
     fontSize: 16,
@@ -294,7 +324,7 @@ const styles = StyleSheet.create({
   },
   pricing: {
     marginTop: 3,
-    marginLeft: 85,
+    marginLeft: 55,
     fontSize: 19,
     color: '#04AD4C',
     fontWeight: 600,
@@ -359,6 +389,7 @@ const styles = StyleSheet.create({
     marginHorizontal: 2.5,
   },
   backIcon: {
+
     fontSize: 30,
     color: 'white',
   },
@@ -377,6 +408,10 @@ const styles = StyleSheet.create({
   },
   showLess: {
     color: '#04AD4C',
+    textDecorationLine: 'underline',
+  },
+  showMore: {
+    color: '#2ecc71',
     textDecorationLine: 'underline',
   },
 });
