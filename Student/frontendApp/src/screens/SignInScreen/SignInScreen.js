@@ -6,8 +6,7 @@ import {
   StyleSheet,
   TouchableOpacity,
   Dimensions,
-  
-  ToastAndroid
+  ToastAndroid,
 } from 'react-native';
 import { TextInput } from 'react-native-paper';
 import Logo from '../../../assets/images/bulv.png';
@@ -22,11 +21,9 @@ const { width, height } = Dimensions.get('window');
 const SignInScreen = () => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
+  const [isSubmitted, setIsSubmitted] = useState(false);
 
   const navigation = useNavigation();
-   /*const onSignInPressed = () => {
-    navigation.navigate('Homes');
-  };*/
 
   const onSignInPressed = () => {
     if (username.trim() === '' || password.trim() === '') {
@@ -34,23 +31,35 @@ const SignInScreen = () => {
       return;
     } else {
       axios
-        .post('https://bulvroom.onrender.com/login/app', {
-          username: username,
-          password: password,
-        })
-        .then((response) => {
-          console.log(response.data.message);
-          if (response.data.message === 'User found') {
-            AsyncStorage.setItem('username', username);
-            AsyncStorage.setItem('id', response.data.id.toString());
-            setUsername(''); // Clear the username input
-            setPassword(''); // Clear the password input
-            setIsSubmitted(true);
-            navigation.navigate('Started');
-          } else {
-            ToastAndroid.show('User not Exist', ToastAndroid.SHORT);
-          }
-        });
+  .post('https://bulvroom.onrender.com/login/app', {
+    username: username,
+    password: password,
+  })
+  .then((response) => {
+    console.log(response.data.message);
+    if (response.data.message === 'Success') {
+      if (response.data.id) {
+        // Store user data in AsyncStorage
+        AsyncStorage.setItem('username', username);
+        AsyncStorage.setItem('id', response.data.id); // Store user ID
+        console.log('User ID stored:', response.data.id);
+      } else {
+        console.log('User ID not provided in the response.');
+        // Handle the case where the user ID is missing
+      }
+      setUsername(''); // Clear the username input
+      setPassword(''); // Clear the password input
+      setIsSubmitted(true);
+      navigation.navigate('Homes');
+    } else {
+      ToastAndroid.show('User not Exist', ToastAndroid.SHORT);
+    }
+  })
+  .catch((error) => {
+    console.error('Error in POST request:', error);
+    ToastAndroid.show('Error occurred', ToastAndroid.SHORT);
+  });
+
     }
   };
 
@@ -61,6 +70,7 @@ const SignInScreen = () => {
   const onCreate = () => {
     navigation.navigate('SignUp');
   };
+
 
 
 

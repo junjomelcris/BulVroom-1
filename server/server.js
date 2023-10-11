@@ -190,7 +190,7 @@ app.post('/login/app', (req, res) => {
 
         if (results.length > 0) {
             const hashedPassword = results[0].password;
-
+            const userId = result[0].id;
             // Compare the hashed password with the plaintext password
             bcrypt.compare(password, hashedPassword, (err, result) => {
                 if (err) {
@@ -655,7 +655,6 @@ app.get('/user/:id', (req, res) => {
     }
   });
 });
-
 
 
 //-------------------------
