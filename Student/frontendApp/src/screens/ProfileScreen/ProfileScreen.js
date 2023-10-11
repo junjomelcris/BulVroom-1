@@ -11,34 +11,31 @@ const { width, height } = Dimensions.get('window');
 
 const ProfileScreen = () => {
   const navigation = useNavigation();
-  const [userInfo, setUserInfo] = useState({});
-  const [verificationStatus, setVerificationStatus] = useState('Pending'); // Default value
+  const [username, setUsername] = useState('');
+  const [userData, setUserData] = useState(null);
+  const [userId, setUserId] = useState(null);
 
-  const loadUserInfo = async () => {
-    try {
-      const user = await AsyncStorage.getItem('user');
-      if (user) {
-        const userData = JSON.parse(user);
-        setUserInfo(userData);
-  
-        // Fetch verification status based on the user's ID (assuming you have an API for this)
-        axios.get(`https://bulvroom.onrender.com/get-verification-status/${userData.id}`)
-          .then((response) => {
-            if (response.data.status === 'Approved') {
-              setVerificationStatus('Verified');
-            }
-          })
-          .catch((error) => {
-            console.error('Error fetching verification status:', error);
-          });
-      }
-    } catch (error) {
-      console.error('Error loading user information:', error);
-    }
-  };
-  
   useEffect(() => {
-    loadUserInfo();
+    const fetchUserData = async (userId) => {
+      try {
+        const response = await axios.get(`https://bulvroom.onrender.com/user/${userId}`);
+        setUserData(response.data);
+      } catch (error) {
+        console.log('Failed to fetch user data:', error);
+      }
+    };
+
+    const retrieveData = async () => {
+      try {
+        const storedId = await AsyncStorage.getItem('id');
+        const storedUser = await AsyncStorage.getItem('username');
+        setUserId(storedId);
+        fetchUserData(storedId);
+      } catch (error) {
+        console.log(error);
+      }
+    };
+    retrieveData();
   }, []);
   
   const handleLogout = async () => {
@@ -127,7 +124,7 @@ const ProfileScreen = () => {
       <Text style={{ fontSize: 17, color: verificationStatus === 'Verified' ? '#1b944e' : 'red' }}>
         {verificationStatus}
       </Text>
-      <Text style={{ color: 'black', fontSize: 20 }}>{`${userInfo.fName} ${userInfo.lName}`}</Text>
+      <Text style={{ color: 'black', fontSize: 20 }}>{userData ? userData.fName : 'Loading...'}</Text>
       <TouchableOpacity onPress={onEditPressed}>
         <Text style={{ color: '#1b944e', fontSize: 13, textDecorationLine: 'underline' }}>View and Edit Profile</Text>
       </TouchableOpacity>

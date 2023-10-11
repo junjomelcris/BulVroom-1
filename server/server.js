@@ -177,12 +177,12 @@ app.post('/login', (req, res) => {
 })
 
 app.post('/login/app', (req, res) => {
-    const email = req.body.email;
+    const username = req.body.username;
     const password = req.body.password;
 
-    const sql = "SELECT * FROM users WHERE email = ?";
+    const sql = "SELECT * FROM users WHERE username = ?";
 
-    con.query(sql, [email], (error, results) => {
+    con.query(sql, [username], (error, results) => {
         if (error) {
             console.error(error);
             return res.status(500).json({ message: "Internal server error" });
@@ -638,19 +638,25 @@ app.get('/api/approved-vehicles', (req, res) => {
   });
 });
 
-app.get('/get-verification-status/:userId', (req, res) => {
-  const userId = req.params.userId; // Retrieve the user ID from the URL parameter
-
-  // Fetch the verification status from your database
-  // Replace the code below with your database logic
-  const verificationStatus = getVerificationStatusFromDatabase(userId);
-
-  if (verificationStatus) {
-    res.json({ status: verificationStatus });
-  } else {
-    res.status(404).json({ error: 'Verification status not found' });
-  }
+app.get('/user/:id', (req, res) => {
+    
+  const userId = req.params.id; // Get the user ID from the request parameters
+  const query = 'SELECT * FROM users WHERE id = ?'; // Query modified to include the WHERE clause
+  con.query(query, [userId], (error, result) => { // Pass the user ID as a parameter to the query
+    if (error) {
+      console.error('Failed to fetch data:', error);
+      res.sendStatus(500);
+    } else {
+      if (result.length > 0) {
+        res.send(result[0]); // Send the first user data found (assuming the ID is unique)
+      } else {
+        res.sendStatus(404); // User with the specified ID not found
+      }
+    }
+  });
 });
+
+
 
 //-------------------------
 

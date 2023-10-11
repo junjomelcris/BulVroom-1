@@ -33,25 +33,24 @@ const SignInScreen = () => {
       ToastAndroid.show('Please Enter Username and Password', ToastAndroid.SHORT);
       return;
     } else {
-      axios.post('https://bulvroom.onrender.com/login/app', {
-        email: username,
-        password: password,
-      })
-      .then((response) => {
-        if (response.data.message === 'Success') {
-          // Store user information in AsyncStorage
-          AsyncStorage.setItem('user', JSON.stringify({ username, id: response.data.id }));
-          navigation.navigate('Homes');
-        } else if (response.data.message === 'incorrect') {
-          ToastAndroid.show('Incorrect password', ToastAndroid.SHORT);
-        } else if (response.data.message === 'notfound') {
-          ToastAndroid.show('User not found', ToastAndroid.SHORT);
-        }
-      })
-      .catch((error) => {
-        console.error('Error in POST request:', error);
-        ToastAndroid.show('Error occurred', ToastAndroid.SHORT);
-      });
+      axios
+        .post('https://bulvroom.onrender.com/login/app', {
+          username: username,
+          password: password,
+        })
+        .then((response) => {
+          console.log(response.data.message);
+          if (response.data.message === 'User found') {
+            AsyncStorage.setItem('username', username);
+            AsyncStorage.setItem('id', response.data.id.toString());
+            setUsername(''); // Clear the username input
+            setPassword(''); // Clear the password input
+            setIsSubmitted(true);
+            navigation.navigate('Started');
+          } else {
+            ToastAndroid.show('User not Exist', ToastAndroid.SHORT);
+          }
+        });
     }
   };
 
