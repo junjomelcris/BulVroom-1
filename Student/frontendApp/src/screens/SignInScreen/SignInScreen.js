@@ -38,10 +38,11 @@ const SignInScreen = () => {
   .then((response) => {
     console.log(response.data.message);
     if (response.data.message === 'Success') {
+      AsyncStorage.setItem('username', username);
       if (response.data.id) {
         // Store user data in AsyncStorage
-        AsyncStorage.setItem('username', username);
-        AsyncStorage.setItem('id', response.data.id); // Store user ID
+        
+        AsyncStorage.setItem('id', response.data.id.toString()); // Store user ID
         console.log('User ID stored:', response.data.id);
       } else {
         console.log('User ID not provided in the response.');

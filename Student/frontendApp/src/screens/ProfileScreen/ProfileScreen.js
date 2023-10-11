@@ -21,7 +21,6 @@ const ProfileScreen = () => {
         const response = await axios.get(`https://bulvroom.onrender.com/user/${userId}`);
         setUserData(response.data);
       } catch (error) {
-        console.log('User ID:', userId);
         console.log('Failed to fetch user data:', error);
       }
     };
@@ -41,7 +40,7 @@ const ProfileScreen = () => {
   
   const handleLogout = async () => {
     try {
-      await AsyncStorage.removeItem('username'); // Clear the user session
+      await AsyncStorage.removeItem('user'); // Clear the user session
       navigation.navigate('SignIn'); // Navigate to the sign-in screen
     } catch (error) {
       console.error('Error logging out:', error);
@@ -122,8 +121,8 @@ const ProfileScreen = () => {
     <View style={{flexDirection: 'row',}}>
       <Icon name="person-circle" style={{ fontSize: 55, color: 'black', alignItems: 'center' }} />
     <View style={{ flexDirection: 'column', marginLeft: 10 }}>
-      
-      <Text style={{ color: 'black', fontSize: 20 }}> {userData ? userData.fName + ' ' + userData.lName : 'Loading...'}</Text>
+    <Icon name="checkmark-circle" style={{fontSize: 17, color: '#1b944e',}}>{userData ? userData.status : 'Loading...'}</Icon>
+      <Text style={{ color: 'black', fontSize: 20 }}>{userData ? userData.fName + ' ' + userData.lName : 'Loading...'}</Text>
       <TouchableOpacity onPress={onEditPressed}>
         <Text style={{ color: '#1b944e', fontSize: 13, textDecorationLine: 'underline' }}>View and Edit Profile</Text>
       </TouchableOpacity>
