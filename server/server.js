@@ -200,7 +200,7 @@ app.post('/login/app', (req, res) => {
 
                 if (result) {
                     // Passwords match, user is authenticated
-                    return res.status(200).json({ message: "Success" });
+                    return res.status(200).json({ message: "Success",id: userId });
                 } else {
                     // Passwords don't match
                     return res.status(401).json({ message: "incorrect" });
