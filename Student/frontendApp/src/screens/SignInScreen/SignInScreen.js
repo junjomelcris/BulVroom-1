@@ -28,33 +28,32 @@ const SignInScreen = () => {
     navigation.navigate('Homes');
   };*/
 
- const onSignInPressed = () => {
+  const onSignInPressed = () => {
     if (username.trim() === '' || password.trim() === '') {
-        ToastAndroid.show('Please Enter Username and Password', ToastAndroid.SHORT);
-        return;
+      ToastAndroid.show('Please Enter Username and Password', ToastAndroid.SHORT);
+      return;
     } else {
-        axios.post('https://bulvroom.onrender.com/login/app', {
-            email: username,
-            password: password,
-        }).then((response) => {
-            console.log(response.data.message);
-            if (response.data.message === 'Success') {
-                navigation.navigate('Homes');
-            } 
-            else if (response.data.message === 'incorrect') {
-              ToastAndroid.show('Incorrect password', ToastAndroid.SHORT);
-              return;
-          } 
-          else if (response.data.message === 'notfound') {
-            ToastAndroid.show('User not found', ToastAndroid.SHORT);
-            return;
-        } 
-        }).catch((error) => {
-            console.error('Error in POST request:', error);
-            ToastAndroid.show('Error occurred', ToastAndroid.SHORT);
-        });
+      axios.post('https://bulvroom.onrender.com/login/app', {
+        email: username,
+        password: password,
+      })
+      .then((response) => {
+        if (response.data.message === 'Success') {
+          // Store user information in AsyncStorage
+          AsyncStorage.setItem('user', JSON.stringify({ username, id: response.data.id }));
+          navigation.navigate('Homes');
+        } else if (response.data.message === 'incorrect') {
+          ToastAndroid.show('Incorrect password', ToastAndroid.SHORT);
+        } else if (response.data.message === 'notfound') {
+          ToastAndroid.show('User not found', ToastAndroid.SHORT);
+        }
+      })
+      .catch((error) => {
+        console.error('Error in POST request:', error);
+        ToastAndroid.show('Error occurred', ToastAndroid.SHORT);
+      });
     }
-};
+  };
 
   const onForgot = () => {
     navigation.navigate('Forgot');

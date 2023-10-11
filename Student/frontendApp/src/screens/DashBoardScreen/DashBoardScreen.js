@@ -164,7 +164,7 @@ const DashBoardScreen = () => {
                   {vehicle.seatingCapacity}-Seater
                 </Text>
                 <View style={styles.saveContainer}>
-                  <Text style={styles.price}>{vehicle.rate}/DAY</Text>
+                  <Text style={styles.price}>P{vehicle.rate}/DAY</Text>
                   <TouchableOpacity onPress={() => toggleBookmark(vehicle)}>
                     <Icon
                       name={vehicle.isBookmarked ? 'bookmark' : 'bookmark-outline'}

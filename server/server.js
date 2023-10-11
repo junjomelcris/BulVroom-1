@@ -638,6 +638,19 @@ app.get('/api/approved-vehicles', (req, res) => {
   });
 });
 
+app.get('/get-verification-status/:userId', (req, res) => {
+  const userId = req.params.userId; // Retrieve the user ID from the URL parameter
+
+  // Fetch the verification status from your database
+  // Replace the code below with your database logic
+  const verificationStatus = getVerificationStatusFromDatabase(userId);
+
+  if (verificationStatus) {
+    res.json({ status: verificationStatus });
+  } else {
+    res.status(404).json({ error: 'Verification status not found' });
+  }
+});
 
 //-------------------------
 

@@ -5,15 +5,51 @@ import Icon from 'react-native-vector-icons/Ionicons';
 import Logo from '../../../assets/images/bulv.png';
 import {useNavigation} from '@react-navigation/native';
 import CustomButton from '../../components/CustomButton/CustomButton';
-
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import axios from 'axios';
 const { width, height } = Dimensions.get('window');
 
 const ProfileScreen = () => {
   const navigation = useNavigation();
+  const [userInfo, setUserInfo] = useState({});
+  const [verificationStatus, setVerificationStatus] = useState('Pending'); // Default value
 
-  const onSignInPressed = () => {
-    navigation.navigate('SignIn');
+  const loadUserInfo = async () => {
+    try {
+      const user = await AsyncStorage.getItem('user');
+      if (user) {
+        const userData = JSON.parse(user);
+        setUserInfo(userData);
+  
+        // Fetch verification status based on the user's ID (assuming you have an API for this)
+        axios.get(`https://bulvroom.onrender.com/get-verification-status/${userData.id}`)
+          .then((response) => {
+            if (response.data.status === 'Approved') {
+              setVerificationStatus('Verified');
+            }
+          })
+          .catch((error) => {
+            console.error('Error fetching verification status:', error);
+          });
+      }
+    } catch (error) {
+      console.error('Error loading user information:', error);
+    }
   };
+  
+  useEffect(() => {
+    loadUserInfo();
+  }, []);
+  
+  const handleLogout = async () => {
+    try {
+      await AsyncStorage.removeItem('user'); // Clear the user session
+      navigation.navigate('SignIn'); // Navigate to the sign-in screen
+    } catch (error) {
+      console.error('Error logging out:', error);
+    }
+  };
+  
 
   const 
   onNotifPressed = () => {
@@ -74,7 +110,7 @@ const ProfileScreen = () => {
     </View>
     </TouchableOpacity>
     <View style={styles.line} />
-    <TouchableOpacity onPress={onSignInPressed} style={styles.logoutButtonContainer}>
+    <TouchableOpacity onPress={handleLogout} style={styles.logoutButtonContainer}>
       <CustomButton mode="elevated" text="Log Out" />
     </TouchableOpacity>
   </Card.Content>
@@ -86,13 +122,15 @@ const ProfileScreen = () => {
 
     <View style={{width:width * 1, marginTop: 20, margin:10,}}>
     <View style={{flexDirection: 'row',}}>
-<Icon name="person-circle" style={{fontSize: 55, color: 'black', alignItems: 'center', }}></Icon>
-<View style={{ flexDirection: 'column', marginLeft: 10, }}>
-<Icon name="checkmark-circle" style={{fontSize: 17, color: '#1b944e',}}>Verified</Icon>
-    <Text style={{ color: 'black', fontSize: 20, }}>Cristian Louie Concepcion</Text>
-    <TouchableOpacity onPress={onEditPressed}>
-  <Text style={{ color: '#1b944e', fontSize: 13, textDecorationLine: 'underline'  }}>View and Edit Profile</Text>
-</TouchableOpacity>
+      <Icon name="person-circle" style={{ fontSize: 55, color: 'black', alignItems: 'center' }} />
+    <View style={{ flexDirection: 'column', marginLeft: 10 }}>
+      <Text style={{ fontSize: 17, color: verificationStatus === 'Verified' ? '#1b944e' : 'red' }}>
+        {verificationStatus}
+      </Text>
+      <Text style={{ color: 'black', fontSize: 20 }}>{`${userInfo.fName} ${userInfo.lName}`}</Text>
+      <TouchableOpacity onPress={onEditPressed}>
+        <Text style={{ color: '#1b944e', fontSize: 13, textDecorationLine: 'underline' }}>View and Edit Profile</Text>
+      </TouchableOpacity>
   </View>
       
       
