@@ -620,6 +620,30 @@ app.get('/getUsername/:id', (req, res) => {
   });
 });
 
+app.get('/getFullname/:id', (req, res) => {
+  const id = req.params.id;
+
+  // Query the database to retrieve the username based on user_id
+  const query = 'SELECT fName, lName FROM users WHERE id = ?'; // Assuming your users table has a 'username' column
+
+  // Execute the query
+  con.query(query, [id], (error, results) => {
+    if (error) {
+      console.error(error);
+      return res.status(500).json({ Status: 'Error', Message: 'Failed to fetch username' });
+    }
+
+    // Check if a user with the given user_id exists
+    else if (results.length === 0) {
+      return res.status(404).json({ Status: 'Error', Message: 'User not found' });
+    }else{
+
+    // Retrieve and send the username in the response
+    const username = results[0].username;
+    res.json({ Status: 'Success', Result: { username } });}
+  });
+});
+
 app.get('/api/approved-vehicles', (req, res) => {
   // Query your database to fetch approved vehicles
   // Replace the database query with your actual query code

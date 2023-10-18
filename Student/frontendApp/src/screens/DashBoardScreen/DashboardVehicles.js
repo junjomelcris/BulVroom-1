@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
@@ -12,13 +12,31 @@ import {
 import Icon from 'react-native-vector-icons/Ionicons';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { Card as PaperCard } from 'react-native-paper';
+import axios from 'axios';
 
 const DashboardVehicles = ({ route }) => {
   const { vehicle } = route.params;
   const navigation = useNavigation();
   const [isDescriptionExpanded, setIsDescriptionExpanded] = useState(false);
   const [isModalVisible, setIsModalVisible] = useState(false);
+  const [ownerFirstName, setOwnerFirstName] = useState('');
+  const [ownerLastName, setOwnerLastName] = useState('');
 
+  useEffect(() => {
+    // Fetch the owner's data using the foreign key (id) from the vehicle data
+    // Replace 'your_owner_api_endpoint' with the actual endpoint to fetch owner data
+    axios
+      .get(`https://bulvroom.onrender.com/getFullname/${vehicle.id}`)
+      .then((response) => {
+        // Assuming you receive the owner's name in the 'name' property
+        setOwnerFirstName(response.data.fName);
+        setOwnerLastName(response.data.lName);
+      })
+      .catch((error) => {
+        console.error('Error fetching owner data:', error);
+      });
+  }, [vehicle.id]);
+  
   const toggleModal = () => {
     setIsModalVisible(!isModalVisible);
   };
@@ -106,10 +124,10 @@ const toggleDescription = () => {
           </Text>
           <Text style={styles.pricing}>{vehicle.rate}/Day</Text>
         </View>
-        <Text style={styles.renter}>Renter</Text>
+        <Text style={styles.renter}>Owner</Text>
         <View style={styles.renterDetails}>
   <Icon name="person-circle-outline" style={styles.profile} />
-  <Text style={styles.RenterName}>Cristian Louie Concepcion</Text>
+  <Text style={styles.RenterName}>{ownerFirstName} {ownerLastName}</Text>
   <TouchableOpacity onPress={() => openMessagingApp()}>
     <Icon name="chatbubble-ellipses-outline" style={styles.msg} />
   </TouchableOpacity>

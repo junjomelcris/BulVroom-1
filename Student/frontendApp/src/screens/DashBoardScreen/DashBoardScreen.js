@@ -11,13 +11,14 @@ import { Card as PaperCard } from 'react-native-paper';
 import Icon from 'react-native-vector-icons/Ionicons';
 import { useNavigation } from '@react-navigation/native';
 import axios from 'axios';
-import Swiper from 'react-native-swiper'; // Import the Swiper component
+import Swiper from 'react-native-swiper'; 
+import { RefreshControl } from 'react-native';
 
 const DashBoardScreen = () => {
   const navigation = useNavigation();
   const [selectedCategory, setSelectedCategory] = useState('All');
   const [vehicles, setVehicles] = useState([]);
-
+  const [refreshing, setRefreshing] = useState(false);
   useEffect(() => {
     // Fetch approved vehicle data when the component mounts
     fetchApprovedVehicles();
@@ -34,7 +35,22 @@ const DashBoardScreen = () => {
         console.error('Error fetching approved vehicles:', error);
       });
   };
-
+  const onRefresh = () => {
+    setRefreshing(true);
+  
+    // Fetch your data here
+    axios
+      .get('https://bulvroom.onrender.com/api/approved-vehicles')
+      .then((response) => {
+        setVehicles(response.data);
+        setRefreshing(false); // Set refreshing to false when data is fetched
+      })
+      .catch((error) => {
+        console.error('Error fetching approved vehicles:', error);
+        setRefreshing(false); // Ensure refreshing is set to false even if there's an error
+      });
+  };
+  
   const handleCardPress = (vehicle) => {
     // Navigate to the DashboardVehicles screen and pass the vehicle details
     navigation.navigate('DashboardVehicles', { vehicle });
@@ -64,7 +80,7 @@ const DashBoardScreen = () => {
 
   return (
     <View style={styles.container}>
-      <ScrollView style={styles.scrollView}>
+      <ScrollView style={styles.scrollView} refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}>
       <Swiper
         style={styles.imageSlider}
         autoplay={true} // Auto-play enabled
@@ -139,7 +155,7 @@ const DashBoardScreen = () => {
           {/* Display filtered vehicle data here */}
           {filteredVehicles.map((vehicle) => (
             <TouchableOpacity
-              key={vehicle.id}
+              key={vehicle.vehicle_id}
               style={styles.cardTouchable}
               onPress={() => handleCardPress(vehicle)}
             >
