@@ -28,14 +28,15 @@ const DashboardVehicles = ({ route }) => {
     axios
       .get(`https://bulvroom.onrender.com/getFullname/${vehicle.id}`)
       .then((response) => {
-        // Assuming you receive the owner's name in the 'name' property
-        setOwnerFirstName(response.data.fName);
-        setOwnerLastName(response.data.lName);
+        // Assuming you receive the owner's name in the 'fName' and 'lName' properties
+        setOwnerFirstName(response.data.Result.fName);
+        setOwnerLastName(response.data.Result.lName);
       })
       .catch((error) => {
         console.error('Error fetching owner data:', error);
       });
   }, [vehicle.id]);
+  
   
   const toggleModal = () => {
     setIsModalVisible(!isModalVisible);

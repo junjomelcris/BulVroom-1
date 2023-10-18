@@ -40,12 +40,14 @@ const ProfileScreen = () => {
   
   const handleLogout = async () => {
     try {
-      await AsyncStorage.removeItem('user'); // Clear the user session
+      // Clear both 'id' and 'username' items from AsyncStorage
+      await AsyncStorage.multiRemove(['id', 'username']);
       navigation.navigate('SignIn'); // Navigate to the sign-in screen
     } catch (error) {
       console.error('Error logging out:', error);
     }
   };
+  
   
 
   const 
