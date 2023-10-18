@@ -639,8 +639,9 @@ app.get('/getFullname/:id', (req, res) => {
     }else{
 
     // Retrieve and send the username in the response
-    const username = results[0].username;
-    res.json({ Status: 'Success', Result: { username } });}
+    const fName = results[0].fName;
+    const lName = results[0].lName;
+    res.json({ Status: 'Success', Result: { fName, lName } });}
   });
 });
 
