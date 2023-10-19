@@ -12,11 +12,7 @@ import nodemailer from "nodemailer"
 dotenv.config();
 const app = express();
 app.use(cors(
-    {
-        origin: ["*"],
-        methods: ["POST", "GET", "PUT", "UPDATE", "INSERT", "DELETE","SELECT"],
-        
-    }
+    
 ));
 app.use(cookieParser());
 app.use(express.json());
