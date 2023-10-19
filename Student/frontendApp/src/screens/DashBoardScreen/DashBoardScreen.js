@@ -19,6 +19,8 @@ const DashBoardScreen = () => {
   const [selectedCategory, setSelectedCategory] = useState('All');
   const [vehicles, setVehicles] = useState([]);
   const [refreshing, setRefreshing] = useState(false);
+  const [bookmarkedVehicles, setBookmarkedVehicles] = useState([]);
+
   useEffect(() => {
     // Fetch approved vehicle data when the component mounts
     fetchApprovedVehicles();
@@ -50,6 +52,10 @@ const DashBoardScreen = () => {
         setRefreshing(false); // Ensure refreshing is set to false even if there's an error
       });
   };
+  const getBookmarkedVehicles = () => {
+    return vehicles.filter((vehicle) => vehicle.isBookmarked);
+  };
+  
   
   const handleCardPress = (vehicle) => {
     // Navigate to the DashboardVehicles screen and pass the vehicle details
@@ -57,12 +63,22 @@ const DashBoardScreen = () => {
   };
 
   const toggleBookmark = (vehicle) => {
+    // Check if the vehicle is already bookmarked
+    const isBookmarked = vehicle.isBookmarked;
+  
     // Toggle the bookmark status
-    vehicle.isBookmarked = !vehicle.isBookmarked;
-
-    // Force re-render by updating the state
-    setVehicles([...vehicles]);
+    vehicle.isBookmarked = !isBookmarked;
+  
+    // Update the state to add or remove the vehicle from bookmarkedVehicles
+    if (isBookmarked) {
+      setBookmarkedVehicles((prevBookmarkedVehicles) =>
+        prevBookmarkedVehicles.filter((v) => v.vehicle_id !== vehicle.vehicle_id)
+      );
+    } else {
+      setBookmarkedVehicles((prevBookmarkedVehicles) => [...prevBookmarkedVehicles, vehicle]);
+    }
   };
+  
 
   const filterVehicles = (category) => {
     setSelectedCategory(category);
