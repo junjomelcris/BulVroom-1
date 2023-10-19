@@ -1,11 +1,48 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { View, Text, FlatList, StyleSheet, Image, TouchableOpacity } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import axios from 'axios'; // Import axios to fetch vehicle data
 
-const FavoriteScreen = ({ bookmarkedVehicles, toggleBookmark }) => {
+const FavoriteScreen = ({ toggleBookmark }) => {
+  const [bookmarkedVehicleIds, setBookmarkedVehicleIds] = useState([]);
+  const [bookmarkedVehicles, setBookmarkedVehicles] = useState([]);
+
+  useEffect(() => {
+    // Load bookmarked vehicle IDs from AsyncStorage
+    loadBookmarkedVehicleIds();
+  }, []);
+
+  // Load bookmarked vehicle IDs from AsyncStorage
+  const loadBookmarkedVehicleIds = async () => {
+    try {
+      const bookmarks = await AsyncStorage.getItem('bookmarkedVehicles');
+      if (bookmarks) {
+        const bookmarkedIds = JSON.parse(bookmarks);
+        setBookmarkedVehicleIds(bookmarkedIds);
+        
+        // Fetch vehicle data from your API using axios
+        axios.get('https://bulvroom.onrender.com/api/approved-vehicles')
+          .then(response => {
+            const vehicles = response.data;
+            // Filter vehicles that have matching IDs with bookmarkedVehicleIds
+            const storedBookmarkedVehicles = vehicles.filter(vehicle =>
+              bookmarkedIds.includes(vehicle.vehicle_id)
+            );
+            setBookmarkedVehicles(storedBookmarkedVehicles);
+          })
+          .catch(error => {
+            console.error('Error fetching approved vehicles:', error);
+          });
+      }
+    } catch (error) {
+      console.error('Error loading bookmarked vehicles from AsyncStorage:', error);
+    }
+  };
+
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Favorite Vehicles</Text>
-      {bookmarkedVehicles && bookmarkedVehicles.length > 0 ? (
+      {bookmarkedVehicles.length > 0 ? (
         <FlatList
           data={bookmarkedVehicles}
           keyExtractor={(item) => item.vehicle_id.toString()}
@@ -32,7 +69,6 @@ const FavoriteScreen = ({ bookmarkedVehicles, toggleBookmark }) => {
 };
 
 const styles = StyleSheet.create({
-  
   title: {
     fontSize: 24,
     fontWeight: 'bold',

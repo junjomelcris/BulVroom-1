@@ -13,17 +13,36 @@ import { useNavigation } from '@react-navigation/native';
 import axios from 'axios';
 import Swiper from 'react-native-swiper'; 
 import { RefreshControl } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage'; 
+
 
 const DashBoardScreen = () => {
   const navigation = useNavigation();
   const [selectedCategory, setSelectedCategory] = useState('All');
   const [vehicles, setVehicles] = useState([]);
   const [refreshing, setRefreshing] = useState(false);
-  const [bookmarkedVehicles, setBookmarkedVehicles] = useState([]);
-
+  const loadBookmarkedVehicles = async () => {
+    try {
+      const bookmarks = await AsyncStorage.getItem('bookmarkedVehicles');
+      console.log('Bookmarks:', bookmarks); // Add this line for debugging
+      if (bookmarks) {
+        const bookmarkedIds = JSON.parse(bookmarks);
+        console.log('Bookmarked IDs:', bookmarkedIds); // Add this line for debugging
+        const updatedVehicles = vehicles.map(vehicle => ({
+          ...vehicle,
+          isBookmarked: bookmarkedIds.includes(vehicle.vehicle_id),
+        }));
+        setVehicles(updatedVehicles);
+      }
+    } catch (error) {
+      console.error('Error loading bookmarked vehicles:', error);
+    }
+  };
+  
   useEffect(() => {
     // Fetch approved vehicle data when the component mounts
     fetchApprovedVehicles();
+    loadBookmarkedVehicles();
   }, []);
 
   // Function to fetch approved vehicles
@@ -52,37 +71,31 @@ const DashBoardScreen = () => {
         setRefreshing(false); // Ensure refreshing is set to false even if there's an error
       });
   };
-  const getBookmarkedVehicles = () => {
-    return vehicles.filter((vehicle) => vehicle.isBookmarked);
+  
+  const filterVehicles = (category) => {
+    setSelectedCategory(category);
   };
-  
-  
   const handleCardPress = (vehicle) => {
     // Navigate to the DashboardVehicles screen and pass the vehicle details
     navigation.navigate('DashboardVehicles', { vehicle });
   };
 
-  const toggleBookmark = (vehicle) => {
-    // Check if the vehicle is already bookmarked
-    const isBookmarked = vehicle.isBookmarked;
-  
-    // Toggle the bookmark status
-    vehicle.isBookmarked = !isBookmarked;
-  
-    // Update the state to add or remove the vehicle from bookmarkedVehicles
-    if (isBookmarked) {
-      setBookmarkedVehicles((prevBookmarkedVehicles) =>
-        prevBookmarkedVehicles.filter((v) => v.vehicle_id !== vehicle.vehicle_id)
-      );
-    } else {
-      setBookmarkedVehicles((prevBookmarkedVehicles) => [...prevBookmarkedVehicles, vehicle]);
-    }
-  };
-  
+  const toggleBookmark = async (vehicle) => {
+    const updatedVehicles = vehicles.map((v) => {
+      if (v.vehicle_id === vehicle.vehicle_id) {
+        v.isBookmarked = !v.isBookmarked;
+      }
+      return v;
+    });
+    setVehicles(updatedVehicles);
 
-  const filterVehicles = (category) => {
-    setSelectedCategory(category);
+    // Update local storage with the latest bookmarked vehicle IDs
+    const bookmarkedIds = updatedVehicles
+      .filter((v) => v.isBookmarked)
+      .map((v) => v.vehicle_id);
+    await AsyncStorage.setItem('bookmarkedVehicles', JSON.stringify(bookmarkedIds));
   };
+  
 
   // Filter vehicles based on selected category
   const filteredVehicles =
