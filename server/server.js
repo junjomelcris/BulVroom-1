@@ -71,6 +71,10 @@ app.get('/getVehicles', (req, res) => {
         return res.json({Status: "Success", Result: result})
     })
 })
+// Add this route to your server code
+app.get('/keep-alive', (req, res) => {
+  res.send('Server is alive');
+});
 
 
 app.get('/get/:id', (req, res) => {

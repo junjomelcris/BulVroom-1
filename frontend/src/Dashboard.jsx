@@ -2,7 +2,7 @@ import React, { useEffect } from 'react'
 import 'bootstrap-icons/font/bootstrap-icons.css'
 import { Link, Outlet, useNavigate } from 'react-router-dom'
 import axios from 'axios'
-
+import KeepAlive from './KeepAlive';
 function Dashboard() {
 	const navigate = useNavigate()
 	axios.defaults.withCredentials = true;
@@ -41,6 +41,7 @@ function Dashboard() {
 						<a href="/" className="d-flex align-items-center pb-3  fw-bold mb-md-1 mt-md-3 me-md-auto text-white text-decoration-none">
 							<span className="fs-5 fw-bolder d-none d-sm-inline">Admin Dashboard</span>
 						</a>
+						<KeepAlive />
 						<ul className="nav nav-pills flex-column mb-sm-auto mb-0 align-items-center align-items-sm-start" id="menu">
 							<li>
 								<Link to="/" data-bs-toggle="collapse" className="nav-link text-white px-0 align-middle">
