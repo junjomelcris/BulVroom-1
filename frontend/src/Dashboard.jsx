@@ -70,7 +70,7 @@ function Dashboard() {
 					<div className='p-2 d-flex justify-content-center shadow text-success'>
 						<h4 >BULVROOM MANAGEMENT SYSTEM</h4>						
 					</div>
-					<Outlet />
+					<Outlet /><KeepAlive />
 				</div>
 			</div>
 		</div>
