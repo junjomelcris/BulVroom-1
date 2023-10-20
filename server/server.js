@@ -12,7 +12,7 @@ import nodemailer from "nodemailer"
 dotenv.config();
 const app = express();
 app.use(cors({
-  origin: "*",
+  origin: 'https://bul-vroom-1.vercel.app/',
   credentials: true, 
 }
     
