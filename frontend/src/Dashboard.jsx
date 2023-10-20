@@ -5,7 +5,6 @@ import axios from 'axios'
 import KeepAlive from './KeepAlive';
 function Dashboard() {
 	const navigate = useNavigate()
-	axios.defaults.withCredentials = true;
 	useEffect(()=>{
 		axios.get('https://bulvroom.onrender.com/dashboard')
 		.then(res => {
