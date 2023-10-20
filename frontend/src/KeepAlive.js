@@ -15,7 +15,7 @@ const KeepAlive = () => {
         .catch((error) => {
           console.error('Failed to keep the server alive:', error);
         });
-    }, 600000); // Send a request every 10 minutes (adjust the interval as needed)
+    }, 180000); // Send a request every 10 minutes (adjust the interval as needed)
 
     return () => {
       clearInterval(keepAliveInterval); // Cleanup the interval on unmount
