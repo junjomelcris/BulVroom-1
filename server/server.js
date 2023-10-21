@@ -347,14 +347,14 @@ app.post('/register/app', (req, res) => {
     const transporter = nodemailer.createTransport({
       service: 'gmail',
       auth: {
-        user: 'mindmattersstdominic@gmail.com',
-        pass: 'swutnhnnzxmdjytp',
+        user: 'bulvroom0@gmail.com',
+        pass: 'kriolqgjqkjcxfey',
       },
     });
   
     // Setup email data
     const mailOptions = {
-      from: 'mindmattersstdominic@gmail.com',
+      from: 'bulvroom0@gmail.com',
       to: email,
       subject: 'Email Verification',
       html: `<p>Thank you for registering. Please click the following link to verify your email:</p>
