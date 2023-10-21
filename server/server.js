@@ -721,7 +721,7 @@ app.put("/Upload/:id",(req, res) => {
     req.body.image,
   ];
 
-  db.query(Updatequery, [...values,UserId], (err, data) => {
+  con.query(Updatequery, [...values,UserId], (err, data) => {
     if (err) return res.send(err);
     return res.json(data);
   });
