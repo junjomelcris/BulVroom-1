@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import {
   View,
-  Text,
+  Text, Alert,
   Image,
   StyleSheet,
   ScrollView,
@@ -16,11 +16,15 @@ import {
   Dialog,
   Snackbar,
 } from 'react-native-paper';
-import * as ImagePicker from 'react-native-image-picker';
+import ImagePicker ,{launchCamera, launchImageLibrary} from 'react-native-image-picker';
 import Icon from 'react-native-vector-icons/Ionicons';
 import { useNavigation } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
+
+// Import Firebase storage
+import { storage } from '../../../firebase';
+import { ref, uploadBytesResumable, getDownloadURL } from "firebase/storage";
 
 const { width, height } = Dimensions.get('window');
 
@@ -31,33 +35,75 @@ const SignUpScreen = () => {
   const [contact, setContact] = useState('');
   const [isDialogVisible, setDialogVisible] = useState(false);
   const [isSnackbarVisible, setSnackbarVisible] = useState(false);
-
-  const selectProfilePicture = () => {
-    const options = {
-      title: 'Select Profile Picture',
-      storageOptions: {
-        skipBackup: true,
-        path: 'images',
-      },
-    };
-
-    ImagePicker.launchImageLibrary(options, (response) => {
-      if (response.didCancel) {
-        console.log('User cancelled image picker');
-      } else if (response.error) {
-        console.log('ImagePicker Error: ', response.error);
-      } else if (response.customButton) {
-        console.log('User tapped custom button: ', response.customButton);
-      } else {
-        setSelectedImage(response.uri);
-      }
-    });
+  const [progress, setProgress] = useState(0);
+  const [galleryPhoto, setGalleryPhoto] = useState();
+  let options = {
+    mediaType: 'mixed', // Allow all media types
+    allowsEditing: true,
+    aspect: [4, 3],
+    quality: 1,
   };
+  const selectImage = async () => {
+    const result = await launchImageLibrary(options);
+    setGalleryPhoto(result.assets[0].uri);
+    Alert.alert(
+      'Update Images',
+      'Are you sure you want to update you Profile?',
+      [
+        {
+          text: 'Cancel',
+          style: 'cancel',
+        },
+        {
+          text: 'OK',
+          onPress: () => Upload(),
+        },
+      ],
+      { cancelable: false }
+    );
+};
+const Upload = async () => {
+  if (galleryPhoto) {
+    const imagePath = `profile_pic/${userId}/${galleryPhoto.fileName}`;
+    const storageRef = ref(storage, imagePath);
+
+    try {
+      const response = await fetch(galleryPhoto);
+      const blob = await response.blob();
+      const uploadTask = uploadBytesResumable(storageRef, blob);
+
+      uploadTask.on("state_changed", (snapshot) => {
+        // Calculate the progress percentage and update the state
+        const progressPercentage = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+        setProgress(progressPercentage);
+      }, (error) => {
+        console.error("Error uploading image: ", error);
+      }, () => {
+        getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
+          axios
+            .put(`https://bulvroom.onrender.com/Upload/${userId}`, { image: downloadURL })
+            .then((res) => {
+              console.log(res);
+            })
+            .catch((err) => console.log(err));
+          alert('Image uploaded successfully');
+          console.log(userData.profile_pic);
+          // Reload your data or update the UI as needed
+        });
+      });
+    } catch (error) {
+      console.error("Error while processing the image: ", error);
+    }
+  } else {
+    alert('No file selected or userData.image_file is null');
+  }
+};
 
   const fetchUserData = async (userId) => {
     try {
       const response = await axios.get(`https://bulvroom.onrender.com/user/${userId}`);
       setUserData(response.data);
+      console.log(response.data.profile_pic);
     } catch (error) {
       console.log('Failed to fetch user data:', error);
     }
@@ -145,13 +191,16 @@ const SignUpScreen = () => {
         </View>
         <ScrollView style={styles.scrollView}>
           <View style={styles.content}>
-            <TouchableOpacity onPress={selectProfilePicture} style={styles.imageContainer}>
-              {selectedImage ? (
-                <Image source={{ uri: selectedImage }} style={styles.selectedImage} />
-              ) : (
-                <Text style={styles.selectImageText}>Select Profile Picture</Text>
-              )}
-            </TouchableOpacity>
+          <TouchableOpacity onPress={selectImage}>
+  <View style={styles.imageContainer}>
+  <Text style={styles.centeredText}>Change Profile</Text>
+  <Image
+  source={userData && userData.profile_pic ? { uri: userData.profile_pic } : require('../../../assets/images/bulv.png')}
+  resizeMode="contain"
+  style={styles.image}
+/>
+</View>
+  </TouchableOpacity>
 
             <View style={styles.container1}>
               <TextInput
@@ -298,6 +347,22 @@ const styles = StyleSheet.create({
     width: windowWidth * 2.2,
     height: windowWidth * 2.90,
     opacity: 0.2,
+  },
+  image: {
+    width: width / 2,  // Set both width and height to the same value
+    height: width / 2, // Set both width and height to the same value
+    borderRadius: width / 4, // Half of the width for a circular shape
+  },
+
+  imageContainer: {
+    width: width / 2,  // Set both width and height to the same value
+    height: width / 2, // Set both width and height to the same value
+    borderRadius: width / 4, // Half of the width for a circular shape
+    margin: 15,
+    borderWidth: 2,
+    borderColor: 'black',
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   circle: {
     top: (height - width * 1.89) / 2,
