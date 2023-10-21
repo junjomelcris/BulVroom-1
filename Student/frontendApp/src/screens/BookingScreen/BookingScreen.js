@@ -1,14 +1,5 @@
 import React, { useState } from 'react';
-import {
-  View,
-  Text,
-  Image,
-  StyleSheet,
-  ScrollView,
-  TouchableOpacity,
-  Linking,
-  Platform,
-} from 'react-native';
+import { View, Text, Image, StyleSheet, TouchableOpacity, Linking, Platform } from 'react-native';
 import { Card } from 'react-native-paper';
 import Icon from 'react-native-vector-icons/Ionicons';
 import { useNavigation, useRoute } from '@react-navigation/native';
@@ -17,17 +8,16 @@ import DateTimePicker from '@react-native-community/datetimepicker';
 const BookingScreen = () => {
   const navigation = useNavigation();
   const route = useRoute();
-  const location = 'purok 4 liciada bustos bulacan'; // Replace with the actual pickup/dropoff location
+  const location = 'Purok 4, Liciada, Bustos, Bulacan';
   const [showDatePicker, setShowDatePicker] = useState(false);
+  const [showTimePicker, setShowTimePicker] = useState(false);
   const [selectedDate, setSelectedDate] = useState(new Date());
+  const [dateTimeText, setDateTimeText] = useState('Select date and time'); // Initial text
 
-  // Extract vehicle make, model, and key image from the route params
   const { vehicleMake, vehicleModel, vehiclepickupDropoffLocation } = route.params;
 
   const openMapsApp = () => {
-    const mapUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(
-      location
-    )}`;
+    const mapUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(location)}`;
     Linking.openURL(mapUrl)
       .then((result) => {
         if (result) {
@@ -45,10 +35,19 @@ const BookingScreen = () => {
     setShowDatePicker(true);
   };
 
+  const onTimeChange = (event, selected) => {
+    const currentTime = selected || selectedDate;
+    setShowTimePicker(Platform.OS === 'ios');
+    setSelectedDate(currentTime);
+    setDateTimeText(currentTime.toLocaleString());
+  };
+
   const onDateChange = (event, selected) => {
     const currentDate = selected || selectedDate;
     setShowDatePicker(Platform.OS === 'ios');
     setSelectedDate(currentDate);
+    setShowTimePicker(true);
+    setDateTimeText(currentDate.toLocaleString());
   };
 
   const onBackPressed = () => {
@@ -61,32 +60,81 @@ const BookingScreen = () => {
         <TouchableOpacity onPress={onBackPressed}>
           <Icon name="arrow-back" style={styles.back} />
         </TouchableOpacity>
-        <Text style={styles.titleText}> Booking Information</Text>
+        <Text style={styles.titleText}>Booking Information</Text>
       </View>
       <Image
         source={require('../../../assets/images/sample.png')}
-        style={styles.KeyImage}
+        style={styles.keyImage}
       />
-      <Text style={styles.vehicleInfo}>
-        {vehicleMake} {vehicleModel} of Owner Name
-      </Text>
-      <TouchableOpacity onPress={openMapsApp}>
-        <Text>{vehiclepickupDropoffLocation} Clickable to</Text>
-      </TouchableOpacity>
+      <View style={styles.content}>
+        <Text style={styles.vehicleInfo}>
+          {vehicleMake} {vehicleModel}
+        </Text>
+        <View style={styles.location}>
+          <Text>Pick up and Drop Off Location:</Text>
+          <TouchableOpacity onPress={openMapsApp}>
+            <Text style={styles.locationText}>
+              {vehiclepickupDropoffLocation}
+            </Text>
+          </TouchableOpacity>
+        </View>
+        <View style={styles.datetime}>
+          <Text>Pick up Date and Time</Text>
+          <TouchableOpacity onPress={showDateTimePicker}>
+            <Text style={styles.selectedDateTime}>
+              {dateTimeText} {/* Display the selected date and time */}
+            </Text>
+          </TouchableOpacity>
+          {showDatePicker && (
+            <DateTimePicker
+              value={selectedDate}
+              mode="datetime"
+              display="default"
+              onChange={onDateChange}
+            />
+          )}
+          {showTimePicker && (
+            <DateTimePicker
+              value={selectedDate}
+              mode="time"
+              display="default"
+              onChange={onTimeChange}
+            />
+          )}
+        </View>
+        <View style={styles.datetime}>
+          <Text>Drop Off Date and Time</Text>
+          <TouchableOpacity onPress={showDateTimePicker}>
+            <Text style={styles.selectedDateTime}>
+              {dateTimeText} {/* Display the selected date and time */}
+            </Text>
+          </TouchableOpacity>
+          {showDatePicker && (
+            <DateTimePicker
+              value={selectedDate}
+              mode="datetime"
+              display="default"
+              onChange={onDateChange}
+            />
+          )}
+          {showTimePicker && (
+            <DateTimePicker
+              value={selectedDate}
+              mode="time"
+              display="default"
+              onChange={onTimeChange}
+            />
+          )}
+        </View>
+      </View>
+      <View style={styles.booknow}>
+      <TouchableOpacity style={styles.bookNowButton}>
+  <View style={styles.titleCenter}>
+    <Text style={styles.titleText}>Continue</Text>
+  </View>
 
-      <TouchableOpacity onPress={showDateTimePicker}>
-        <Text>Select Date and Time</Text>
-      </TouchableOpacity>
-
-      {showDatePicker && (
-        <DateTimePicker
-          value={selectedDate}
-          mode="datetime"
-          is24Hour={true}
-          display="default"
-          onChange={onDateChange}
-        />
-      )}
+</TouchableOpacity>
+</View>
     </View>
   );
 };
@@ -104,11 +152,10 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     elevation: 2,
   },
-  KeyImage: {
+  keyImage: {
     marginTop: 10,
-    width: 335,
+    width: '100%',
     height: 210,
-    marginLeft: -3,
     borderRadius: 15,
   },
   back: {
@@ -120,6 +167,40 @@ const styles = StyleSheet.create({
     fontSize: 20,
     fontWeight: 'bold',
     color: 'white',
+  },
+  content: {
+    paddingHorizontal: 15,
+    marginTop: 20,
+  },
+  vehicleInfo: {
+    fontSize: 18,
+    fontWeight: 'bold',
+  },
+  booknow: {
+    flexDirection: 'row',
+    backgroundColor: '#2ecc71',
+    paddingHorizontal: 16,
+    paddingVertical: 10, // Adjust this value as needed
+    justifyContent: 'center',
+    alignItems: 'center',
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
+},
+  location: {
+    marginTop: 10,
+  },
+  locationText: {
+    color: '#2ecc71',
+    fontSize: 18,
+  },
+  datetime: {
+    marginTop: 20,
+  },
+  selectedDateTime: {
+    fontSize: 18,
+    color: '#2ecc71',
   },
 });
 
