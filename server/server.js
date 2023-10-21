@@ -32,11 +32,40 @@ const con = mysql.createConnection({
 // Establish the database connection
 con.connect((err) => {
   if (err) {
-    console.error('Failed to connect to the database:', err);
+    console.error('Error connecting to database:', err);
+    setTimeout(handleDisconnect, 2000);
   } else {
     console.log('Connected to the database');
   }
 });
+con.on('error', (err) => {
+  console.error('Database error:', err);
+  if (err.code === 'PROTOCOL_CONNECTION_LOST') {
+    handleDisconnect();
+  } else {
+    throw err;
+  }
+});
+
+function handleDisconnect() {
+  
+
+  con.connect((err) => {
+    if (err) {
+      console.error('Error connecting to database (reconnect):', err);
+      setTimeout(handleDisconnect, 2000);
+    }
+  });
+
+  con.on('error', (err) => {
+    console.error('Database error (reconnect):', err);
+    if (err.code === 'PROTOCOL_CONNECTION_LOST') {
+      handleDisconnect();
+    } else {
+      throw err;
+    }
+  });
+}
 
 
 
