@@ -713,6 +713,19 @@ app.get('/user/:id', (req, res) => {
 
 
 //-------------------------
+app.put("/Upload/:id",(req, res) => {
+  const UserId = req.params.id;
+  const Updatequery = "UPDATE users SET `profile_pic`= ? WHERE id = ?";
+
+  const values = [
+    req.body.image,
+  ];
+
+  db.query(Updatequery, [...values,UserId], (err, data) => {
+    if (err) return res.send(err);
+    return res.json(data);
+  });
+});
 
 app.listen(process.env.PORT, ()=> {
     console.log("Running");
