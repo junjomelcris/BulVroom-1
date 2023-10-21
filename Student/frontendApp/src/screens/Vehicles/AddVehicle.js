@@ -1,11 +1,12 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, TextInput, Button, ScrollView, TouchableOpacity, Modal } from 'react-native';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { RadioButton } from 'react-native-paper'; 
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const AddVehicle = () => {
   const [vehicleData, setVehicleData] = useState({
-    userId: '38', // Replace with the actual user ID
+    userId: null, // Replace with the actual user ID
     make: '',
     model: '',
     type: '',
@@ -30,7 +31,21 @@ const AddVehicle = () => {
     setVehicleData({ ...vehicleData, type });
     setTypeModalVisible(false); // Close the modal after selecting a type
   };
-  
+  //userid
+  useEffect(() => {
+    const retrieveUserId = async () => {
+      try {
+        const storedUserId = await AsyncStorage.getItem('id');
+        if (storedUserId) {
+          setVehicleData({ ...vehicleData, userId: storedUserId });
+        }
+      } catch (error) {
+        console.log(error);
+      }
+    };
+
+    retrieveUserId();
+  }, []);
   const navigation = useNavigation();
 
 

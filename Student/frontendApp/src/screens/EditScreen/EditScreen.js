@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
@@ -8,23 +8,29 @@ import {
   TouchableOpacity,
   Dimensions,
 } from 'react-native';
-import { TextInput } from 'react-native-paper';
-import * as ImagePicker from 'react-native-image-picker'
+import {
+  Provider,
+  TextInput,
+  Button,
+  Portal,
+  Dialog,
+  Snackbar,
+} from 'react-native-paper';
+import * as ImagePicker from 'react-native-image-picker';
 import Icon from 'react-native-vector-icons/Ionicons';
-import {useNavigation} from '@react-navigation/native';
-import CustomInputs from '../../components/CustomInputs/CustomInputs';
+import { useNavigation } from '@react-navigation/native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import axios from 'axios';
 
 const { width, height } = Dimensions.get('window');
 
 const SignUpScreen = () => {
   const [selectedImage, setSelectedImage] = useState(null);
-  const [firstName, setFirstName] = useState('');
-  const [lastName, setLastName] = useState('');
-  const [email, setEmail] = useState('');
-  const [Address, setAddress] = useState('');
-  const [password, setPassword] = useState('');
-  const [number, setContact] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
+  const [userData, setUserData] = useState(null);
+  const [userId, setUserId] = useState(null);
+  const [contact, setContact] = useState('');
+  const [isDialogVisible, setDialogVisible] = useState(false);
+  const [isSnackbarVisible, setSnackbarVisible] = useState(false);
 
   const selectProfilePicture = () => {
     const options = {
@@ -48,26 +54,66 @@ const SignUpScreen = () => {
     });
   };
 
-  const uploadDriverLicense = () => {
-    // Implement the logic for uploading the driver's license image here
+  const fetchUserData = async (userId) => {
+    try {
+      const response = await axios.get(`https://bulvroom.onrender.com/user/${userId}`);
+      setUserData(response.data);
+    } catch (error) {
+      console.log('Failed to fetch user data:', error);
+    }
   };
 
-  const uploadValidId = () => {
-    // Implement the logic for uploading the valid ID image here
-  };
+  useEffect(() => {
+    const retrieveData = async () => {
+      try {
+        const storedId = await AsyncStorage.getItem('id');
+        setUserId(storedId);
+        fetchUserData(storedId);
+      } catch (error) {
+        console.log(error);
+      }
+    };
+    retrieveData();
+  }, []);
 
   const navigation = useNavigation();
 
   const onSignUpPressed = () => {
-    navigation.navigate('Homes');
+    // Check if the contact is valid
+    if (!isValidContactNumber(contact)) {
+      setDialogVisible(true); // Show the dialog for invalid input
+    } else {
+      const updatedData = {
+        fName: userData.fName,
+        lName: userData.lName,
+        address: userData.address,
+        email: userData.email,
+        contact: contact,
+      };
+
+      updateUserProfile(userId, updatedData);
+    }
+  };
+
+  const updateUserProfile = async (userId, updatedData) => {
+    try {
+      const response = await axios.put(
+        `https://bulvroom.onrender.com/update/${userId}`,
+        updatedData
+      );
+      if (response.data.Status === 'Success') {
+        // User data updated successfully
+        setSnackbarVisible(true);
+      } else {
+        console.log('Failed to update user data');
+      }
+    } catch (error) {
+      console.log('Error updating user data:', error);
+    }
   };
 
   const onChangePass = () => {
     navigation.navigate('ResetPW');
-  };
-
-  const onSignIn = () => {
-    navigation.navigate('SignIn');
   };
 
   const onBackPressed = () => {
@@ -75,118 +121,104 @@ const SignUpScreen = () => {
   };
 
   const isValidContactNumber = (text) => {
-    // Remove any non-numeric characters
-    const numericValue = text.replace(/[^0-9]/g, '');
+    // Validate if the contact is 11 digits and starts with '09'
+    return text.match(/^09\d{9}$/) !== null;
+  };
 
-    // Check if the numeric value is exactly 10 digits
-    return numericValue.length === 10;
+  const onContactChange = (text) => {
+    setContact(text);
   };
 
   return (
-    <View>
-      <View style={styles.container}>
-        <View style={styles.title}>
-          <TouchableOpacity onPress={onBackPressed}>
-            <Icon name="arrow-back" style={styles.back}></Icon>
-          </TouchableOpacity>
-          <View style={styles.titleCenter}>
-            <Icon name="person" style={styles.title2}></Icon>
-            <Text style={styles.titleText}>View and Edit profile</Text>
+    <Provider>
+      <View>
+        <View style={styles.container}>
+          <View style={styles.title}>
+            <TouchableOpacity onPress={onBackPressed}>
+              <Icon name="arrow-back" style={styles.back}></Icon>
+            </TouchableOpacity>
+            <View style={styles.titleCenter}>
+              <Icon name="person" style={styles.title2}></Icon>
+              <Text style={styles.titleText}>View and Edit profile</Text>
+            </View>
           </View>
         </View>
+        <ScrollView style={styles.scrollView}>
+          <View style={styles.content}>
+            <TouchableOpacity onPress={selectProfilePicture} style={styles.imageContainer}>
+              {selectedImage ? (
+                <Image source={{ uri: selectedImage }} style={styles.selectedImage} />
+              ) : (
+                <Text style={styles.selectImageText}>Select Profile Picture</Text>
+              )}
+            </TouchableOpacity>
+
+            <View style={styles.container1}>
+              <TextInput
+                label="First Name"
+                value={userData ? userData.fName : ''}
+                editable={false}
+                style={{ pointerEvents: 'none', marginBottom: 20 }}
+              />
+
+              <TextInput
+                label="Last Name"
+                value={userData ? userData.lName : ''}
+                editable={false}
+                style={{ pointerEvents: 'none', marginBottom: 20 }}
+              />
+
+              <TextInput
+                label="Address"
+                value={userData ? userData.address : ''}
+                editable={false}
+                style={{ pointerEvents: 'none', marginBottom: 20 }}
+              />
+
+              <TextInput
+                label="Email"
+                value={userData ? userData.email : ''}
+                editable={false}
+                style={{ pointerEvents: 'none',  marginBottom: 20 }}
+              />
+
+              <TextInput
+                label={"Contact Number:" + " " + (userData ? userData.contact : '')}
+                keyboardType="numeric"
+                onChangeText={onContactChange}
+                style={{ backgroundColor: 'white' }}
+                value={contact}
+                maxLength={11}
+              />
+            </View>
+            <TouchableOpacity onPress={onChangePass} style={styles.changeButton}>
+              <Text style={styles.changeButtonText}>Change Password</Text>
+            </TouchableOpacity>
+            <TouchableOpacity onPress={onSignUpPressed} style={styles.saveButton}>
+              <Text style={styles.saveButtonText}>Save</Text>
+            </TouchableOpacity>
+          </View>
+        </ScrollView>
       </View>
-      <ScrollView style={styles.scrollView}>
-        <View style={styles.content}>
-
-          <TouchableOpacity onPress={selectProfilePicture} style={styles.imageContainer}>
-            {selectedImage ? (
-              <Image
-                source={{ uri: selectedImage }}
-                style={styles.selectedImage}
-              />
-            ) : (
-              <Text style={styles.selectImageText}>Select Profile Picture</Text>
-            )}
-          </TouchableOpacity>
-
-          {/* New image container */}
-          <View style={styles.newImageContainer}>
-            {selectedImage ? (
-              <Image
-                source={{ uri: selectedImage }}
-                style={styles.selectedImage}
-              />
-            ) : (
-              <Text style={styles.selectImageText}>No Image Selected</Text>
-            )}
-          </View>
-
-          <View style={styles.id}>
-            <TouchableOpacity onPress={uploadDriverLicense} style={styles.imageContainer1}>
-              {/* Implement logic for driver's license image */}
-            </TouchableOpacity>
-            <TouchableOpacity onPress={uploadValidId} style={styles.imageContainer1}>
-              {/* Implement logic for valid ID image */}
-            </TouchableOpacity>
-          </View>
-
-          <View style={styles.container1}>
-            <TextInput
-              label="First Name"
-              value={"Cristian Louie"}
-              onChangeText={(text) => setFirstName(text)}
-              editable={false}
-              style={{ pointerEvents: 'none', marginBottom: 20 }}
-            />
-
-            <TextInput
-              label="Last Name"
-              value={"Concepcion"}
-              onChangeText={(text) => setLastName(text)}
-              editable={false}
-              style={{ pointerEvents: 'none', marginBottom: 20 }}
-            />
-            <TextInput
-              label="Address"
-              value={"282, Purok 4, Liciada, Bustos, Bulacan"}
-              onChangeText={(text) => setAddress(text)}
-              editable={false}
-              style={{ pointerEvents: 'none', marginBottom: 20 }}
-            />
-            <TextInput
-              label="Email"
-              value={"louieconcepcion18@gmail.com"}
-              onChangeText={(text) => setEmail(text)}
-              editable={false}
-              style={{ pointerEvents: 'none' }}
-            />
-          </View>
-          <CustomInputs
-            label="Contact Number"
-            value={number}
-            keyboardType="numeric"
-            onChangeText={(text) => {
-              // Remove any non-numeric characters
-              const numericValue = text.replace(/[^0-9]/g, '');
-
-              // Check if the numeric value is exactly 10 digits
-              if (numericValue.length <= 11) {
-                const formattedValue =
-                  numericValue.length === 0 ? numericValue : numericValue;
-
-                setContact(formattedValue);
-              }
-            }}
-          />
-          <TouchableOpacity onPress={onChangePass} style={styles.changeButton}>
-            <Text style={styles.changeButtonText}>Change Password</Text>
-          </TouchableOpacity>
-          <TouchableOpacity onPress={onSignUpPressed} style={styles.saveButton}>
-            <Text style={styles.saveButtonText}>Save</Text>
-          </TouchableOpacity>
-        </View>
-      </ScrollView>
-    </View>
+      <Portal>
+        <Dialog visible={isDialogVisible} onDismiss={() => setDialogVisible(false)}>
+          <Dialog.Title>Invalid Input</Dialog.Title>
+          <Dialog.Content>
+            <Text>Contact number should start with '09' and be 11 digits long.</Text>
+          </Dialog.Content>
+          <Dialog.Actions>
+            <Button onPress={() => setDialogVisible(false)}>OK</Button>
+          </Dialog.Actions>
+        </Dialog>
+        <Snackbar
+          visible={isSnackbarVisible}
+          onDismiss={() => setSnackbarVisible(false)}
+          duration={2000} // Display duration in milliseconds
+        >
+          User data updated successfully
+        </Snackbar>
+      </Portal>
+    </Provider>
   );
 };
 

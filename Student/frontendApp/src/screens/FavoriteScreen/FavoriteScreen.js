@@ -1,198 +1,110 @@
-import React, { useState } from 'react';
-import { View, StyleSheet, Image, ScrollView, Dimensions, Text, TouchableOpacity } from 'react-native';
-import { Searchbar, Card as PaperCard } from 'react-native-paper';
-import Icon from 'react-native-vector-icons/Ionicons';
-import { useNavigation } from '@react-navigation/native';
+import React, { useEffect, useState } from 'react';
+import { View, Text, FlatList, StyleSheet, Image, TouchableOpacity } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import axios from 'axios'; // Import axios to fetch vehicle data
 
-const { width, height } = Dimensions.get('window');
+const FavoriteScreen = ({ toggleBookmark }) => {
+  const [bookmarkedVehicleIds, setBookmarkedVehicleIds] = useState([]);
+  const [bookmarkedVehicles, setBookmarkedVehicles] = useState([]);
 
-const MyComponent = ({ imageSource, label, label2, rate, itemData, onToggleFavorite }) => {
-  const [isFavorite, setIsFavorite] = useState(true);
+  useEffect(() => {
+    // Load bookmarked vehicle IDs from AsyncStorage
+    loadBookmarkedVehicleIds();
+  }, []);
 
-  const toggleFavorite = () => {
-    setIsFavorite((prevIsFavorite) => !prevIsFavorite);
-    onToggleFavorite(itemData, !isFavorite);
+  // Load bookmarked vehicle IDs from AsyncStorage
+  const loadBookmarkedVehicleIds = async () => {
+    try {
+      const bookmarks = await AsyncStorage.getItem('bookmarkedVehicles');
+      if (bookmarks) {
+        const bookmarkedIds = JSON.parse(bookmarks);
+        setBookmarkedVehicleIds(bookmarkedIds);
+        
+        // Fetch vehicle data from your API using axios
+        axios.get('https://bulvroom.onrender.com/api/approved-vehicles')
+          .then(response => {
+            const vehicles = response.data;
+            // Filter vehicles that have matching IDs with bookmarkedVehicleIds
+            const storedBookmarkedVehicles = vehicles.filter(vehicle =>
+              bookmarkedIds.includes(vehicle.vehicle_id)
+            );
+            setBookmarkedVehicles(storedBookmarkedVehicles);
+          })
+          .catch(error => {
+            console.error('Error fetching approved vehicles:', error);
+          });
+      }
+    } catch (error) {
+      console.error('Error loading bookmarked vehicles from AsyncStorage:', error);
+    }
   };
-
-  return (
-<PaperCard style={styles.card}>
-  <View style={styles.fave}>
-    <Image source={imageSource} style={styles.image} />
-    
-    {/* Container for text elements */}
-    <View style={styles.textContainer}>
-      <Text style={styles.label}>{label}</Text>
-      <Text style={styles.label2}>{label2}</Text>
-      <Text style={styles.rate}>{rate}/ Day</Text>
-      <TouchableOpacity onPress={toggleFavorite}>
-        <Icon
-          name={isFavorite ? 'heart' : 'heart-outline'}
-          style={[styles.icons, { color: isFavorite ? 'red' : 'gray' }]}
-        />
-      </TouchableOpacity>
-    </View>
-  </View>
-</PaperCard>
-
-  );
-};
-
-const DashBoardScreen = () => {
-  const [searchQuery, setSearchQuery] = useState('');
-  const onChangeSearch = (query) => setSearchQuery(query);
-  const navigation = useNavigation();
-
-  const [cardData, setCardData] = useState([
-    {
-      id: '1',
-      imageSource: require('../../../assets/images/86.jpg'),
-      label: 'Toyota 86',
-      label2: '2 seater',
-      rate: '$50',
-    },
-  ]);
-
-  const toggleFavorite = (item, isFavorite) => {
-    const updatedCardData = cardData.map((card) =>
-      card.id === item.id ? { ...card, isFavorite } : card
-    );
-    setCardData(updatedCardData);
-  };
-
-  const navigateToFavoriteScreen = () => {
-    const favoriteItems = cardData.filter((item) => item.isFavorite);
-    navigation.navigate('Favorite', { favoriteItems: cardData.filter(item => item.isFavorite) });
-  };
-
-  const myComponents = cardData.map((item) => (
-    <MyComponent
-      key={item.id}
-      imageSource={item.imageSource}
-      label={item.label}
-      label2={item.label2}
-      rate={item.rate}
-      itemData={item}
-      onToggleFavorite={toggleFavorite}
-    />
-  ));
-
-  const pairs = [];
-  for (let i = 0; i < myComponents.length; i += 2) {
-    pairs.push(
-      <View key={i / 2} style={styles.row}>
-        {myComponents.slice(i, i + 2)}
-      </View>
-    );
-  }
 
   return (
     <View style={styles.container}>
-    <Text style={styles.title}>My Favorites</Text>
-      <ScrollView style={styles.scrollView}>
-        {pairs}
-      </ScrollView>
+      <Text style={styles.title}>Favorite Vehicles</Text>
+      {bookmarkedVehicles.length > 0 ? (
+        <FlatList
+          data={bookmarkedVehicles}
+          keyExtractor={(item) => item.vehicle_id.toString()}
+          renderItem={({ item }) => (
+            <View style={styles.vehicleCard}>
+              <Image source={{ uri: item.imageUrl }} style={styles.vehicleImage} />
+              <View style={styles.vehicleDetails}>
+                <Text style={styles.vehicleName}>
+                  {item.make} {item.model}
+                </Text>
+                <Text style={styles.vehicleRate}>${item.rate}/Day</Text>
+                <TouchableOpacity onPress={() => toggleBookmark(item)}>
+                  <Text style={styles.removeButton}>Remove from Favorites</Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+          )}
+        />
+      ) : (
+        <Text style={styles.emptyText}>No favorite vehicles yet.</Text>
+      )}
     </View>
   );
 };
 
 const styles = StyleSheet.create({
-  container: {
-    width: width * 1,
-    height: height,
-  },
-  text: {
-    fontSize: 15,
-    fontWeight: '800',
-  },
-  scrollView: {
-    height: '100%',
-    width: '100%', // Occupy the entire width
-    marginTop: 10,
-    marginBottom: 10,
-    paddingTop: 10,
-    paddingBottom: 30,
-  },
-  imageContainer: {
-    width: '93%', // Occupy the entire width
-    margin: 5,
-    alignItems: 'center', // Center the image horizontally
-  },
-  label: {
-    fontSize: 15,
-    color: 'black',
-    fontWeight: '800',
-  },
-  textContainer: {
-    flexDirection: 'column',
-    // Add any other styles you need for spacing, alignment, etc.
-  },
-  
-  fave: {
-    flexDirection: 'row',
-    marginRight: 15,
-    marginLeft: -5,
-  },
-  label2: {
-    fontSize: 16,
-  },
   title: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#2ecc71', // Background color for the header
-    color: 'black',
+    fontSize: 24,
+    fontWeight: 'bold',
+    marginBottom: 16,
+  },
+  emptyText: {
+    fontSize: 16,
     textAlign: 'center',
-    fontSize: 25,
-    paddingVertical: 10, // Vertical padding for the header
-    paddingHorizontal: 16, // Horizontal padding for the header
-    elevation: 2, // Add shadow to the header for an elevated look (Android)
-    borderBottomWidth: 1, // Add a bottom border for separation
-    borderBottomColor: '#ccc', // Color of the bottom border
   },
-  rate: {
-    fontSize: 15,
-    color: '#1b944e',
-    fontWeight: '800',
-  },
-  searchBarContainer: {
-    marginTop: 13,
-    marginBottom: 10,
+  vehicleCard: {
     flexDirection: 'row',
+    marginBottom: 16,
     alignItems: 'center',
-    justifyContent: 'space-between',
-    marginHorizontal: 10,
-    width: '100%',
   },
-  searchBar: {
-    flex: 1,
-    height: 45,
-    backgroundColor: 'white',
-  },
-  notificationIcon: {
-    fontSize: 30,
-    color: '#2ecc71',
-    marginTop: -3,
-    marginLeft: 9,
-    marginRight: 10,
-  },
-  card: {
-    paddingHorizontal: 5,
-    margin: 5,
-    marginBottom: 25,
-  },
-  row: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginHorizontal: 10,
-  },
-  icons: {
-    fontSize: 30,
-  },
-  image: {
-    marginRight: 10,
-    width: 230,
-    height: 150,
+  vehicleImage: {
+    width: 100,
+    height: 100,
+    marginRight: 16,
     borderRadius: 5,
+  },
+  vehicleDetails: {
+    flex: 1,
+  },
+  vehicleName: {
+    fontSize: 18,
+    fontWeight: 'bold',
+  },
+  vehicleRate: {
+    fontSize: 16,
+    color: '#04AD4C',
+    fontWeight: '600',
+  },
+  removeButton: {
+    color: '#FF5733',
+    textDecorationLine: 'underline',
   },
 });
 
-export default DashBoardScreen;
+export default FavoriteScreen;

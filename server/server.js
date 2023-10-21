@@ -11,13 +11,10 @@ import nodemailer from "nodemailer"
 
 dotenv.config();
 const app = express();
-app.use(cors(
-    {
-        origin: ["http://localhost:5173"],
-        methods: ["POST", "GET", "PUT", "UPDATE", "INSERT", "DELETE","SELECT"],
-        credentials: true
-    }
-));
+app.use(cors({
+  origin: '*',
+  credentials: false,
+}));
 app.use(cookieParser());
 app.use(express.json());
 app.use(express.static('public'));
@@ -72,6 +69,10 @@ app.get('/getVehicles', (req, res) => {
         return res.json({Status: "Success", Result: result})
     })
 })
+// Add this route to your server code
+app.get('/keep-alive', (req, res) => {
+  res.send('Server is alive');
+});
 
 
 app.get('/get/:id', (req, res) => {
@@ -177,12 +178,12 @@ app.post('/login', (req, res) => {
 })
 
 app.post('/login/app', (req, res) => {
-    const email = req.body.email;
+    const username = req.body.username;
     const password = req.body.password;
 
-    const sql = "SELECT * FROM users WHERE email = ?";
+    const sql = "SELECT * FROM users WHERE username = ?";
 
-    con.query(sql, [email], (error, results) => {
+    con.query(sql, [username], (error, results) => {
         if (error) {
             console.error(error);
             return res.status(500).json({ message: "Internal server error" });
@@ -190,7 +191,7 @@ app.post('/login/app', (req, res) => {
 
         if (results.length > 0) {
             const hashedPassword = results[0].password;
-
+            const userId = results[0].id;
             // Compare the hashed password with the plaintext password
             bcrypt.compare(password, hashedPassword, (err, result) => {
                 if (err) {
@@ -200,7 +201,7 @@ app.post('/login/app', (req, res) => {
 
                 if (result) {
                     // Passwords match, user is authenticated
-                    return res.status(200).json({ message: "Success" });
+                    return res.status(200).json({ message: "Success",id: userId });
                 } else {
                     // Passwords don't match
                     return res.status(401).json({ message: "incorrect" });
@@ -620,6 +621,31 @@ app.get('/getUsername/:id', (req, res) => {
   });
 });
 
+app.get('/getFullname/:id', (req, res) => {
+  const id = req.params.id;
+
+  // Query the database to retrieve the username based on user_id
+  const query = 'SELECT fName, lName FROM users WHERE id = ?'; // Assuming your users table has a 'username' column
+
+  // Execute the query
+  con.query(query, [id], (error, results) => {
+    if (error) {
+      console.error(error);
+      return res.status(500).json({ Status: 'Error', Message: 'Failed to fetch username' });
+    }
+
+    // Check if a user with the given user_id exists
+    else if (results.length === 0) {
+      return res.status(404).json({ Status: 'Error', Message: 'User not found' });
+    }else{
+
+    // Retrieve and send the username in the response
+    const fName = results[0].fName;
+    const lName = results[0].lName;
+    res.json({ Status: 'Success', Result: { fName, lName } });}
+  });
+});
+
 app.get('/api/approved-vehicles', (req, res) => {
   // Query your database to fetch approved vehicles
   // Replace the database query with your actual query code
@@ -635,6 +661,24 @@ app.get('/api/approved-vehicles', (req, res) => {
 
     // Send the list of approved vehicles as a JSON response
     res.status(200).json(results);
+  });
+});
+
+app.get('/user/:id', (req, res) => {
+    
+  const userId = req.params.id; // Get the user ID from the request parameters
+  const query = 'SELECT * FROM users WHERE id = ?'; // Query modified to include the WHERE clause
+  con.query(query, [userId], (error, result) => { // Pass the user ID as a parameter to the query
+    if (error) {
+      console.error('Failed to fetch data:', error);
+      res.sendStatus(500);
+    } else {
+      if (result.length > 0) {
+        res.send(result[0]); // Send the first user data found (assuming the ID is unique)
+      } else {
+        res.sendStatus(404); // User with the specified ID not found
+      }
+    }
   });
 });
 
