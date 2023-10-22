@@ -161,8 +161,7 @@ function Employee() {
                 <td>{user.lName}</td>
                 <td>
                   <img
-                    src={`https://bulvroom.onrender.com/images/` + user.profile_pic}
-                    alt=""
+                    src={user.profile_pic} alt=""
                     className='users_image'
                   />
                 </td>
