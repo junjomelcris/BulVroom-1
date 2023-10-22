@@ -726,6 +726,32 @@ app.put("/Upload/:id",(req, res) => {
     return res.json(data);
   });
 });
+app.put("/Valid/:id",(req, res) => {
+  const UserId = req.params.id;
+  const Updatequery = "UPDATE users SET `valid_id`= ? WHERE id = ?";
+
+  const values = [
+    req.body.image,
+  ];
+
+  con.query(Updatequery, [...values,UserId], (err, data) => {
+    if (err) return res.send(err);
+    return res.json(data);
+  });
+});
+app.put("/License/:id",(req, res) => {
+  const UserId = req.params.id;
+  const Updatequery = "UPDATE users SET `driver_license_1`= ? WHERE id = ?";
+
+  const values = [
+    req.body.image,
+  ];
+
+  con.query(Updatequery, [...values,UserId], (err, data) => {
+    if (err) return res.send(err);
+    return res.json(data);
+  });
+});
 
 app.listen(process.env.PORT, ()=> {
     console.log("Running");
