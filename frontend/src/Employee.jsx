@@ -1,11 +1,15 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { Link, useNavigate } from 'react-router-dom';
+import ReactModal from 'react-modal';
 
 function Employee() {
   const [data, setData] = useState([]);
-  const [filter, setFilter] = useState('all'); // 'all', 'approved', 'pending', 'disapproved'
-  const [dropdownOpen, setDropdownOpen] = useState(false); // To manage dropdown visibility
+  const [filter, setFilter] = useState('all');
+  const [dropdownOpen, setDropdownOpen] = useState(false);
+  const [modalIsOpen, setModalIsOpen] = useState(false);
+  const [modalImage, setModalImage] = useState('');
+  const [modalTitle, setModalTitle] = useState('');
 
   useEffect(() => {
     axios
@@ -30,7 +34,6 @@ function Employee() {
         .delete('https://bulvroom.onrender.com/delete/' + id)
         .then((res) => {
           if (res.data.Status === 'Success') {
-            // Filter out the deleted user from the data
             const updatedData = data.filter((user) => user.id !== id);
             setData(updatedData);
           } else {
@@ -49,7 +52,6 @@ function Employee() {
         .put(`https://bulvroom.onrender.com/verify/${id}`)
         .then((res) => {
           if (res.data.Status === 'Success') {
-            // Update the status locally in the state
             const updatedData = data.map((user) => {
               if (user.id === id) {
                 return { ...user, status: 'approved' };
@@ -73,7 +75,6 @@ function Employee() {
         .put(`https://bulvroom.onrender.com/disApp/${id}`)
         .then((res) => {
           if (res.data.Status === 'Success') {
-            // Update the status locally in the state
             const updatedData = data.map((user) => {
               if (user.id === id) {
                 return { ...user, status: 'disapproved' };
@@ -93,6 +94,16 @@ function Employee() {
     setFilter(newFilter);
   };
 
+  const handleOpenModal = (image, title) => {
+    setModalImage(image);
+    setModalTitle(title);
+    setModalIsOpen(true);
+  };
+
+  const handleCloseModal = () => {
+    setModalIsOpen(false);
+  };
+
   const filteredData = data.filter((user) => {
     if (filter === 'all') return true;
     if (filter === 'approved' && user.status === 'approved') return true;
@@ -106,8 +117,9 @@ function Employee() {
       <div className='d-flex justify-content-center mt-2'>
         <h3>USER MANAGEMENT</h3>
       </div>
-      <Link to="/create" className='btn btn-success'>Add Users</Link>
-      {/* Filter dropdown */}
+      <Link to="/create" className='btn btn-success'>
+        Add Users
+      </Link>
       <div className='d-flex justify-content-start mt-2'>
         <div className='dropdown'>
           <button
@@ -161,22 +173,44 @@ function Employee() {
                 <td>{user.lName}</td>
                 <td>
                   <img
-                    src={user.profile_pic} alt=""
+                    src={user.profile_pic}
+                    alt=""
                     className='users_image'
+                    onClick={() => handleOpenModal(user.driver_license_1, "Driver's License 1")}
                   />
                 </td>
                 <td>{user.username}</td>
                 <td>{user.email}</td>
                 <td>{user.address}</td>
                 <td>{user.contact}</td>
-                <td>{user.driver_license_1}</td>
-                <td>{user.valid_id}</td>
+                <td>
+                  <button
+                    onClick={() => handleOpenModal(user.driver_license_1, "Driver's License 1")}
+                    className='btn btn-sm btn-light me-2'
+                  >
+                    <span style={{ textDecoration: 'underline' }}>View Image</span>
+                  </button>
+                </td>
+                <td>
+                  <button
+                    onClick={() => handleOpenModal(user.valid_id, 'Valid ID')}
+                    className='btn btn-sm btn-light me-2'
+                  >
+                    <span style={{ textDecoration: 'underline' }}>View Image</span>
+                  </button>
+                </td>
                 <td>{user.status}</td>
                 <td>
                   <div className="mt-2">
-                    <button onClick={() => handleVerify(user.id)} className='btn btn-sm btn-success me-2'>Approve</button>
-                    <button onClick={() => handleDisApp(user.id)} className='btn btn-sm btn-dark me-2'>Disapprove</button>
-                    <button onClick={() => handleDelete(user.id)} className='btn btn-sm btn-danger'>Delete</button>
+                    <button onClick={() => handleVerify(user.id)} className='btn btn-sm btn-success me-2'>
+                      Approve
+                    </button>
+                    <button onClick={() => handleDisApp(user.id)} className='btn btn-sm btn-dark me-2'>
+                      Disapprove
+                    </button>
+                    <button onClick={() => handleDelete(user.id)} className='btn btn-sm btn-danger'>
+                      Delete
+                    </button>
                   </div>
                 </td>
               </tr>
@@ -184,6 +218,34 @@ function Employee() {
           </tbody>
         </table>
       </div>
+
+      <ReactModal
+        isOpen={modalIsOpen}
+        onRequestClose={handleCloseModal}
+        contentLabel="Image Modal"
+        style={{
+          overlay: {
+            backgroundColor: 'rgba(0, 0, 0, 0.8)',
+          },
+          content: {
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            justifyContent: 'center',
+            top: '50%',
+            left: '50%',
+            right: 'auto',
+            bottom: 'auto',
+            marginRight: '-50%',
+            transform: 'translate(-50%, -50%)',
+          },
+        }}
+      >
+        <img src={modalImage} alt={modalTitle} style={{ maxWidth: '100%', maxHeight: '80vh' }} />
+        <button onClick={handleCloseModal} className="btn btn-danger mt-3">
+          Close
+        </button>
+      </ReactModal>
     </div>
   );
 }

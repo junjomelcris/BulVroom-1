@@ -146,7 +146,11 @@ const ProfileScreen = () => {
     >
       <View style={{ width: width * 1, marginTop: 20, margin: 10 }}>
         <View style={{ flexDirection: 'row' }}>
-          <Icon name="person-circle" style={{ fontSize: 55, color: 'black', alignItems: 'center' }} />
+        <Image
+  source={userData && userData.profile_pic ? { uri: userData.profile_pic } : require('../../../assets/images/bulv.png')}
+  resizeMode="contain"
+  style={styles.image}
+/>
           <View style={{ flexDirection: 'column', marginLeft: 10 }}>
             {renderStatusIcon()}
             <Text style={{ color: 'black', fontSize: 20 }}>
@@ -217,6 +221,25 @@ const styles = StyleSheet.create({
     width: '90%',
     marginTop: 20,
     alignSelf: 'center',
+  },
+  image: {
+    width: 120 / 2,  // Set both width and height to the same value
+    height: 120 / 2, // Set both width and height to the same value
+    borderRadius: 120 / 4, // Half of the width for a circular shape
+    marginTop:7,
+    borderWidth: 3,
+    borderColor: '#2ecc71',
+  },
+
+  imageContainer: {
+    width: 120 / 2,  // Set both width and height to the same value
+    height: 120 / 2, // Set both width and height to the same value
+    borderRadius: 120 / 4, // Half of the width for a circular shape
+    margin: 15,
+    borderWidth: 2,
+    borderColor: 'black',
+    alignItems: 'center',
+    justifyContent: 'center',
   },
 });
 
