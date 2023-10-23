@@ -1,14 +1,16 @@
-import express from 'express'
-import mysql from 'mysql'
-import cors from 'cors'
-import cookieParser from 'cookie-parser'
-import bcrypt from 'bcrypt'
-import jwt from 'jsonwebtoken'
-import multer from 'multer'
-import path from 'path'
-import dotenv from 'dotenv'
-const http = require("http");
-import nodemailer from "nodemailer"
+import express from 'express';
+import mysql from 'mysql';
+import cors from 'cors';
+import cookieParser from 'cookie-parser';
+import bcrypt from 'bcrypt';
+import jwt from 'jsonwebtoken';
+import multer from 'multer';
+import path from 'path';
+import dotenv from 'dotenv';
+import http from 'http'; // Change require to import here
+import nodemailer from 'nodemailer';
+
+
 const server = http.createServer(app);
 
 
