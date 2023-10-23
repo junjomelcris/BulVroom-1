@@ -72,11 +72,11 @@ function handleDisconnect() {
 }
 
 app.use(express.static('public'));
-const vehicle = require("./Routes/VehicleRoute/Vehicle")
+import vehicle from './Routes/VehicleRoute/Vehicle';
 app.use(vehicle);
-const user = require("./Routes/UserRoute/User")
+import user from './Routes/UserRoute/User';
 app.use(user);
-const admin = require("./Routes/Admin/Admin")
+import admin from './Routes/Admin/Admin';
 app.use(admin);
 
 // Add this route to your server code
