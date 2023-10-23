@@ -1,8 +1,22 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, TextInput, Button, ScrollView, TouchableOpacity, Modal } from 'react-native';
+import {
+  View,
+  Text,
+  StyleSheet,
+  TextInput,
+  Button,
+  ScrollView,
+  TouchableOpacity,
+  Modal,
+  Image,
+  Alert
+} from 'react-native';
 import { useNavigation, useRoute } from '@react-navigation/native';
-import { RadioButton } from 'react-native-paper'; 
+import { RadioButton } from 'react-native-paper';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { storage } from '../../../firebase';
+import { ref, uploadBytesResumable, getDownloadURL } from 'firebase/storage';
+import ImagePicker, { launchImageLibrary } from 'react-native-image-picker';
 
 const AddVehicle = () => {
   const [vehicleData, setVehicleData] = useState({
@@ -10,6 +24,7 @@ const AddVehicle = () => {
     make: '',
     model: '',
     type: '',
+    vehicle_image: '', // Store the URI of the vehicle image
     seatingCapacity: 1,
     transmission: 'Manual',
     gas: 'Diesel',
@@ -25,13 +40,14 @@ const AddVehicle = () => {
   });
   const [isTypeModalVisible, setTypeModalVisible] = useState(false);
 
-  const vehicleTypes = ['Motorcycle', 'Sedan', 'SUV', 'Van', 'Others', ];
+  const vehicleTypes = ['Motorcycle', 'Sedan', 'SUV', 'Van', 'Others'];
 
   const handleSelectType = (type) => {
     setVehicleData({ ...vehicleData, type });
     setTypeModalVisible(false); // Close the modal after selecting a type
   };
-  //userid
+
+  // userid
   useEffect(() => {
     const retrieveUserId = async () => {
       try {
@@ -48,13 +64,11 @@ const AddVehicle = () => {
   }, []);
   const navigation = useNavigation();
 
-
   const handleFeatureToggle = (feature) => {
     if (vehicleData.features.includes(feature)) {
       setVehicleData({
         ...vehicleData,
         features: vehicleData.features.filter((item) => item !== feature),
-
       });
     } else {
       setVehicleData({
@@ -87,9 +101,87 @@ const AddVehicle = () => {
       }));
     }
   };
+  const [selectedImage, setSelectedImage] = useState(null);
 
-  const handleAddVehicle = () => {
-    // Send a POST request to the API endpoint
+  const [galleryPhoto, setGalleryPhoto] = useState(null);
+  let options = {
+    mediaType: 'mixed', // Allow all media types
+    allowsEditing: true,
+    aspect: [4, 3],
+    quality: 1,
+  };
+  const selectImage = async () => {
+    const result = await launchImageLibrary(options);
+    setGalleryPhoto(result.assets[0].uri);
+    console.log(result);
+  };
+
+  const uploadImageAndAddVehicle = async () => {
+    // Check if any of the required fields are empty
+    if (
+      !vehicleData.make ||
+      !vehicleData.model ||
+      !vehicleData.type ||
+      !vehicleData.vehicle_image ||
+      !vehicleData.plate ||
+      !vehicleData.phone ||
+      !vehicleData.rate ||
+      !vehicleData.deposit ||
+      !vehicleData.pickupDropoffLocation
+    ) {
+      Alert.alert('Missing Information', 'Please fill out all required fields.');
+      return;
+    }
+  
+    if (galleryPhoto) {
+      // Generate a unique name for the image (e.g., using a timestamp)
+      const imageName = Date.now() + '.jpg';
+      const imagePath = `vehicles/${imageName}`;
+      const storageRef = ref(storage, imagePath);
+  
+      try {
+        const response = await fetch(galleryPhoto);
+        const blob = await response.blob();
+        const uploadTask = uploadBytesResumable(storageRef, blob);
+  
+        uploadTask.on('state_changed', (snapshot) => {
+          // You can add progress handling here
+        },
+        (error) => {
+          console.error('Error uploading image: ', error);
+        },
+        () => {
+          getDownloadURL(storageRef)
+            .then((downloadURL) => {
+              // Set the URI in your state
+              setVehicleData({ ...vehicleData, vehicle_image: downloadURL });
+              addVehicle();
+              alert('Image uploaded successfully');
+            })
+            .catch((error) => {
+              console.error('Error getting download URL: ', error);
+            });
+        });
+      } catch (error) {
+        console.error('Error while processing the image: ', error);
+      }
+    } else {
+      alert('No file selected');
+    }
+  };
+  
+
+  const validateVehicleData = () => {
+    // Add validation logic here for all required fields
+    if (!vehicleData.make || !vehicleData.model || !vehicleData.type || !vehicleData.vehicle_image || !vehicleData.plate || !vehicleData.phone || !vehicleData.rate || !vehicleData.deposit || !vehicleData.pickupDropoffLocation) {
+      Alert.alert('Validation Error', 'Please fill out all required fields.');
+      return false;
+    }
+    return true;
+  };
+
+  const addVehicle = () => {
+    // Send a POST request to the API endpoint with the updated vehicleData
     fetch('https://bulvroom.onrender.com/createVehicle/app', {
       method: 'POST',
       headers: {
@@ -121,38 +213,55 @@ const AddVehicle = () => {
         placeholder="Make"
         onChangeText={(text) => setVehicleData({ ...vehicleData, make: text })}
       />
+      
+          
       <TextInput
         style={styles.input}
         placeholder="Model"
         onChangeText={(text) => setVehicleData({ ...vehicleData, model: text })}
       />
-<View style={styles.input}>
-  <TouchableOpacity onPress={() => setTypeModalVisible(true)}>
-    <Text>Type: {vehicleData.type}</Text>
-  </TouchableOpacity>
-</View>
-<Modal visible={isTypeModalVisible} animationType="slide" transparent={true}>
-  <View style={styles.modalContainer}>
-    <View style={styles.bgmodal}>
-      {vehicleTypes.map((type) => (
-        <TouchableOpacity
-          key={type}
-          onPress={() => handleSelectType(type)}
-          style={styles.typeOption}
-        >
-          <Text style={styles.txt1}>{type}</Text>
+      <View style={styles.input}>
+        <TouchableOpacity onPress={() => setTypeModalVisible(true)}>
+          <Text>Type: {vehicleData.type}</Text>
         </TouchableOpacity>
-      ))}
+      </View>
+      <Modal visible={isTypeModalVisible} animationType="slide" transparent={true}>
+        <View style={styles.modalContainer}>
+          <View style={styles.bgmodal}>
+            {vehicleTypes.map((type) => (
+              <TouchableOpacity
+                key={type}
+                onPress={() => handleSelectType(type)}
+                style={styles.typeOption}
+              >
+                <Text style={styles.txt1}>{type}</Text>
+              </TouchableOpacity>
+            ))}
+            <TouchableOpacity
+              onPress={() => setTypeModalVisible(false)}
+              style={styles.closeButton}
+            >
+              <Text style={styles.txt}>Close</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
+      <View style={styles.selectedImageContainer}>
+      {galleryPhoto && (
+          <Image source={{ uri: galleryPhoto }} style={styles.selectedImage} />
+        )}
+      </View>
       <TouchableOpacity
-        onPress={() => setTypeModalVisible(false)}
-        style={styles.closeButton}
-      >
-        <Text style={styles.txt}>Close</Text>
-      </TouchableOpacity>
-    </View>
-  </View>
-</Modal>
-     <View style={styles.input}>
+            style={[
+              styles.transmissionButton2,
+              
+            ]}
+            onPress={selectImage}
+          >
+            <Text style={styles.buttonText}>Upload Vehicle Image</Text>
+          </TouchableOpacity>
+
+      <View style={styles.input}>
         <Text>Seating Capacity</Text>
         <View style={styles.seatingCapacityContainer}>
           <TouchableOpacity onPress={handleDecrementSeatingCapacity}>
@@ -164,7 +273,7 @@ const AddVehicle = () => {
           </TouchableOpacity>
         </View>
       </View>
- <View style={styles.transmissionContainer}>
+      <View style={styles.transmissionContainer}>
         <Text style={styles.label}>Transmission:</Text>
         <View style={styles.buttonContainer}>
           <TouchableOpacity
@@ -251,13 +360,13 @@ const AddVehicle = () => {
         onChangeText={(text) => setVehicleData({ ...vehicleData, description: text })}
         multiline
       />
-   <TextInput
-      style={styles.input}
-      placeholder="Phone Number (09)"
-      onChangeText={(text) => setVehicleData({ ...vehicleData, phone: text })}
-      keyboardType="numeric"
-      maxLength={11}
-    />
+      <TextInput
+        style={styles.input}
+        placeholder="Phone Number (09)"
+        onChangeText={(text) => setVehicleData({ ...vehicleData, phone: text })}
+        keyboardType="numeric"
+        maxLength={11}
+      />
       <TextInput
         style={styles.input}
         placeholder="Vehicle Rate (24 hrs)"
@@ -270,18 +379,13 @@ const AddVehicle = () => {
         keyboardType="numeric"
         onChangeText={(text) => setVehicleData({ ...vehicleData, deposit: text })}
       />
-
       <TextInput
         style={styles.input}
         placeholder="Pickup/Dropoff Location"
         onChangeText={(text) => setVehicleData({ ...vehicleData, pickupDropoffLocation: text })}
       />
-
-      <TouchableOpacity
-        style={styles.button}
-        onPress={handleAddVehicle}
-      >
-        <Text style={styles.buttonText1}>Add Vehicle</Text>
+      <TouchableOpacity style={styles.button} onPress={uploadImageAndAddVehicle}>
+        <Text style={styles.buttonText1}>Upload Vehicle Image and Add Vehicle</Text>
       </TouchableOpacity>
     </ScrollView>
   );
@@ -384,6 +488,16 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     backgroundColor: 'gray',
   },
+  transmissionButton2: {
+    flex: 1,
+    padding: 10,
+    borderRadius: 5,
+    borderWidth: 1,
+    borderColor: 'gray',
+    alignItems: 'center',
+    backgroundColor: 'gray',
+    marginBottom: 16,
+  },
   transmissionButton: {
     flex: 1,
     padding: 10,
@@ -401,6 +515,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: 'white',
   },
+ 
   button: {
     width: '100%',
     backgroundColor: 'green',
@@ -412,6 +527,27 @@ const styles = StyleSheet.create({
     color: 'white',
     fontSize: 18,
     fontWeight: 'bold',
+  },
+  selectedImage: {
+    width: 200,
+    height: 200,
+    resizeMode: 'cover',
+    marginBottom: 16,
+  },
+  selectedImageContainer: {
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  buttonText2: {
+    fontSize: 16,
+    color: 'white',
+    marginBottom: 16,
+    borderRadius: 5, // Adjust the border radius as needed
+    padding: 10, // Adjust the padding as needed
+    shadowColor: 'black',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 2,
   },
 });
 

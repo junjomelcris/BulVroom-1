@@ -94,7 +94,7 @@ const DashboardScreen = () => {
         </View>
       </View>
       <TouchableOpacity onPress={onAddPress} style={styles.addButton}>
-        <Text style={styles.addButtonText}>Add Vehicle</Text>
+        <Text style={styles.addButtonText}>+ Add Vehicle</Text>
       </TouchableOpacity>
       <View style={styles.filterButtons}>
           <TouchableOpacity

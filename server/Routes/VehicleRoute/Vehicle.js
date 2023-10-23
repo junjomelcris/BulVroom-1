@@ -58,7 +58,8 @@ router.put('/vdisApp/:id', (req, res) => {
       userId,
       make,
       model,
-      type,
+      type, 
+      vehicle_image,
       seatingCapacity,
       transmission,
       gas,
@@ -74,8 +75,8 @@ router.put('/vdisApp/:id', (req, res) => {
     } = req.body;
   
     // Construct the INSERT SQL query with the pickupDropoffLocation field
-    const insertQuery = `INSERT INTO vehicles (id, make, model, type, seatingCapacity, transmission, gas, features, plate, description, phone, rate, deposit, dateAdded, status, pickupDropoffLocation) 
-                         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
+    const insertQuery = `INSERT INTO vehicles (id, make, model, type, vehicle_image, seatingCapacity, transmission, gas, features, plate, description, phone, rate, deposit, dateAdded, status, pickupDropoffLocation) 
+                         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
   
     // Define the values to be inserted into the database, including pickupDropoffLocation
     const values = [
@@ -83,6 +84,7 @@ router.put('/vdisApp/:id', (req, res) => {
       make,
       model,
       type,
+      vehicle_image,
       seatingCapacity,
       transmission,
       gas,
