@@ -28,8 +28,10 @@ function handleDisconnect() {
       throw err;
     }
   });
+
+  return con; // Return the connection object
 }
 
 const con = handleDisconnect();
 
-module.exports = con; // Export the connection object using module.exports
+export default con;
