@@ -1,12 +1,15 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { Link, useNavigate } from 'react-router-dom';
+import ReactModal from 'react-modal';
 
 function Vehicles() {
   const [vehicles, setVehicles] = useState([]);
   const [filter, setFilter] = useState('all'); // 'all', 'approved', 'pending', 'disapproved'
   const [dropdownOpen, setDropdownOpen] = useState(false); // To manage dropdown visibility
-
+  const [modalIsOpen, setModalIsOpen] = useState(false);
+  const [modalImage, setModalImage] = useState('');
+  const [modalTitle, setModalTitle] = useState('');
   const navigate = useNavigate();
 
   const handleDelete = (vehicleId) => {
@@ -132,7 +135,15 @@ function Vehicles() {
 
     fetchData();
   }, []);
+  const handleOpenModal = (image, title) => {
+    setModalImage(image);
+    setModalTitle(title);
+    setModalIsOpen(true);
+  };
 
+  const handleCloseModal = () => {
+    setModalIsOpen(false);
+  };
   const filteredData = vehicles.filter((vehicle) => {
     if (filter === 'all') return true;
     if (filter === 'approved' && vehicle.status === 'approved') return true;
@@ -185,6 +196,7 @@ function Vehicles() {
               <th>Make</th>
               <th>Model</th>
               <th>Type</th>
+              <th>Image</th>
               <th>Seating Capacity</th>
               <th>Transmission</th>
               <th>Gas</th>
@@ -206,6 +218,14 @@ function Vehicles() {
                 <td>{vehicle.make}</td>
                 <td>{vehicle.model}</td>
                 <td>{vehicle.type}</td>
+                <td>
+                  <button
+                    onClick={() => handleOpenModal(vehicle.vehicle_image, 'image')}
+                    className='btn btn-sm btn-light me-2'
+                  >
+                    <span style={{ textDecoration: 'underline' }}>View Image</span>
+                  </button>
+                </td>
                 <td>{vehicle.seatingCapacity}</td>
                 <td>{vehicle.transmission}</td>
                 <td>{vehicle.gas}</td>
@@ -229,6 +249,33 @@ function Vehicles() {
           </tbody>
         </table>
       </div>
+      <ReactModal
+        isOpen={modalIsOpen}
+        onRequestClose={handleCloseModal}
+        contentLabel="Image Modal"
+        style={{
+          overlay: {
+            backgroundColor: 'rgba(0, 0, 0, 0.8)',
+          },
+          content: {
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            justifyContent: 'center',
+            top: '50%',
+            left: '50%',
+            right: 'auto',
+            bottom: 'auto',
+            marginRight: '-50%',
+            transform: 'translate(-50%, -50%)',
+          },
+        }}
+      >
+        <img src={modalImage} alt={modalTitle} style={{ maxWidth: '100%', maxHeight: '80vh' }} />
+        <button onClick={handleCloseModal} className="btn btn-danger mt-3">
+          Close
+        </button>
+      </ReactModal>
     </div>
   );
 }

@@ -21,6 +21,7 @@ const DashboardVehicles = ({ route }) => {
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [ownerFirstName, setOwnerFirstName] = useState('');
   const [ownerLastName, setOwnerLastName] = useState('');
+  const [ownerPic, setownerPic] = useState('');
 
   useEffect(() => {
     // Fetch the owner's data using the foreign key (id) from the vehicle data
@@ -31,6 +32,7 @@ const DashboardVehicles = ({ route }) => {
         // Assuming you receive the owner's name in the 'fName' and 'lName' properties
         setOwnerFirstName(response.data.Result.fName);
         setOwnerLastName(response.data.Result.lName);
+        setownerPic(response.data.Result.profile_pic);
       })
       .catch((error) => {
         console.error('Error fetching owner data:', error);
@@ -100,7 +102,7 @@ const toggleDescription = () => {
       <View style={styles.keyy}>
          <TouchableOpacity onPress={toggleModal} style={styles.keyImageContainer}>
           <Image
-            source={require('../../../assets/images/sample.png')}
+           source={{ uri: vehicle.vehicle_image }} 
             style={styles.KeyImage}
           />
         </TouchableOpacity>
@@ -127,7 +129,11 @@ const toggleDescription = () => {
         </View>
         <Text style={styles.renter}>Owner</Text>
         <View style={styles.renterDetails}>
-  <Icon name="person-circle-outline" style={styles.profile} />
+        <Image
+    source={ownerPic ? { uri: ownerPic }: "Loading" }
+    resizeMode="contain"
+    style={styles.image}
+  />
   <Text style={styles.RenterName}>{ownerFirstName} {ownerLastName}</Text>
   <TouchableOpacity onPress={() => openMessagingApp()}>
     <Icon name="chatbubble-ellipses-outline" style={styles.msg} />
@@ -433,6 +439,15 @@ const styles = StyleSheet.create({
     color: '#2ecc71',
     textDecorationLine: 'underline',
   },
+  image: {
+    width: 120 / 2,  // Set both width and height to the same value
+    height: 120 / 2, // Set both width and height to the same value
+    borderRadius: 120 / 4, // Half of the width for a circular shape
+    marginTop:7,
+    borderWidth: 3,
+    borderColor: '#2ecc71',
+  },
+
 });
 
 export default DashboardVehicles;

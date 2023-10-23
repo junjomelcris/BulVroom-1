@@ -181,46 +181,44 @@ const DashBoardScreen = () => {
           </TouchableOpacity>
         </View>
         <View style={styles.cardContainer}>
-          {/* Display filtered vehicle data here */}
-          {filteredVehicles.map((vehicle) => (
-            <TouchableOpacity
-              key={vehicle.vehicle_id}
-              style={styles.cardTouchable}
-              onPress={() => handleCardPress(vehicle)}
-            >
-              <PaperCard key={vehicle.id} style={styles.card}>
-                {/* Replace this with your actual vehicle image */}
-                <Image
-                  source={require('../../../assets/images/sample.png')}
-                  style={styles.VecImage}
-                />
-                <Text style={styles.vehicleName}>
-                  {vehicle.make} {vehicle.model}
-                </Text>
-                <View style={styles.ratings}>
-                  {/* Replace this with your actual rating */}
-                  <Icon name="star" style={styles.star}></Icon>
-                  <Icon name="star" style={styles.star}></Icon>
-                  <Icon name="star" style={styles.star}></Icon>
-                  <Icon name="star" style={styles.star}></Icon>
-                  <Icon name="star" style={styles.star}></Icon>
-                </View>
-                <Text style={styles.seater}>
-                  {vehicle.seatingCapacity}-Seater
-                </Text>
-                <View style={styles.saveContainer}>
-                  <Text style={styles.price}>P{vehicle.rate}/DAY</Text>
-                  <TouchableOpacity onPress={() => toggleBookmark(vehicle)}>
-                    <Icon
-                      name={vehicle.isBookmarked ? 'bookmark' : 'bookmark-outline'}
-                      style={styles.save}
-                    />
-                  </TouchableOpacity>
-                </View>
-              </PaperCard>
-            </TouchableOpacity>
-          ))}
+  {/* Display filtered vehicle data here */}
+  {filteredVehicles.map((vehicle) => (
+    <TouchableOpacity
+      key={vehicle.vehicle_id}
+      style={styles.cardTouchable}
+      onPress={() => handleCardPress(vehicle)}
+    >
+      <PaperCard key={vehicle.id} style={styles.card}>
+        {/* Display the vehicle image */}
+        <Image source={{ uri: vehicle.vehicle_image }} style={styles.VecImage} />
+        <Text style={styles.vehicleName}>
+          {vehicle.make} {vehicle.model}
+        </Text>
+        <View style={styles.ratings}>
+          {/* Replace this with your actual rating */}
+          <Icon name="star" style={styles.star}></Icon>
+          <Icon name="star" style={styles.star}></Icon>
+          <Icon name="star" style={styles.star}></Icon>
+          <Icon name="star" style={styles.star}></Icon>
+          <Icon name="star" style={styles.star}></Icon>
         </View>
+        <Text style={styles.seater}>
+          {vehicle.seatingCapacity}-Seater
+        </Text>
+        <View style={styles.saveContainer}>
+          <Text style={styles.price}>P{vehicle.rate}/DAY</Text>
+          <TouchableOpacity onPress={() => toggleBookmark(vehicle)}>
+            <Icon
+              name={vehicle.isBookmarked ? 'bookmark' : 'bookmark-outline'}
+              style={styles.save}
+            />
+          </TouchableOpacity>
+        </View>
+      </PaperCard>
+    </TouchableOpacity>
+  ))}
+</View>
+
       </ScrollView>
     </View>
   );

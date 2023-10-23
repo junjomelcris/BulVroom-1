@@ -248,7 +248,7 @@ router.post('/register/app', (req, res) => {
     const id = req.params.id;
   
     // Query the database to retrieve the username based on user_id
-    const query = 'SELECT fName, lName FROM users WHERE id = ?'; // Assuming your users table has a 'username' column
+    const query = 'SELECT fName, lName, profile_pic FROM users WHERE id = ?'; // Assuming your users table has a 'username' column
   
     // Execute the query
     con.query(query, [id], (error, results) => {
@@ -265,7 +265,8 @@ router.post('/register/app', (req, res) => {
       // Retrieve and send the username in the response
       const fName = results[0].fName;
       const lName = results[0].lName;
-      res.json({ Status: 'Success', Result: { fName, lName } });}
+      const profile_pic = results[0].profile_pic;
+      res.json({ Status: 'Success', Result: { fName, lName, profile_pic } });}
     });
   });
 

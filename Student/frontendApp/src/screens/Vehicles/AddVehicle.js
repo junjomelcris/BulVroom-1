@@ -122,7 +122,6 @@ const AddVehicle = () => {
       !vehicleData.make ||
       !vehicleData.model ||
       !vehicleData.type ||
-      !vehicleData.vehicle_image ||
       !vehicleData.plate ||
       !vehicleData.phone ||
       !vehicleData.rate ||
@@ -153,10 +152,15 @@ const AddVehicle = () => {
         () => {
           getDownloadURL(storageRef)
             .then((downloadURL) => {
-              // Set the URI in your state
-              setVehicleData({ ...vehicleData, vehicle_image: downloadURL });
+              setVehicleData((prevData) => ({
+                ...prevData,
+                vehicle_image: downloadURL,
+              }));
+              console.log('Image uploaded successfully. URL:', downloadURL);
+              console.log('Image uploaded successfully. URL:', vehicleData.vehicle_image);
+              // Log the URL
               addVehicle();
-              alert('Image uploaded successfully');
+              alert('Vehicle Uploaded Successfully');
             })
             .catch((error) => {
               console.error('Error getting download URL: ', error);
@@ -170,6 +174,7 @@ const AddVehicle = () => {
     }
   };
   
+  
 
   const validateVehicleData = () => {
     // Add validation logic here for all required fields
@@ -179,7 +184,17 @@ const AddVehicle = () => {
     }
     return true;
   };
-
+  const features = [
+    'Aircondition',
+    'Bluetooth',
+    'GPS',
+    'Sunroof',
+    'Spare Tire',
+    'Airbag',
+    'Dash Cam',
+    'Rear View Camera',
+  ];
+  
   const addVehicle = () => {
     // Send a POST request to the API endpoint with the updated vehicleData
     fetch('https://bulvroom.onrender.com/createVehicle/app', {
@@ -329,26 +344,22 @@ const AddVehicle = () => {
         </View>
       </View>
       <View>
-        <Text style={styles.featuresLabel}>Features:</Text>
-        {[
-          'Aircondition',
-          'Bluetooth',
-          'GPS',
-          'Sunroof',
-          'Spare Tire',
-          'Airbag',
-          'Dash Cam',
-          'Rear View Camera',
-        ].map((feature) => (
-          <View style={styles.featureRow} key={feature}>
-            <Button
-              title={feature}
-              onPress={() => handleFeatureToggle(feature)}
-              color={vehicleData.features.includes(feature) ? 'green' : 'gray'}
-            />
-          </View>
-        ))}
-      </View>
+  <Text style={styles.featuresLabel}>Features:</Text>
+  {features.map((feature) => (
+    <View style={styles.featureRow} key={feature}>
+      <Text style={styles.featureText}>{feature}</Text>
+      <RadioButton
+        value={feature}
+        status={
+          vehicleData.features.includes(feature) ? 'checked' : 'unchecked'
+        }
+        onPress={() => handleFeatureToggle(feature)}
+        color="green" // Customize the radio button color
+      />
+    </View>
+  ))}
+</View>
+
       <TextInput
         style={styles.input}
         placeholder="Vehicle Plate"
@@ -384,9 +395,11 @@ const AddVehicle = () => {
         placeholder="Pickup/Dropoff Location"
         onChangeText={(text) => setVehicleData({ ...vehicleData, pickupDropoffLocation: text })}
       />
-      <TouchableOpacity style={styles.button} onPress={uploadImageAndAddVehicle}>
-        <Text style={styles.buttonText1}>Upload Vehicle Image and Add Vehicle</Text>
-      </TouchableOpacity>
+      <View style={styles.addButtonContainer}>
+  <TouchableOpacity style={styles.addButton} onPress={uploadImageAndAddVehicle}>
+    <Text style={styles.addButtonLabel}>Add Vehicle</Text>
+  </TouchableOpacity>
+</View>
     </ScrollView>
   );
 };
@@ -468,6 +481,10 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     marginBottom: 10,
   },
+  featureText: {
+    fontSize: 16,
+  },
+  
   transmissionContainer: {
     marginBottom: 16,
   },
@@ -549,6 +566,33 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.2,
     shadowRadius: 2,
   },
+  addButton: {
+    backgroundColor: 'green',
+    width: 150, // Adjust the width as needed
+    height: 40, // Adjust the height as needed
+    borderRadius: 20, // Half of the height to make it fully rounded
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginTop:0, // Adjust the margin as needed
+    shadowColor: 'rgba(0, 0, 0, 0.2)',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 1,
+    shadowRadius: 2,
+    elevation: 3, // Android shadow
+  },
+  
+  addButtonLabel: {
+    color: 'white',
+    fontSize: 16, // Adjust the font size as needed
+    fontWeight: 'bold',
+  },
+  addButtonContainer: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+  }
+  
+  
 });
 
 export default AddVehicle;
