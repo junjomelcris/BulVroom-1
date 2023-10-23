@@ -9,7 +9,6 @@ import path from 'path'
 import dotenv from 'dotenv'
 import nodemailer from "nodemailer"
 const router = express.Router();
-const path = require('path');
 const con = require('../database'); 
 
 const storage = multer.diskStorage({
