@@ -318,51 +318,73 @@ app.post('/create', upload.single('profile_pic'), (req, res) => {
 });
 
 app.post('/register/app', (req, res) => {
-    const fName = req.body.fName;
-    const lName = req.body.lName;
-    const email = req.body.email;
-    const password = req.body.password;
-    const address = req.body.address;
-    const contact = req.body.contact;
-  
-    const checkUsernameQuery = 'SELECT * FROM users WHERE email = ?';
-    con.query(checkUsernameQuery, [email], (err, result) => {
-      if (err) {
-        console.error('Failed to check email:', err);
-        res.send({ message: 'Server error' });
-      } else {
-        if (result.length > 0) {
-          // User already exists
-          res.send({ message: 'email already exists' });
-        } else {
-          // Username is available, proceed with registration
-          bcrypt.hash(password, 10, (hashErr, hashedPassword) => {
-            if (hashErr) {
-              console.error('Failed to hash password:', hashErr);
-              res.send({ message: 'Server error' });
-            } else {
+  const fName = req.body.fName;
+  const lName = req.body.lName;
+  const email = req.body.email;
+  const username = req.body.username; // Added username field
+  const password = req.body.password;
+  const address = req.body.address;
+  const contact = req.body.contact;
 
-              const verificationToken = generateVerificationToken();
-              const insertUserQuery = 'INSERT INTO users (fName, lName, email, password, address, contact, verificationToken) VALUES (?, ?, ?, ?, ?, ?,?)';
-              con.query(insertUserQuery, [fName,lName, email, hashedPassword, address, contact, verificationToken], (insertErr, insertResult) => {
-                if (insertErr) {
-                  console.error('Failed to register user:', insertErr);
+  const checkEmailQuery = 'SELECT * FROM users WHERE email = ?';
+  const checkUsernameQuery = 'SELECT * FROM users WHERE username = ?';
+
+  // Check if the email is already registered
+  con.query(checkEmailQuery, [email], (emailErr, emailResult) => {
+    if (emailErr) {
+      console.error('Failed to check email:', emailErr);
+      res.send({ message: 'Server error' });
+    } else {
+      if (emailResult.length > 0) {
+        // Email already exists
+        res.send({ message: 'Email already exists' });
+      } else {
+        // Check if the username is already registered
+        con.query(checkUsernameQuery, [username], (usernameErr, usernameResult) => {
+          if (usernameErr) {
+            console.error('Failed to check username:', usernameErr);
+            res.send({ message: 'Server error' });
+          } else {
+            if (usernameResult.length > 0) {
+              // Username already exists
+              res.send({ message: 'Username already exists' });
+            } else {
+              // Email and username are available, proceed with registration
+              bcrypt.hash(password, 10, (hashErr, hashedPassword) => {
+                if (hashErr) {
+                  console.error('Failed to hash password:', hashErr);
                   res.send({ message: 'Server error' });
                 } else {
-                  // Send verification email
-                  const verificationLink = `This is your Verification Code: ${verificationToken}`;
- // Replace with your verification link
-                sendVerificationEmail(email, verificationLink); // Send verification email
-  
-                  res.send({ message: 'User registered successfully' });
+                  const verificationToken = generateVerificationToken();
+                  const insertUserQuery =
+                    'INSERT INTO users (fName, lName, email, username, password, address, contact, verificationToken) VALUES (?, ?, ?, ?, ?, ?, ?, ?)';
+                  con.query(
+                    insertUserQuery,
+                    [fName, lName, email, username, hashedPassword, address, contact, verificationToken],
+                    (insertErr, insertResult) => {
+                      if (insertErr) {
+                        console.error('Failed to register user:', insertErr);
+                        res.send({ message: 'Server error' });
+                      } else {
+                        // Send verification email
+                        const verificationLink = `This is your Verification Code: ${verificationToken}`;
+                        // Replace with your verification link
+                        sendVerificationEmail(email, verificationLink); // Send verification email
+
+                        res.send({ message: 'User registered successfully' });
+                      }
+                    }
+                  );
                 }
               });
             }
-          });
-        }
+          }
+        });
       }
-    });
+    }
   });
+});
+
 
   function generateVerificationToken() {
     // Generate a random token

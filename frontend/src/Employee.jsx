@@ -176,7 +176,7 @@ function Employee() {
                     src={user.profile_pic}
                     alt=""
                     className='users_image'
-                    onClick={() => handleOpenModal(user.driver_license_1, "Driver's License 1")}
+                    onClick={() => handleOpenModal(user.profile_pic, "Driver's License 1")}
                   />
                 </td>
                 <td>{user.username}</td>

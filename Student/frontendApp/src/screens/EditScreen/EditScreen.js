@@ -38,7 +38,7 @@ const SignUpScreen = () => {
   const [isDialogVisible, setDialogVisible] = useState(false);
   const [isSnackbarVisible, setSnackbarVisible] = useState(false);
   const [progress, setProgress] = useState(0);
-  const [galleryPhoto, setGalleryPhoto] = useState();
+  const [galleryPhoto, setGalleryPhoto] = useState(null);
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [driversLicenseImage, setDriversLicenseImage] = useState(null);
   const [validIdImage, setValidIdImage] = useState(null);
@@ -54,6 +54,7 @@ const SignUpScreen = () => {
   const selectImage = async () => {
     const result = await launchImageLibrary(options);
     setGalleryPhoto(result.assets[0].uri);
+    console.log(result)
     Alert.alert(
       'Update Images',
       'Are you sure you want to update you Profile Picture?',
@@ -65,6 +66,7 @@ const SignUpScreen = () => {
         {
           text: 'OK',
           onPress: () => Upload(),
+          
         },
       ],
       { cancelable: false }
@@ -141,7 +143,7 @@ const Upload = async () => {
       console.error("Error while processing the image: ", error);
     }
     } else {
-      alert('No file selected or userData.image_file is null');
+      alert('No file selected');
     }
 };
 //------------------------------valid-----------
