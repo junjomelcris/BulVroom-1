@@ -11,7 +11,7 @@ import http from 'http'; // Change require to import here
 import nodemailer from 'nodemailer';
 
 
-const server = http.createServer(app);
+
 
 
 const app = express();
@@ -22,7 +22,7 @@ app.use(cors({
 app.use(cookieParser());
 app.use(express.json());
 
-
+const server = http.createServer(app);
 
 
 // Connection to the database
