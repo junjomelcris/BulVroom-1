@@ -1,29 +1,36 @@
 import React from 'react';
-import { View, Text, Image, StyleSheet, Dimensions, TouchableOpacity } from 'react-native';
-import Logo from '../../../assets/images/STARTED3.png';
+import { View, Text, StyleSheet, Dimensions, TouchableOpacity } from 'react-native';
+import LottieView from 'lottie-react-native'; // Import LottieView
 import CustomButton from '../../components/CustomButton/CustomButton';
 import { useNavigation } from '@react-navigation/native';
 
-const GetStarted = () => {
+const GetStarted3 = () => {
   const navigation = useNavigation();
 
   const onGetStartedPressed = () => {
     navigation.navigate('Homes');
   };
-
+  const onSkipButtonPressed = () => {
+    navigation.navigate('SignIn');
+  };
 
   return (
     <View style={styles.root}>
-    <View style={styles.circlenimage}>
-      <View style={styles.circleBackground}>
-        <View style={styles.circle} />
-      </View>
-      <View style={styles.imageContainer}>
-        <Image source={Logo} resizeMode='contain' style={styles.logoImage} />
-      </View>
+      <View style={styles.circlenimage}>
+        <View style={styles.circleBackground}>
+        </View>
+        <View style={styles.imageContainer}>
+          {/* Replace the Image with LottieView */}
+          <LottieView
+            source={require('../../../assets/images/ride.json')} // Replace with the path to your Lottie JSON file
+            autoPlay
+            loop
+            style={styles.lottieAnimation} // Add a style for your Lottie animation
+          />
+        </View>
       </View>
       <View style={styles.textContainer}>
-        <Text style={styles.appName}>LET'S RIDE</Text>
+      <Text style={styles.appName}>LET'S RIDE</Text>
         <Text style={styles.appDescription}>
 Let us put you in the driver's seat of your adventure</Text>
         <Text style={styles.appContent}>
@@ -38,6 +45,9 @@ Let us put you in the driver's seat of your adventure</Text>
         </View>
         <TouchableOpacity onPress={onGetStartedPressed} style={styles.nextButton}>
           <Text style={styles.nextButtonText}>Next</Text>
+        </TouchableOpacity>
+        <TouchableOpacity onPress={onSkipButtonPressed} style={styles.skipButton}>
+          <Text style={styles.skipButtonText}>SKIP</Text>
         </TouchableOpacity>
       </View>
     </View>
@@ -55,7 +65,7 @@ const styles = StyleSheet.create({
   },
   circleBackground: {
     position: 'absolute',
-    top: windowHeight * 0.17 - windowWidth * 0.4, // Adjusted position for centering
+    top: windowHeight * .10 - windowWidth * 0.4,
     left: windowWidth * 0.1,
     width: windowWidth * 0.8,
     height: windowWidth * 0.8,
@@ -75,26 +85,29 @@ const styles = StyleSheet.create({
   },
   circle: {
     width: windowWidth * 0.9,
-    height: windowWidth * 0.9,
-    borderRadius: windowWidth * 0.45,
-    backgroundColor: '#2ec771',
+    height: windowWidth * 0.45,
+    borderBottomLeftRadius: windowWidth * 0.9,
+    borderBottomRightRadius: windowWidth * 0.9,
+    backgroundColor: '#FFFDD0',
+    transform: [{ rotate: '180deg' }] // Rotate the half-circle 180 degrees
   },
+  
   imageContainer: {
-    top: windowHeight * 0.109 - windowWidth * 0.35, // Adjusted position for centering
+    top: -70,
     left: windowWidth * 0.0,
     width: windowWidth,
     justifyContent: 'center',
     alignItems: 'center',
   },
   circlenimage: {
-    marginTop: 40,
+    marginTop: 50,
   },
-  logoImage: {
+  lottieAnimation: {
     width: '70%',
     height: '70%',
   },
   textContainer: {
-    top: windowHeight * -0.22,
+    top: windowHeight * -0.40,
     justifyContent: 'center',
     alignItems: 'center',
     paddingHorizontal: windowWidth * 0.1,
@@ -110,7 +123,6 @@ const styles = StyleSheet.create({
     fontFamily: 'Poppins-Regular',
     fontSize: windowWidth * 0.04,
     marginBottom: 20,
-    textAlign: 'center',
   },
   appContent: {
     fontSize: windowWidth * 0.04,
@@ -120,15 +132,8 @@ const styles = StyleSheet.create({
   },
   bottomContainer: {
     position: 'absolute',
+    top: 350,
     bottom: 20,
-    width: '80%',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  bottomContainer1: {
-    position: 'absolute',
-    bottom: 20,
-    left: 130,
     width: '80%',
     justifyContent: 'center',
     alignItems: 'center',
@@ -158,7 +163,8 @@ const styles = StyleSheet.create({
     textDecorationLine: 'underline',
     fontFamily: 'Poppins-Bold',
     fontSize: 15,
+    top: 100
   },
 });
 
-export default GetStarted;
+export default GetStarted3;
