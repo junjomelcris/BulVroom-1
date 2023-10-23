@@ -775,7 +775,7 @@ app.put("/License/:id",(req, res) => {
   });
 });
 
-router.post('/verification', (req, res) => {
+app.post('/verification', (req, res) => {
   const userProvidedVerification = req.body.verificationCodes;
 
   // Query the database to check if the provided OTP exists in the user_info table
