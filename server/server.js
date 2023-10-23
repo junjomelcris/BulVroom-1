@@ -9,9 +9,9 @@ import path from 'path';
 import dotenv from 'dotenv';
 import http from 'http'; // Change require to import here
 import nodemailer from 'nodemailer';
-import vehicleRouter from '../Routes/VehicleRoute/Vehicle.js'; 
-import userRouter from '../Routes/UserRoute/User.js'; 
-import adminRouter from '../Routes/Admin/Admin.js'; 
+import vehicleRouter from './Routes/VehicleRoute/Vehicle.js'; 
+import userRouter from './Routes/UserRoute/User.js'; 
+import adminRouter from './Routes/Admin/Admin.js'; 
 
 
 
