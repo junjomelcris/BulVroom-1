@@ -13,7 +13,7 @@ import {
 import { useNavigation } from '@react-navigation/native';
 import CustomInputs from '../../components/CustomInputs/CustomInputs';
 import CustomButton from '../../components/CustomButton/CustomButton';
-
+import AsyncStorage from '@react-native-async-storage/async-storage';
 const { width, height } = Dimensions.get('window');
 
 const SignUpScreen = () => {
@@ -25,15 +25,35 @@ const SignUpScreen = () => {
   const [Cpassword, setCPassword] = useState('');
   const [contact, setContact] = useState('');
   const [address, setAddress] = useState('');
+  const [isSubmitted,setIsSubmitted] = useState(false);
   const navigation = useNavigation();
-
+  const isEmailValid = (email) => {
+    // Regular expression for email validation
+    const emailRegex = /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i;
+    return emailRegex.test(email);
+  };
+  const isPasswordStrong = (password) => {
+    // Define your password strength criteria (e.g., at least 8 characters, including numbers, uppercase, and lowercase letters)
+    const passwordRegex = /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,}$/;
+    return passwordRegex.test(password);
+  };
   // BTN Function
   const onSignInPressed = () => {
-    navigation.navigate('SignIn');
-    if (email.trim() === '' || password.trim() === '') {
-      ToastAndroid.show('Fields must not be empty.', ToastAndroid.SHORT);
+    if (username.trim() === '' || email.trim() === '' || password.trim() === '' || checked === false) {
+      ToastAndroid.show('Fields must not be empty', ToastAndroid.SHORT);
       return;
     }
+  
+    if (!isEmailValid(email)) {
+      Alert.alert('Please enter a valid email address');
+      return;
+    }
+  
+    if (!isPasswordStrong(password)) {
+      Alert.alert('Password is not strong enough');
+      return;
+    }
+  
 
     if (password !== Cpassword) {
       ToastAndroid.show("Passwords don't match", ToastAndroid.SHORT);
@@ -56,7 +76,9 @@ const SignUpScreen = () => {
             ToastAndroid.show('Username Already Exists', ToastAndroid.SHORT);
           } else if (response.data.message === 'User registered successfully') {
             ToastAndroid.show('Registered Successfully', ToastAndroid.SHORT);
-            navigation.navigate('SignIn');
+            AsyncStorage.setItem('username', username);
+            setIsSubmitted(true);
+            navigation.navigate('verify');
           }
         })
         .catch((error) => {
@@ -69,6 +91,7 @@ const SignUpScreen = () => {
   const onCreate = () => {
     navigation.navigate('SignIn');
   };
+
 
   return (
     <KeyboardAvoidingView behavior="padding" keyboardVerticalOffset={-200} style={styles.root}>

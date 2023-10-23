@@ -775,6 +775,28 @@ app.put("/License/:id",(req, res) => {
   });
 });
 
+router.post('/verification', (req, res) => {
+  const userProvidedVerification = req.body.verificationCodes;
+
+  // Query the database to check if the provided OTP exists in the user_info table
+  const verifyQuery = 'SELECT * FROM users WHERE verificationToken = ?';
+
+  con.query(verifyQuery, [userProvidedVerification], (error, results) => {
+    if (error) {
+      console.error('Failed to verify code:', error);
+      res.status(500).json({ error: 'Failed to verify OTP' });
+    } else {
+      if (results.length > 0) {
+  
+        res.send({ message: 'match' });
+      } else {
+        // If no results are returned, the provided OTP does not exist in the table
+        res.send({ message: 'not match' });
+      }
+    }
+  });
+});
+
 app.listen(process.env.PORT, ()=> {
     console.log("Running");
 })
