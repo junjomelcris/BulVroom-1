@@ -23,9 +23,9 @@ router.get('/getUsers', (req, res) => {
 
 router.get('/user/:userId/vehicles', (req, res) => {
   const userId = req.params.userId;
-  const sql = `SELECT * FROM vehicles WHERE user_id = ?`;
+  const sql = `SELECT * FROM vehicles WHERE id = ?`;
   
-  db.query(sql, userId, (err, result) => {
+  con.query(sql, userId, (err, result) => {
     if (err) {
       console.error('Error executing SQL query: ' + err);
       res.status(500).json({ error: 'Internal server error' });
