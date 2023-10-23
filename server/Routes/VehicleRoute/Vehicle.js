@@ -9,7 +9,7 @@ import path from 'path'
 import dotenv from 'dotenv'
 import nodemailer from "nodemailer"
 const router = express.Router();
-const con = require('../database'); 
+import con from '../database';
 
 router.put('/vApp/:id', (req, res) => {
     const userId = parseInt(req.params.id);
