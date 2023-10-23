@@ -25,7 +25,7 @@ const GetStarted = () => {
           <LottieView
             source={require('../../../assets/images/car.json')} // Replace with the path to your Lottie JSON file
             autoPlay
-            loop
+            loop={true} // Make the animation loop
             style={styles.lottieAnimation} // Add a style for your Lottie animation
           />
         </View>

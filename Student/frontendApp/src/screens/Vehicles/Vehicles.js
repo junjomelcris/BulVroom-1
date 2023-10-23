@@ -1,25 +1,43 @@
 import React, { useState, useEffect } from 'react';
-import { View, StyleSheet, Text, ScrollView, TouchableOpacity, Alert, Image, } from 'react-native';
+import { View, StyleSheet, Text, ScrollView, TouchableOpacity, Alert, Image } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
 import { useNavigation, useRoute } from '@react-navigation/native';
-import { getVehicles } from '../../screens/Vehicles/Vehicless'; // Import the getVehicles function
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import axios from 'axios';
 
 const DashboardScreen = () => {
   const [cardData, setCardData] = useState([]);
-  const [showPending, setShowPending] = useState(true); // State to toggle between pending and approved vehicles
+  const [showPending, setShowPending] = useState(true);
   const navigation = useNavigation();
   const route = useRoute();
   const newVehicle = route.params?.newVehicle;
+  const [userId, setUserId] = useState(null);
+
+  const fetchUserData = async (userId) => {
+    try {
+      const response = await axios.get(`https://bulvroom.onrender.com/user/${userId}/vehicles`);
+      setCardData(response.data);
+    } catch (error) {
+      console.log('Failed to fetch user vehicles:', error);
+    }
+  };
+
+  const onRefresh = () => {
+    fetchUserData(userId);
+  };
 
   useEffect(() => {
-    // Load vehicles data from vehicles.js when the component mounts
-    const vehicles = getVehicles();
-    if (newVehicle) {
-      // If a new vehicle was added, add it to the existing list
-      vehicles.push(newVehicle);
-    }
-    setCardData(vehicles);
-  }, [newVehicle]);
+    const retrieveData = async () => {
+      try {
+        const storedId = await AsyncStorage.getItem('id');
+        setUserId(storedId);
+        fetchUserData(storedId);
+      } catch (error) {
+        console.log(error);
+      }
+    };
+    retrieveData();
+  }, []);
 
   const toggleFavorite = (item, isFavorite) => {
     const updatedCardData = cardData.map((card) =>
@@ -29,63 +47,29 @@ const DashboardScreen = () => {
   };
 
   const onCarCardPress = (item) => {
-    // Navigate to the 'CarDetails' screen and pass the car data
     navigation.navigate('VehicleDetailsScreen', { car: item });
   };
 
-  const onBackPressed = () => {
-    // Use the navigate method to go back to the previous screen
-    navigation.goBack();
-  };
-
   const onAddPress = () => {
-    // Navigate to the 'AddVehicle' screen when the "Add" button is pressed
     navigation.navigate('AddVehicle');
   };
 
   const approveVehicle = (item) => {
-    // Change the status of the vehicle to "approved"
     item.status = 'APPROVED';
     Alert.alert('Success', 'The vehicle has been approved.');
-    // You may want to update the backend or perform other actions here.
-
-    // Reload the data by refetching the vehicles from the source
-    const updatedVehicles = getVehicles();
+    const updatedVehicles = cardData.map((vehicle) => {
+      if (vehicle.id === item.id) {
+        return item;
+      }
+      return vehicle;
+    });
     setCardData(updatedVehicles);
   };
-
-  // Filter vehicles based on the showPending state
-  const filteredVehicles = showPending
-    ? cardData.filter((item) => item.status === 'PENDING')
-    : cardData.filter((item) => item.status === 'APPROVED');
-
-  const myComponents = filteredVehicles.map((item) => (
-    <TouchableOpacity
-      key={item.id}
-      style={styles.card}
-      onPress={() => onCarCardPress(item)} // Navigate to CarDetails on press
-    > 
-     <View style={styles.row}>
-        <Image source={require('../../../assets/images/sample.png')} style={styles.VecImage} />
-        <View style={styles.textContainer}>
-          <Text style={styles.vehicleTitle}>{item.make} {item.model}</Text>
-          <Text style={styles.vehicleInfo}>Type: {item.type}</Text>
-          <Text style={styles.vehicleInfo}>Rental Price: {item.rate}</Text>
-          <Text style={styles.vehicleStatus}>{item.status}</Text>
-        </View>
-      </View>
-      {item.status === 'PENDING' && (
-        <TouchableOpacity onPress={() => approveVehicle(item)} style={styles.approveButton}>
-          <Text style={styles.approveButtonText}>Approve</Text>
-        </TouchableOpacity>
-      )}
-    </TouchableOpacity>
-  ));
 
   return (
     <View style={styles.container}>
       <View style={styles.titleBar}>
-        <TouchableOpacity onPress={onBackPressed}>
+        <TouchableOpacity onPress={() => navigation.goBack()}>
           <Icon name="arrow-back" style={styles.backIcon}></Icon>
         </TouchableOpacity>
         <View style={styles.titleCenter}>
@@ -97,26 +81,46 @@ const DashboardScreen = () => {
         <Text style={styles.addButtonText}>+ Add Vehicle</Text>
       </TouchableOpacity>
       <View style={styles.filterButtons}>
-          <TouchableOpacity
-            onPress={() => setShowPending(true)}
-            style={[styles.filterButton, showPending && styles.activeFilterButton]}
-          >
-            <Text style={[styles.filterButtonText, showPending && styles.activeFilterButtonText]}>Pending</Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            onPress={() => setShowPending(false)}
-            style={[styles.filterButton, !showPending && styles.activeFilterButton]}
-          >
-            <Text style={[styles.filterButtonText, !showPending && styles.activeFilterButtonText]}>Approved</Text>
-          </TouchableOpacity>
-        </View>
+        <TouchableOpacity
+          onPress={() => setShowPending(true)}
+          style={[styles.filterButton, showPending && styles.activeFilterButton]}
+        >
+          <Text style={[styles.filterButtonText, showPending && styles.activeFilterButtonText]}>Pending</Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          onPress={() => setShowPending(false)}
+          style={[styles.filterButton, !showPending && styles.activeFilterButton]}
+        >
+          <Text style={[styles.filterButtonText, !showPending && styles.activeFilterButtonText]}>Approved</Text>
+        </TouchableOpacity>
+      </View>
       <ScrollView style={styles.scrollView}>
-        {myComponents}
+        {cardData.map((item) => (
+          <TouchableOpacity
+            key={item.id}
+            style={styles.card}
+            onPress={() => onCarCardPress(item)}
+          >
+            <View style={styles.row}>
+              <Image source={require('../../../assets/images/sample.png')} style={styles.VecImage} />
+              <View style={styles.textContainer}>
+                <Text style={styles.vehicleTitle}>{item.make} {item.model}</Text>
+                <Text style={styles.vehicleInfo}>Type: {item.type}</Text>
+                <Text style={styles.vehicleInfo}>Rental Price: {item.rate}</Text>
+                <Text style={styles.vehicleStatus}>{item.status}</Text>
+              </View>
+            </View>
+            {item.status === 'PENDING' && (
+              <TouchableOpacity onPress={() => approveVehicle(item)} style={styles.approveButton}>
+                <Text style={styles.approveButtonText}>Approve</Text>
+              </TouchableOpacity>
+            )}
+          </TouchableOpacity>
+        ))}
       </ScrollView>
     </View>
   );
 };
-
 const styles = StyleSheet.create({
   container: {
     flex: 1,

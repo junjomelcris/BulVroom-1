@@ -75,7 +75,7 @@ const SignUpScreen = () => {
           } else if (response.data.message === 'Username already exists') {
             ToastAndroid.show('Username Already Exists', ToastAndroid.SHORT);
           } else if (response.data.message === 'User registered successfully') {
-            ToastAndroid.show('Registered Successfully', ToastAndroid.SHORT);
+            
             AsyncStorage.setItem('username', username);
             setIsSubmitted(true);
             navigation.navigate('verify');
