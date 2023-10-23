@@ -331,6 +331,18 @@ router.post('/register/app', (req, res) => {
     });
   });
   
+  router.get('/users', (req, res) => {
+    const query = 'SELECT * FROM users'; // Select all data from the "users" table
+    con.query(query, (error, results) => {
+      if (error) {
+        console.error('Failed to fetch data:', error);
+        res.sendStatus(500);
+      } else {
+        res.json(results); // Send all user data as a JSON response
+      }
+    });
+  });
+  
 
   router.post('/verification', (req, res) => {
     const userProvidedVerification = req.body.verificationCodes;
