@@ -9,7 +9,9 @@ import path from 'path';
 import dotenv from 'dotenv';
 import http from 'http'; // Change require to import here
 import nodemailer from 'nodemailer';
-
+import vehicleRouter from './Routes/VehicleRoute/Vehicle'; 
+import userRouter from './Routes/UserRoute/User'; 
+import adminRouter from './Routes/Admin/Admin'; 
 
 
 
@@ -72,12 +74,9 @@ function handleDisconnect() {
 }
 
 app.use(express.static('public'));
-import vehicle from './Routes/VehicleRoute/Vehicle';
-app.use(vehicle);
-import user from './Routes/UserRoute/User';
-app.use(user);
-import admin from './Routes/Admin/Admin';
-app.use(admin);
+app.use(vehicleRouter);
+app.use(userRouter);
+app.use(adminRouter);
 
 // Add this route to your server code
 app.get('/keep-alive', (req, res) => {
