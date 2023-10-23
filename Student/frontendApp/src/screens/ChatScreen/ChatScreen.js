@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
@@ -7,26 +7,15 @@ import {
   TouchableOpacity,
   Dimensions,
   Modal,
-  Button,
 } from 'react-native';
-import { Card, TextInput, RadioButton } from 'react-native-paper'; // Import RadioButton
+import { Card, TextInput, RadioButton } from 'react-native-paper';
 import Icon from 'react-native-vector-icons/Ionicons';
-import { getVehicles } from '../../screens/Vehicles/Vehicless'; // Import the getVehicles function
 
 const { width } = Dimensions.get('window');
 
-const FilterModal = ({ isVisible, onClose, onApplyFilter }) => {
-  const [selectedType, setSelectedType] = useState('All');
-  const [selectedComponent, setSelectedComponent] = useState('');
-
-  const handleApplyFilter = () => {
-    onApplyFilter(selectedType, selectedComponent);
-    onClose();
-  };
-
-  const componentOptions = ['All', 'AC']; // Add more as needed
-
-  const vehicleTypeOptions = ['All', 'Sedan', 'SUV', 'Van', 'Motorcycle']; // New vehicle type options
+const FilterModal = ({ isVisible, onClose, onApplyFilter, selectedType, selectedComponent }) => {
+  const componentOptions = ['All', 'AC'];
+  const vehicleTypeOptions = ['All', 'Sedan', 'SUV', 'Van', 'Motorcycle'];
 
   return (
     <Modal visible={isVisible} transparent={true} animationType="slide">
@@ -34,40 +23,37 @@ const FilterModal = ({ isVisible, onClose, onApplyFilter }) => {
         <View style={styles.modalContent}>
           <Text style={styles.modalTitle}>Filter by Type and Component</Text>
           <Text style={styles.radioLabel}>Select Vehicle Type:</Text>
-          <View style={styles.radioGroup}>
-            <RadioButton.Group
-              onValueChange={(value) => setSelectedType(value)}
-              value={selectedType}
-            >
-                <View style={styles.radioButton}>
-                  <Text>All</Text>
-                  <RadioButton/>
-                </View>
-
-            </RadioButton.Group>
-          </View>
+          <RadioButton.Group
+            onValueChange={onApplyFilter}
+            value={selectedType}
+          >
+            {vehicleTypeOptions.map((option) => (
+              <View style={styles.radioGroup} key={option}>
+                <Text>{option}</Text>
+                <RadioButton value={option} />
+              </View>
+            ))}
+          </RadioButton.Group>
           <Text style={styles.radioLabel}>Select Component:</Text>
-          <View style={styles.radioGroup}>
-            <RadioButton.Group
-              onValueChange={(value) => setSelectedComponent(value)}
-              value={selectedComponent}
-            >
-              {componentOptions.map((option) => (
-                <View style={styles.radioButton} key={option}>
-                  <Text>{option}</Text>
-                  <RadioButton value={option} />
-                </View>
-              ))}
-            </RadioButton.Group>
-          </View>
+          <RadioButton.Group
+            onValueChange={onApplyFilter}
+            value={selectedComponent}
+          >
+            {componentOptions.map((option) => (
+              <View style={styles.radioGroup} key={option}>
+                <Text>{option}</Text>
+                <RadioButton value={option} />
+              </View>
+            ))}
+          </RadioButton.Group>
           <View style={styles.buttonContainer}>
-  <TouchableOpacity style={[styles.button, styles.cancelButton]} onPress={onClose}>
-    <Text style={styles.buttonText}>Cancel</Text>
-  </TouchableOpacity>
-  <TouchableOpacity style={[styles.button, styles.applyFilterButton]} onPress={handleApplyFilter}>
-    <Text style={styles.buttonText1}>Apply Filter</Text>
-  </TouchableOpacity>
-</View>
+            <TouchableOpacity style={[styles.button, styles.cancelButton]} onPress={onClose}>
+              <Text style={styles.buttonText}>Cancel</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={[styles.button, styles.applyFilterButton]} onPress={onClose}>
+              <Text style={styles.buttonText}>Apply Filter</Text>
+            </TouchableOpacity>
+          </View>
         </View>
       </View>
     </Modal>
@@ -78,53 +64,41 @@ const VehicleSearchScreen = () => {
   const [searchText, setSearchText] = useState('');
   const [searchResults, setSearchResults] = useState([]);
   const [isFilterModalVisible, setIsFilterModalVisible] = useState(false);
-  const [filterType, setFilterType] = useState('');
-  const [filterComponent, setFilterComponent] = useState('');
+  const [selectedType, setSelectedType] = useState('All');
+  const [selectedComponent, setSelectedComponent] = useState('All');
 
   const handleSearch = () => {
-    const allVehicles = getVehicles(filterType, filterComponent);
-    const filteredVehicles = allVehicles.filter(
-      (vehicle) =>
-        vehicle.make.toLowerCase().includes(searchText.toLowerCase()) ||
-        vehicle.model.toLowerCase().includes(searchText.toLowerCase())
-    );
-    setSearchResults(filteredVehicles);
+    // Implement your search logic here
   };
 
   const handleClearSearch = () => {
     setSearchText('');
     setSearchResults([]);
-    setFilterType('');
-    setFilterComponent('');
   };
 
   const handleToggleFilter = () => {
     setIsFilterModalVisible(true);
   };
 
-  const handleApplyFilter = (type, component) => {
-    setFilterType(type);
-    setFilterComponent(component);
+  const handleApplyFilter = (value) => {
+    if (value === 'type') {
+      setSelectedType(value);
+    } else if (value === 'component') {
+      setSelectedComponent(value);
+    }
   };
 
-  const filteredSearchResults = searchResults.filter((vehicle) => {
-    if (!filterType && !filterComponent) {
-      return true;
-    }
-    return (
-      (!filterType || vehicle.type === filterType) &&
-      (!filterComponent || filterComponent === 'All' || vehicle.features.includes(filterComponent))
-    );
-  });
+  useEffect(() => {
+    // Fetch data based on filters
+    // You can make an API request here to retrieve vehicle data
+  }, [selectedType, selectedComponent]);
 
   return (
-    <View>
-      <View style={styles.container}>
-        <View style={styles.title}>
-          <View style={styles.titleCenter}>
-            <Icon name="search" style={styles.titleIcon}></Icon>
-            <Text style={styles.titleText}>Search Vehicles</Text>
-          </View>
+    <View style={styles.container}>
+      <View style={styles.title}>
+        <View style={styles.titleCenter}>
+          <Icon name="search" style={styles.titleIcon}></Icon>
+          <Text style={styles.titleText}>Search Vehicles</Text>
         </View>
       </View>
       <View style={styles.searchContainer}>
@@ -139,7 +113,7 @@ const VehicleSearchScreen = () => {
         </TouchableOpacity>
       </View>
       <View style={styles.clear}>
-      <TouchableOpacity onPress={handleClearSearch} style={styles.clearButton}>
+        <TouchableOpacity onPress={handleClearSearch} style={styles.clearButton}>
           <Text style={styles.clearButtonText}>Clear</Text>
         </TouchableOpacity>
         <TouchableOpacity onPress={handleToggleFilter} style={styles.filterButton}>
@@ -148,7 +122,7 @@ const VehicleSearchScreen = () => {
       </View>
       <ScrollView style={styles.scrollView}>
         <View style={styles.vehicleList}>
-          {filteredSearchResults.map((vehicle) => (
+          {searchResults.map((vehicle) => (
             <TouchableOpacity
               key={vehicle.id}
               onPress={() => {
@@ -169,16 +143,15 @@ const VehicleSearchScreen = () => {
         isVisible={isFilterModalVisible}
         onClose={() => setIsFilterModalVisible(false)}
         onApplyFilter={handleApplyFilter}
+        selectedType={selectedType}
+        selectedComponent={selectedComponent}
       />
     </View>
   );
 };
 
 const styles = StyleSheet.create({
-  container: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
+  
   title: {
     flexDirection: 'row',
     alignItems: 'center',

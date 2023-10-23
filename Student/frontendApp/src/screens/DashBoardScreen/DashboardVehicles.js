@@ -114,10 +114,10 @@ const toggleDescription = () => {
         >
           <View style={styles.modalOverlay}>
             <TouchableOpacity onPress={toggleModal} style={styles.modalContent}>
-              <Image
-                source={require('../../../assets/images/sample.png')}
-                style={styles.fullSizeImage}
-              />
+            <Image
+           source={{ uri: vehicle.vehicle_image }} 
+            style={styles.fullSizeImage}
+          />
             </TouchableOpacity>
           </View>
         </Modal>
@@ -125,16 +125,18 @@ const toggleDescription = () => {
           <Text style={styles.heading}>
             {vehicle.make} {vehicle.model}
           </Text>
-          <Text style={styles.pricing}>{vehicle.rate}/Day</Text>
+          <Text style={styles.pricing}>P {vehicle.rate}/Day</Text>
         </View>
         <Text style={styles.renter}>Owner</Text>
         <View style={styles.renterDetails}>
         <Image
-    source={ownerPic ? { uri: ownerPic }: "Loading" }
+    source={ownerPic ? { uri: ownerPic } : require('../../../assets/images/bulv.png')}
     resizeMode="contain"
     style={styles.image}
   />
-  <Text style={styles.RenterName}>{ownerFirstName} {ownerLastName}</Text>
+  <Text style={styles.RenterName}>
+  {ownerFirstName ? `${ownerFirstName} ${ownerLastName}` : 'Loading...'}
+</Text>
   <TouchableOpacity onPress={() => openMessagingApp()}>
     <Icon name="chatbubble-ellipses-outline" style={styles.msg} />
   </TouchableOpacity>
@@ -349,7 +351,7 @@ const styles = StyleSheet.create({
   },
   pricing: {
     marginTop: 3,
-    marginLeft: 55,
+    marginLeft: 100,
     fontSize: 19,
     color: '#04AD4C',
     fontWeight: 600,

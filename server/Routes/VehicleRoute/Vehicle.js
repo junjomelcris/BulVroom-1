@@ -129,4 +129,57 @@ router.put('/vdisApp/:id', (req, res) => {
     });
   });
 
+  router.get('/api/vehicles', async (req, res) => {
+    try {
+      const { searchText, filterType, filterComponent } = req.query;
+  
+      // Construct the SQL query based on the parameters
+      let sql = `
+  SELECT 
+    *
+  FROM 
+    vehicles
+`;
+  
+      // Conditionally add filters based on the query parameters
+      const params = [];
+  
+      if (searchText) {
+        sql += ` AND (make LIKE ? OR model LIKE ?)`;
+        params.push(`%${searchText}%`);
+        params.push(`%${searchText}%`);
+      }
+  
+      if (filterType && filterType !== 'All') {
+        sql += ` AND type = ?`;
+        params.push(filterType);
+      }
+  
+      if (filterComponent && filterComponent !== 'All') {
+        sql += ` AND features LIKE ?`;
+        params.push(`%${filterComponent}%`);
+      }
+  
+      // Execute the SQL query
+      const results = await db.query(sql, params);
+  
+      res.json(results);
+    } catch (error) {
+      console.error('Error in /api/vehicles:', error);
+      res.status(500).json({ error: 'Internal server error' });
+    }
+  });
+  
+  router.get('/vehicles', (req, res) => {
+    const query = 'SELECT * FROM vehicles'; // Select all data from the "users" table
+    con.query(query, (error, results) => {
+      if (error) {
+        console.error('Failed to fetch data:', error);
+        res.sendStatus(500);
+      } else {
+        res.json(results); // Send all user data as a JSON response
+      }
+    });
+  });
+
   export default router;
