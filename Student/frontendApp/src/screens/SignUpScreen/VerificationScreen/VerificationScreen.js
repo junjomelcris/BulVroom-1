@@ -4,67 +4,43 @@ import {
   Text,
   StyleSheet,
   Dimensions,
-  ToastAndroid,
-  TouchableOpacity,
   Alert,
+  TouchableOpacity,
+  TextInput,
 } from 'react-native';
-import CustomInputs from '../../../components/CustomInputs/CustomInputs';
 import CustomButton from '../../../components/CustomButton/CustomButton';
 import { useNavigation } from '@react-navigation/native';
-import AsyncStorage from '@react-native-async-storage/async-storage'; // Import AsyncStorage
 import axios from 'axios';
-import LottieView from 'lottie-react-native';
 
 const { width, height } = Dimensions.get('window');
+
 const VerificationScreen = () => {
   const navigation = useNavigation();
 
-  const [verificationCodes, setVerificationCodes] = useState('');
-  const [username, setUsername] = useState(''); // State to store the username
+  const [verificationCode, setVerificationCode] = useState('');
 
-  useEffect(() => {
-    // Retrieve the username from AsyncStorage
-    retrieveUsername();
-  }, []);
-
-  const retrieveUsername = async () => {
-    try {
-      const storedUsername = await AsyncStorage.getItem('username');
-      if (storedUsername !== null) {
-        setUsername(storedUsername);
-      }
-    } catch (error) {
-      console.error('Failed to retrieve username from AsyncStorage:', error);
-    }
+  const signIn = () => {
+    navigation.navigate('SignIn');
   };
 
-
-  const SignIn = () => {
-    navigation.navigate('SignIn');
-}
-
-  const SubmitCode = async () => {
-    if(verificationCodes.trim() === ""){
+  const submitCode = async () => {
+    if (verificationCode.trim() === '') {
       Alert.alert('Verification', 'Please input Verification Code');
-    }else
-    {
+    } else {
       try {
         const response = await axios.post('https://bulvroom.onrender.com/verification', {
-          verificationCodes: verificationCodes, // Pass the email to the server
+          verificationCode: verificationCode,
         });
-    
-        // Check the response status
+
         if (response.status === 200) {
-              console.log(response.data.message);
           if (response.data.message === 'match') {
-         
             Alert.alert(
               'Verified User',
               'Verification Success ',
               [
                 {
                   text: 'OK',
-                  onPress: () => SignIn(),
+                  onPress: signIn,
                 },
               ],
               { cancelable: false }
@@ -73,42 +49,27 @@ const VerificationScreen = () => {
             Alert.alert('Verification', 'Verification is Invalid');
           }
         } else {
-          ToastAndroid.show('Error: Unexpected server response', ToastAndroid.SHORT);
+          Alert.alert('Error', 'Unexpected server response');
         }
       } catch (error) {
-        ToastAndroid.show('Network error', ToastAndroid.SHORT);
+        Alert.alert('Network Error', 'Failed to connect to the server');
       }
     }
   };
-  
 
   return (
-    <View style={styles.root}>
-      <View style={styles.circle} />
+    <View style={styles.container}>
+      <View style={styles.circle1} />
       <View style={styles.circle2} />
-      <View
-        style={{
-          width: width,
-          height: height,
-          alignItems: 'center',
-          marginVertical: 60,
-        }}
-      >
-       {/*<LottieView
-          source={require('../../../../assets/animation/verification.json')}
-          autoPlay
-          loop
-          style={{ width: width, height: width }}
-    />*/}
-        <Text style={{ color: 'black', fontSize: 20 }}>Verification Code</Text>
-        <CustomInputs
-          mode="outlined"
-          label="Code"
-          placeholder="Enter Code "
-          onChangeText={(e) => setVerificationCodes(e)}
+      <View style={styles.contentContainer}>
+        <Text style={styles.title}>Verification Code</Text>
+        <TextInput
+          style={styles.input}
+          placeholder="Enter Code"
+          onChangeText={(text) => setVerificationCode(text)}
         />
-        <TouchableOpacity onPress={SubmitCode}>
-          <CustomButton mode="elevated" text="Submit" />
+        <TouchableOpacity onPress={submitCode}>
+          <CustomButton text="Submit" />
         </TouchableOpacity>
       </View>
     </View>
@@ -116,46 +77,29 @@ const VerificationScreen = () => {
 };
 
 const styles = StyleSheet.create({
-  root: {
+  container: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: "#2ecc71"
+  },
+ 
+  contentContainer: {
     width: width,
-    height: height,
+    alignItems: 'center',
+    marginVertical: 60,
   },
-  circle: {
-    position: 'absolute',
-    top: -110,
-    left: -15,
-    width: 224,
-    height: 216,
-    borderRadius: 110,
-    backgroundColor: 'rgba(241, 204, 74, 0.45)', // Adjust the color of the circle as desired
+  title: {
+    color: 'white',
+    fontSize: 20,
   },
-  circle2: {
-    position: 'absolute',
-    top: -30,
-    left: -100,
-    width: 224,
-    height: 216,
-    borderRadius: 110,
-    backgroundColor: 'rgba(241, 204, 74, 0.45)', // Adjust the color of the circle as desired
-  },
-  logo: {
-    marginTop: '50%',
-    maxWidth: 500,
-    maxHeight: 400,
-    width: '70%',
-    marginVertical: 20,
-  },
-  forgot: {
-    fontSize: 16,
-    color: '#EF5757',
-    marginVertical: 10,
-  },
-  text: {
-    fontFamily: 'poppins',
-    fontSize: 14,
-    color: 'black',
-    marginVertical: '20%',
-    letterSpacing: 1.5,
+  input: {
+    width: '80%',
+    marginTop: 20,
+    padding: 10,
+    borderWidth: 1,
+    borderColor: 'gray',
+    borderRadius: 5,
   },
 });
 

@@ -13,9 +13,11 @@ const DashboardScreen = () => {
   const newVehicle = route.params?.newVehicle;
   const [userId, setUserId] = useState(null);
 
-  const fetchUserData = async (userId) => {
+  const fetchUserData = async () => {
     try {
-      const response = await axios.get(`https://bulvroom.onrender.com/user/${userId}/vehicles`);
+      const storedId = await AsyncStorage.getItem('id');
+      setUserId(storedId);
+      const response = await axios.get(`https://bulvroom.onrender.com/user/${storedId}/vehicles`);
       setCardData(response.data);
     } catch (error) {
       console.log('Failed to fetch user vehicles:', error);
@@ -23,47 +25,28 @@ const DashboardScreen = () => {
   };
 
   const onRefresh = () => {
-    fetchUserData(userId);
+    fetchUserData();
   };
 
   useEffect(() => {
-    const retrieveData = async () => {
-      try {
-        const storedId = await AsyncStorage.getItem('id');
-        setUserId(storedId);
-        fetchUserData(storedId);
-      } catch (error) {
-        console.log(error);
-      }
-    };
-    retrieveData();
+    fetchUserData();
   }, []);
 
-  const toggleFavorite = (item, isFavorite) => {
-    const updatedCardData = cardData.map((card) =>
-      card.id === item.id ? { ...card, isFavorite } : card
-    );
-    setCardData(updatedCardData);
-  };
-
-  const onCarCardPress = (item) => {
-    navigation.navigate('VehicleDetailsScreen', { car: item });
-  };
-
-  const onAddPress = () => {
-    navigation.navigate('AddVehicle');
-  };
-
-  const approveVehicle = (item) => {
-    item.status = 'APPROVED';
-    Alert.alert('Success', 'The vehicle has been approved.');
-    const updatedVehicles = cardData.map((vehicle) => {
-      if (vehicle.id === item.id) {
-        return item;
+  const approveVehicle = async (item) => {
+    try {
+      const response = await axios.put(`https://bulvroom.onrender.com/vehicle/${item.vehicle_id}`, {
+        status: 'approved',
+      });
+      if (response.data.success) {
+        Alert.alert('Success', 'The vehicle has been approved.');
+        // Refresh the data to reflect the updated status
+        fetchUserData();
+      } else {
+        Alert.alert('Error', 'Failed to approve the vehicle.');
       }
-      return vehicle;
-    });
-    setCardData(updatedVehicles);
+    } catch (error) {
+      console.log('Failed to approve the vehicle:', error);
+    }
   };
 
   return (
@@ -77,7 +60,7 @@ const DashboardScreen = () => {
           <Text style={styles.titleText}>My Vehicles</Text>
         </View>
       </View>
-      <TouchableOpacity onPress={onAddPress} style={styles.addButton}>
+      <TouchableOpacity onPress={() => navigation.navigate('AddVehicle')} style={styles.addButton}>
         <Text style={styles.addButtonText}>+ Add Vehicle</Text>
       </TouchableOpacity>
       <View style={styles.filterButtons}>
@@ -95,49 +78,58 @@ const DashboardScreen = () => {
         </TouchableOpacity>
       </View>
       <ScrollView style={styles.scrollView}>
-        {cardData.map((item) => (
-          <TouchableOpacity
-            key={item.id}
-            style={styles.card}
-            onPress={() => onCarCardPress(item)}
-          >
-            <View style={styles.row}>
-              <Image source={require('../../../assets/images/sample.png')} style={styles.VecImage} />
-              <View style={styles.textContainer}>
-                <Text style={styles.vehicleTitle}>{item.make} {item.model}</Text>
-                <Text style={styles.vehicleInfo}>Type: {item.type}</Text>
-                <Text style={styles.vehicleInfo}>Rental Price: {item.rate}</Text>
-                <Text style={styles.vehicleStatus}>{item.status}</Text>
-              </View>
-            </View>
-            {item.status === 'PENDING' && (
-              <TouchableOpacity onPress={() => approveVehicle(item)} style={styles.approveButton}>
-                <Text style={styles.approveButtonText}>Approve</Text>
-              </TouchableOpacity>
-            )}
+  {cardData
+    .filter((item) => (showPending ? item.status === 'pending' : item.status === 'approved'))
+    .map((item) => (
+      <TouchableOpacity key={item.vehicle_id} style={styles.card} onPress={() => navigation.navigate('VehicleDetailsScreen', { car: item })}>
+        <View style={styles.row}>
+          <Image source={{ uri: item.vehicle_image }} style={styles.VecImage} />
+          <View style={styles.textContainer}>
+            <Text style={styles.vehicleTitle}>{item.make} {item.model}</Text>
+            <Text style={styles.vehicleInfo}>Type: {item.type}</Text>
+            <Text style={styles.vehicleInfo}>Rental Price: {item.rate}</Text>
+            <Text style={styles.vehicleStatus}>{item.status}</Text>
+          </View>
+        </View>
+        {item.status === 'pending' && (
+          <TouchableOpacity onPress={() => approveVehicle(item)} style={styles.approveButton}>
+            <Text style={styles.approveButtonText}>Approve</Text>
           </TouchableOpacity>
-        ))}
-      </ScrollView>
+        )}
+      </TouchableOpacity>
+    ))}
+
+  {cardData
+    .filter((item) => (showPending ? item.status === 'pending' : item.status === 'approved'))
+    .length === 0 && (
+      <View style={styles.noDataContainer}>
+        <Text style={styles.noDataText}>
+          {showPending ? 'No pending vehicles' : 'No approved vehicles'}
+        </Text>
+      </View>
+    )}
+</ScrollView>
     </View>
   );
 };
+
 const styles = StyleSheet.create({
   container: {
     flex: 1,
     paddingBottom: 16,
   },
   VecImage: {
-    width: 150, // Set the width of the image
-    height: 110, // Set the height of the image
-    marginRight: 10, // Add some margin to separate the image from text
+    width: 150,
+    height: 110,
+    marginRight: 10,
   },
   row: {
     flexDirection: 'row',
     alignItems: 'center',
   },
   textContainer: {
-    flex: 1, // To make the text take up the remaining space
-    marginLeft: 10, // Add some margin to separate the image from text
+    flex: 1,
+    marginLeft: 10,
   },
   titleBar: {
     flexDirection: 'row',
@@ -175,6 +167,8 @@ const styles = StyleSheet.create({
     alignSelf: 'flex-end',
     marginTop: 10,
     marginRight: 16,
+    
+    marginBottom :30
   },
   addButtonText: {
     color: 'white',
@@ -222,7 +216,6 @@ const styles = StyleSheet.create({
   },
   filterButtons: {
     flexDirection: 'row',
-
     alignSelf: 'flex-start',
   },
   filterButton: {
@@ -234,7 +227,6 @@ const styles = StyleSheet.create({
   },
   filterButtonText: {
     fontSize: 16,
-    
   },
   activeFilterButton: {
     backgroundColor: '#2ecc71',
@@ -242,6 +234,15 @@ const styles = StyleSheet.create({
   activeFilterButtonText: {
     color: 'white',
   },
+  noDataContainer: {
+    alignItems: 'center',
+    marginTop: 20,
+  },
+  noDataText: {
+    fontSize: 16,
+    color: '#555',
+  },
+  
 });
 
 export default DashboardScreen;

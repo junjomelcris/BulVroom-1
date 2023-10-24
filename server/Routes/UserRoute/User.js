@@ -208,14 +208,14 @@ router.post('/register/app', (req, res) => {
     const transporter = nodemailer.createTransport({
       service: 'gmail',
       auth: {
-        user: 'bulvroom0@gmail.com',
-        pass: 'kriolqgjqkjcxfey',
+        user: 'bulvroom7@gmail.com',
+        pass: 'ekrlnkgsxzjzalah',
       },
     });
   
     // Setup email data
     const mailOptions = {
-      from: 'bulvroom0@gmail.com',
+      from: 'bulvroom7@gmail.com',
       to: email,
       subject: 'Email Verification',
       html: `<p>Thank you for registering. Please click the following link to verify your email:</p>

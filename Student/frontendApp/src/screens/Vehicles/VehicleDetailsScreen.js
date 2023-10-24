@@ -75,7 +75,7 @@ const CarDetailsScreen = ({ route }) => {
       <ScrollView style={styles.scroll}>
       <View style={styles.test}>
         <View style={styles.VecImageContainer}>
-          <Image source={require('../../../assets/images/sample.png')} style={styles.VecImage} />
+        <Image source={{ uri: car.vehicle_image }} style={styles.VecImage} />
         </View>
         <View style={styles.row}>
           <Text style={styles.titleText}>{car.make} {car.model}</Text>
