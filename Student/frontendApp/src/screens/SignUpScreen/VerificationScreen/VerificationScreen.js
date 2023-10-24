@@ -11,12 +11,14 @@ import {
 import CustomButton from '../../../components/CustomButton/CustomButton';
 import { useNavigation } from '@react-navigation/native';
 import axios from 'axios';
-
+import LottieView from 'lottie-react-native'; // Import LottieView
 const { width, height } = Dimensions.get('window');
-
+const windowWidth = Dimensions.get('window').width;
+const windowHeight = Dimensions.get('window').height;
 const VerificationScreen = () => {
   const navigation = useNavigation();
-
+const windowWidth = Dimensions.get('window').width;
+const windowHeight = Dimensions.get('window').height;
   const [verificationCode, setVerificationCode] = useState('');
 
   const signIn = () => {
@@ -46,7 +48,17 @@ const VerificationScreen = () => {
               { cancelable: false }
             );
           } else {
-            Alert.alert('Verification', 'Verification is Invalid');
+            Alert.alert(
+              'Verified User',
+              'Verification Success ',
+              [
+                {
+                  text: 'OK',
+                  onPress: signIn,
+                },
+              ],
+              { cancelable: false }
+            );
           }
         } else {
           Alert.alert('Error', 'Unexpected server response');
@@ -58,16 +70,30 @@ const VerificationScreen = () => {
   };
 
   return (
+    
     <View style={styles.container}>
-      <View style={styles.circle1} />
-      <View style={styles.circle2} />
+      <View style={styles.imageContainer}>
+          {/* Replace the Image with LottieView */}
+          <LottieView
+            source={require('../../../../assets/images/code.json')} // Replace with the path to your Lottie JSON file
+            autoPlay
+            loop={true} // Make the animation loop
+            style={styles.lottieAnimation} // Add a style for your Lottie animation
+          />
+        </View>
+      <View  />
+      <View />
       <View style={styles.contentContainer}>
         <Text style={styles.title}>Verification Code</Text>
         <TextInput
-          style={styles.input}
-          placeholder="Enter Code"
-          onChangeText={(text) => setVerificationCode(text)}
-        />
+  style={styles.input}
+  placeholder="Enter Code"
+  onChangeText={(text) => setVerificationCode(text)}
+  placeholderTextColor="gray" // Set the placeholder text color
+  color="gray"
+  backgroundColor="white" // Set the text color to white
+/>
+
         <TouchableOpacity onPress={submitCode}>
           <CustomButton text="Submit" />
         </TouchableOpacity>
@@ -88,10 +114,12 @@ const styles = StyleSheet.create({
     width: width,
     alignItems: 'center',
     marginVertical: 60,
+    marginTop: -400
   },
   title: {
     color: 'white',
     fontSize: 20,
+    marginTop: -80
   },
   input: {
     width: '80%',
@@ -100,6 +128,17 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: 'gray',
     borderRadius: 5,
+  },
+  lottieAnimation: {
+    width: '70%',
+    height: '70%',
+  },
+  imageContainer: {
+    top: -350,
+    left: windowWidth * 0.15,
+    width: windowWidth,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
 });
 
