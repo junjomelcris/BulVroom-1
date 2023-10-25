@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, Image, ScrollView, Dimensions, TouchableOpacity, RefreshControl } from 'react-native';
+import { View,Alert, Text, StyleSheet, Image, ScrollView, Dimensions, TouchableOpacity, RefreshControl } from 'react-native';
 import { Card } from 'react-native-paper';
 import Icon from 'react-native-vector-icons/Ionicons';
 import Logo from '../../../assets/images/bulv.png';
@@ -19,8 +19,19 @@ const ProfileScreen = () => {
 
   const onRefresh = () => {
     setRefreshing(true);
-    fetchUserData(userId);
-    setRefreshing(false);
+  
+    // Fetch your data here
+    axios
+      .get(`https://bulvroom.onrender.com/user/${userId}`)
+      .then((response) => {
+        setUserData(response.data);
+        setRefreshing(false); // Set refreshing to false when data is fetched
+      })
+      .catch((error) => {
+        console.error('Error fetching approved vehicles:', error);
+        setRefreshing(false); // Ensure refreshing is set to false even if there's an error
+      });
+      
   };
 
   const fetchUserData = async (userId) => {
@@ -47,12 +58,32 @@ const ProfileScreen = () => {
   }, []);
 
   const handleLogout = async () => {
-    try {
-      await AsyncStorage.clear(); // Clear the entire AsyncStorage
-      navigation.navigate('SignIn'); // Navigate to the sign-in screen
-    } catch (error) {
-      console.error('Error logging out:', error);
-    }
+    const confirmLogout = () => {
+      Alert.alert(
+        'Log Out',
+        'Are you sure you want to log out?',
+        [
+          {
+            text: 'Cancel',
+            style: 'cancel',
+          },
+          {
+            text: 'Log Out',
+            onPress: async () => {
+              try {
+                await AsyncStorage.clear(); // Clear the entire AsyncStorage
+                navigation.navigate('SignIn'); // Navigate to the sign-in screen
+              } catch (error) {
+                console.error('Error logging out:', error);
+              }
+            },
+          },
+        ],
+        { cancelable: false }
+      );
+    };
+
+    confirmLogout();
   };
   
 

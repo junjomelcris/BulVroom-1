@@ -7,8 +7,8 @@ import {
   StyleSheet,
   ScrollView,
   TouchableOpacity,
-  Dimensions,
-  Modal,
+  Dimensions, RefreshControl,
+  Modal,ActivityIndicator
 } from 'react-native';
 import {
   Provider,
@@ -38,79 +38,147 @@ const SignUpScreen = () => {
   const [isDialogVisible, setDialogVisible] = useState(false);
   const [isSnackbarVisible, setSnackbarVisible] = useState(false);
   const [progress, setProgress] = useState(0);
-  const [galleryPhoto, setGalleryPhoto] = useState(null);
   const [isModalVisible, setIsModalVisible] = useState(false);
-  const [driversLicenseImage, setDriversLicenseImage] = useState(null);
+  const [isModalVisible1, setIsModalVisible1] = useState(false);
+  const [isModalVisible2, setIsModalVisible2] = useState(false);
+  const [refreshing, setRefreshing] = useState(false);
+  const [isLoading, setLoading] = useState(false);
+  const [galleryPhoto, setGalleryPhoto] = useState(null);
+  const [viewLicense, setViewLicense] = useState(null);
   const [validIdImage, setValidIdImage] = useState(null);
-  const [viewLicense, setViewLicense] = useState(false);
-  const [viewValidId, setViewValidId] = useState(false);
-
+  const onRefresh = () => {
+    setRefreshing(true);
+  
+    // Fetch your data here
+    axios
+      .get(`https://bulvroom.onrender.com/user/${userId}`)
+      .then((response) => {
+        setUserData(response.data);
+        setRefreshing(false); // Set refreshing to false when data is fetched
+      })
+      .catch((error) => {
+        console.error('Error fetching approved vehicles:', error);
+        setRefreshing(false); // Ensure refreshing is set to false even if there's an error
+      });
+      
+  };
   let options = {
-    mediaType: 'mixed', // Allow all media types
+    mediaType: 'photo', // You can set 'photo' or 'video' based on your requirements
     allowsEditing: true,
-    aspect: [4, 3],
-    quality: 1,
+    aspect: [4, 3], // Aspect ratio (for photos)
+    quality: 1, // Image quality, where 1 is the highest quality
   };
   const selectImage = async () => {
-    const result = await launchImageLibrary(options);
-    setGalleryPhoto(result.assets[0].uri);
-    console.log(result)
-    Alert.alert(
-      'Update Images',
-      'Are you sure you want to update you Profile Picture?',
-      [
-        {
-          text: 'Cancel',
-          style: 'cancel',
-        },
-        {
-          text: 'OK',
-          onPress: () => Upload(),
-          
-        },
-      ],
-      { cancelable: false }
-    );
-};
-const selectLicense = async () => {
-  const result = await launchImageLibrary(options);
-  setGalleryPhoto(result.assets[0].uri);
-  Alert.alert(
-    'Update Images',
-    "Are you sure you want to Upload your Driver's License",
-    [
-      {
-        text: 'Cancel',
-        style: 'cancel',
-      },
-      {
-        text: 'OK',
-        onPress: () => License(),
-      },
-    ],
-    { cancelable: false }
-  );
-};
-const selectValid = async () => {
-  const result = await launchImageLibrary(options);
-  setValidIdImage(result.assets[0].uri);
-  Alert.alert(
-    'Update Images',
-    'Are you sure you want to Upload your Valid Id?',
-    [
-      {
-        text: 'Cancel',
-        style: 'cancel',
-      },
-      {
-        text: 'OK',
-        onPress: () => Valid(),
-      },
-    ],
-    { cancelable: false }
-  );
-};
+    const options = {
+      mediaType: 'mixed', // Allow all media types
+      allowsEditing: true,
+      aspect: [4, 3],
+      quality: 1,
+    };
+  
+    launchImageLibrary(options, (response) => {
+      if (response.didCancel) {
+        console.log('Image selection canceled');
+      } else if (response.error) {
+        console.error('Image selection error: ', response.error);
+        alert('Error selecting image');
+      } else if (response.assets.length > 0) {
+        setGalleryPhoto(response.assets[0].uri);
+        console.log(response); // Log the response, not 'result'
+        Alert.alert(
+          'Update Images',
+          'Are you sure you want to update your Profile Picture?',
+          [
+            {
+              text: 'Cancel',
+              style: 'cancel',
+            },
+            {
+              text: 'OK',
+              onPress: () => Upload(),
+            },
+          ],
+          { cancelable: false }
+        );
+      } else {
+        alert('No file selected');
+      }
+    });
+  };
+
+  const selectLicense = async () => {
+    const result = await launchImageLibrary(options, (response) => {
+      if (response.didCancel) {
+        console.log('Image selection canceled');
+      } else if (response.error) {
+        console.error('Image selection error: ', response.error);
+        alert('Error selecting image');
+      } else if (response.assets.length > 0) {
+        setViewLicense(response.assets[0].uri);
+        console.log(result);
+        Alert.alert(
+          'Update Images',
+          "Are you sure you want to Upload your Driver's License",
+          [
+            {
+              text: 'Cancel',
+              style: 'cancel',
+            },
+            {
+              text: 'OK',
+              onPress: () => License(),
+            },
+          ],
+          { cancelable: false }
+        );
+      } else {
+        // No file was selected
+        // Do not proceed with the upload and show a message to the user.
+        alert('No file selected');
+      }
+    });
+  };
+  
+  const selectValid = async () => {
+    const options = {
+      mediaType: 'mixed', // Allow all media types
+      allowsEditing: true,
+      aspect: [4, 3],
+      quality: 1,
+    };
+  
+    launchImageLibrary(options, (response) => {
+      if (response.didCancel) {
+        console.log('Image selection canceled');
+      } else if (response.error) {
+        console.error('Image selection error: ', response.error);
+        alert('Error selecting image');
+      } else if (response.assets.length > 0) {
+        setValidIdImage(response.assets[0].uri);
+        console.log(response); // Log the response, not 'result'
+        Alert.alert(
+          'Update Images',
+          'Are you sure you want to Upload your Valid Id?',
+          [
+            {
+              text: 'Cancel',
+              style: 'cancel',
+            },
+            {
+              text: 'OK',
+              onPress: () => Valid(),
+            },
+          ],
+          { cancelable: false }
+        );
+      } else {
+        alert('No file selected');
+      }
+    });
+  };
+
 const Upload = async () => {
+  setLoading(true);
   if (galleryPhoto) {
     const imagePath = `profile_pic/${userId}/${galleryPhoto.fileName}`;
     const storageRef = ref(storage, imagePath);
@@ -126,6 +194,7 @@ const Upload = async () => {
         setProgress(progressPercentage);
       }, (error) => {
         console.error("Error uploading image: ", error);
+        setLoading(false);
       }, () => {
         getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
           axios
@@ -134,6 +203,7 @@ const Upload = async () => {
               console.log(res);
             })
             .catch((err) => console.log(err));
+            setLoading(false);
           alert('Image uploaded successfully');
           console.log(userData.profile_pic);
           // Reload your data or update the UI as needed
@@ -141,13 +211,16 @@ const Upload = async () => {
       });
     } catch (error) {
       console.error("Error while processing the image: ", error);
+      setLoading(false);
     }
     } else {
+      setLoading(false);
       alert('No file selected');
     }
 };
 //------------------------------valid-----------
 const Valid = async () => {
+  setLoading(true);
   if (validIdImage) {
     const imagePath = `images/valid/${userId}/${validIdImage.fileName}`;
     const storageRef = ref(storage, imagePath);
@@ -163,6 +236,7 @@ const Valid = async () => {
         setProgress(progressPercentage);
       }, (error) => {
         console.error("Error uploading image: ", error);
+        setLoading(false);
       }, () => {
         getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
           axios
@@ -171,6 +245,7 @@ const Valid = async () => {
               console.log(res);
             })
             .catch((err) => console.log(err));
+            setLoading(false);
           alert('Image uploaded successfully');
           console.log(userData.valid_id);
           // Reload your data or update the UI as needed
@@ -178,19 +253,22 @@ const Valid = async () => {
       });
     } catch (error) {
       console.error("Error while processing the image: ", error);
+      setLoading(false);
     }
   } else {
+    setLoading(false);
     alert('No file selected or userData.image_file is null');
   }
 };
 //------------------------------license-----------
 const License = async () => {
-  if (validIdImage) {
-    const imagePath = `images/license/${userId}/${validIdImage.fileName}`;
+  setLoading(true);
+  if (viewLicense) {
+    const imagePath = `images/license/${userId}/${viewLicense.fileName}`;
     const storageRef = ref(storage, imagePath);
 
     try {
-      const response = await fetch(validIdImage);
+      const response = await fetch(viewLicense);
       const blob = await response.blob();
       const uploadTask = uploadBytesResumable(storageRef, blob);
 
@@ -200,6 +278,7 @@ const License = async () => {
         setProgress(progressPercentage);
       }, (error) => {
         console.error("Error uploading image: ", error);
+        setLoading(false);
       }, () => {
         getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
           axios
@@ -208,6 +287,7 @@ const License = async () => {
               console.log(res);
             })
             .catch((err) => console.log(err));
+            setLoading(false);
           alert('Image uploaded successfully');
           console.log(userData.driver_license_1);
           // Reload your data or update the UI as needed
@@ -215,8 +295,10 @@ const License = async () => {
       });
     } catch (error) {
       console.error("Error while processing the image: ", error);
+      setLoading(false);
     }
   } else {
+    setLoading(false);
     alert('No file selected or userData.image_file is null');
   }
 };
@@ -247,9 +329,16 @@ const License = async () => {
   const toggleModal = () => {
     setIsModalVisible(!isModalVisible);
   };
+  const toggleModal2 = () => {
+    setIsModalVisible2(!isModalVisible2);
+  };
+  const toggleModal1 = () => {
+    setIsModalVisible1(!isModalVisible1);
+  };
   const navigation = useNavigation();
 
   const onSignUpPressed = () => {
+
     // Check if the contact is valid
     if (!isValidContactNumber(contact)) {
       setDialogVisible(true); // Show the dialog for invalid input
@@ -263,6 +352,7 @@ const License = async () => {
       };
 
       updateUserProfile(userId, updatedData);
+      setLoading(true);
     }
   };
 
@@ -273,12 +363,15 @@ const License = async () => {
         updatedData
       );
       if (response.data.Status === 'Success') {
-        // User data updated successfully
-        setSnackbarVisible(true);
+        setLoading(false); // User data updated successfully
+        alert('Update successful');
+        
       } else {
         console.log('Failed to update user data');
+        setLoading(false);
       }
     } catch (error) {
+      setLoading(false);
       console.log('Error updating user data:', error);
     }
   };
@@ -315,7 +408,9 @@ const License = async () => {
             </View>
           </View>
         </View>
-        <ScrollView style={styles.scrollView}>
+        <ScrollView
+      refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
+    >
           <View style={styles.content}>
           
           <View style={styles.imageContainer}>
@@ -333,17 +428,18 @@ const License = async () => {
 >
   <View style={styles.modalOverlay}>
     <View style={styles.modalContent}>
-      <TouchableOpacity
-        onPress={toggleModal}
-        style={styles.closeButton}
-      >
+      <TouchableOpacity onPress={toggleModal} style={styles.closeButton}>
         <Icon name="close" style={styles.closeIcon} />
       </TouchableOpacity>
-      <Image
-      source={userData && userData.profile_pic ? { uri: userData.profile_pic } : require('../../../assets/images/bulv.png')}
-      resizeMode="contain"
-      style={styles.image}
-    />
+      {userData && userData.profile_pic ? (
+        <Image
+          source={{ uri: userData.profile_pic }}
+          resizeMode="contain"
+          style={styles.image2}
+        />
+      ) : (
+        <Text>No uploaded Picture</Text> // Display this message if valid_id is not available
+      )}
     </View>
   </View>
 </Modal>
@@ -355,28 +451,73 @@ const License = async () => {
     <Text style={styles.centeredText}>Change Profile Picture</Text>
   </View>
 </TouchableOpacity>
+<View style={styles.selectedImageContainer}>
+        
+      </View>
 <View style={styles.uploadButtonContainer1}>
-    {userData && userData.driver_license_1 && (
+   
         <TouchableOpacity
             style={styles.underlineText}
-            onPress={() => setViewLicense(true)}
+            onPress={toggleModal1}
         >
             
             <Text style={styles.underlineTextText}><Icon name="eye" size={15}  color="#000"  /> View Driver's License</Text>
         </TouchableOpacity>
-    )}
+    
 </View>
+<Modal
+  transparent={true}
+  visible={isModalVisible1}
+  onRequestClose={toggleModal1}
+>
+  <View style={styles.modalOverlay}>
+    <View style={styles.modalContent}>
+      <TouchableOpacity onPress={toggleModal1} style={styles.closeButton}>
+        <Icon name="close" style={styles.closeIcon} />
+      </TouchableOpacity>
+      {userData && userData.driver_license_1 ? (
+        <Image
+          source={{ uri: userData.driver_license_1 }}
+          resizeMode="contain"
+          style={styles.image2}
+        />
+      ) : (
+        <Text>No uploaded Picture</Text> // Display this message if valid_id is not available
+      )}
+    </View>
+  </View>
+</Modal>
 <View style={styles.uploadButtonContainer2}>
-    {userData && userData.valid_id && (
+    
         <TouchableOpacity
             style={styles.underlineText}
-            onPress={() => setViewValidId(true)}
+            onPress={toggleModal2}
         >
             
             <Text style={styles.underlineTextText}><Icon name="eye" size={15} textDecorationLine={"none"} color="#000"  /> View Valid ID</Text>
         </TouchableOpacity>
-    )}
 </View>
+<Modal
+  transparent={true}
+  visible={isModalVisible2}
+  onRequestClose={toggleModal2}
+>
+  <View style={styles.modalOverlay}>
+    <View style={styles.modalContent}>
+      <TouchableOpacity
+        onPress={toggleModal2}
+        style={styles.closeButton}
+      >
+        <Icon name="close" style={styles.closeIcon} />
+      </TouchableOpacity>
+      <Image
+      source={userData && userData.valid_id ? { uri: userData.valid_id } : 'Loading...'}
+      resizeMode="contain"
+      style={styles.image2}
+    />
+    </View>
+  </View>
+</Modal>
         
 <View style={styles.uploadButtonContainer}>
         
@@ -388,54 +529,7 @@ const License = async () => {
             <Text style={styles.uploadButtonText}>Upload Valid ID</Text>
         </TouchableOpacity>
     </View>
-      {viewLicense && (
-        <Modal
-          transparent={true}
-          visible={viewLicense}
-          onRequestClose={() => setViewLicense(false)}
-        >
-          <View style={styles.modalOverlay}>
-            <View style={styles.modalContent}>
-              <TouchableOpacity
-                onPress={() => setViewLicense(false)}
-                style={styles.closeButton}
-              >
-                <Icon name="close" style={styles.closeIcon} />
-              </TouchableOpacity>
-              <Image
-                source={{ uri: userData.driver_license_1 }}
-                resizeMode="contain"
-                style={styles.fullSizeImage}
-              />
-            </View>
-          </View>
-        </Modal>
-      )}
-
-      {viewValidId && (
-        <Modal
-          transparent={true}
-          visible={viewValidId}
-          onRequestClose={() => setViewValidId(false)}
-        >
-          <View style={styles.modalOverlay}>
-            <View style={styles.modalContent}>
-              <TouchableOpacity
-                onPress={() => setViewValidId(false)}
-                style={styles.closeButton}
-              >
-                <Icon name="close" style={styles.closeIcon} />
-              </TouchableOpacity>
-              <Image
-                source={{ uri: userData.valid_id }}
-                resizeMode="contain"
-                style={styles.fullSizeImage}
-              />
-            </View>
-          </View>
-        </Modal>
-      )}
-
+      
 
 </View>
   
@@ -505,6 +599,12 @@ const License = async () => {
           User data updated successfully
         </Snackbar>
       </Portal>
+      <Modal visible={isLoading} transparent={true}>
+        <View style={styles.loadingModal}>
+          <ActivityIndicator size="large" color="green" />
+          <Text style={styles.loadingText}>Updating...</Text>
+        </View>
+      </Modal>
     </Provider>
   );
 };
@@ -513,6 +613,16 @@ const windowWidth = Dimensions.get('window').width;
 const windowHeight = Dimensions.get('window').height;
 
 const styles = StyleSheet.create({
+  loadingModal: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.7)',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  loadingText: {
+    color: 'white',
+    marginTop: 10,
+  },
   root: {
     flex: 1,
     backgroundColor: '#2ecc71',
@@ -594,7 +704,11 @@ const styles = StyleSheet.create({
     borderWidth: 5,
     borderColor: '#2ecc71',
   },
-
+  image2: {
+    width: width / 2,  // Set both width and height to the same value
+    height: width / 2, // Half of the width for a circular shape
+    marginTop: 30,
+  },
   imageContainer: {
     width: width / 2,  // Set both width and height to the same value
     height: width / 2, // Set both width and height to the same value
@@ -638,7 +752,7 @@ const styles = StyleSheet.create({
     marginLeft: 5,
     fontSize: 20,
     fontWeight: 'bold',
-    color: 'white', // Adjust the color as needed
+    color: 'white', // Adjust the color as neededupload dr
   },
   header: {
     height: width * 0.6,
@@ -821,7 +935,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     marginTop: 20,
     marginBottom: -60,
-    marginRight: -175
+    marginRight: -170
   },
 });
 

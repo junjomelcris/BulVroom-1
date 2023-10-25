@@ -9,14 +9,15 @@ import {
   TouchableOpacity,
   Modal,
   Image,
-  Alert
+  Alert,
+  ActivityIndicator,
 } from 'react-native';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { RadioButton } from 'react-native-paper';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { storage } from '../../../firebase';
 import { ref, uploadBytesResumable, getDownloadURL } from 'firebase/storage';
-import ImagePicker, { launchImageLibrary } from 'react-native-image-picker';
+import { launchImageLibrary } from 'react-native-image-picker';
 
 const AddVehicle = () => {
   const [vehicleData, setVehicleData] = useState({
@@ -39,15 +40,21 @@ const AddVehicle = () => {
     status: 'pending',
   });
   const [isTypeModalVisible, setTypeModalVisible] = useState(false);
-
+  const [isLoading, setLoading] = useState(false);
+  const vehicleFeatures = {
+    Motorcycle: ['Feature1', 'Feature2', 'Feature3'],
+    Sedan: ['Feature4', 'Feature5', 'Feature6'],
+    SUV: ['Feature7', 'Feature8', 'Feature9'],
+    Van: ['Feature10', 'Feature11', 'Feature12'],
+    Others: ['Feature13', 'Feature14', 'Feature15'],
+  };
   const vehicleTypes = ['Motorcycle', 'Sedan', 'SUV', 'Van', 'Others'];
 
   const handleSelectType = (type) => {
     setVehicleData({ ...vehicleData, type });
-    setTypeModalVisible(false); // Close the modal after selecting a type
+    setTypeModalVisible(false);
   };
 
-  // userid
   useEffect(() => {
     const retrieveUserId = async () => {
       try {
@@ -62,6 +69,7 @@ const AddVehicle = () => {
 
     retrieveUserId();
   }, []);
+
   const navigation = useNavigation();
 
   const handleFeatureToggle = (feature) => {
@@ -101,23 +109,35 @@ const AddVehicle = () => {
       }));
     }
   };
-  const [selectedImage, setSelectedImage] = useState(null);
 
+  const [selectedImage, setSelectedImage] = useState(null);
   const [galleryPhoto, setGalleryPhoto] = useState(null);
+
   let options = {
-    mediaType: 'mixed', // Allow all media types
+    mediaType: 'mixed',
     allowsEditing: true,
     aspect: [4, 3],
     quality: 1,
   };
+
   const selectImage = async () => {
-    const result = await launchImageLibrary(options);
-    setGalleryPhoto(result.assets[0].uri);
+    const result = await launchImageLibrary(options, (response)=>{
+      if (response.didCancel) {
+        console.log('Image selection canceled');
+      } else if (response.error) {
+        console.error('Image selection error: ', response.error);
+        // Handle the error appropriately, such as displaying an alert
+        alert('Error selecting image');
+      } else {
+        // Image selected successfully, update the galleryPhoto state
+         setGalleryPhoto(response.assets[0].uri);
     console.log(result);
+      }
+    });
+   
   };
 
   const uploadImageAndAddVehicle = async () => {
-    // Check if any of the required fields are empty
     if (
       !vehicleData.make ||
       !vehicleData.model ||
@@ -131,23 +151,24 @@ const AddVehicle = () => {
       Alert.alert('Missing Information', 'Please fill out all required fields.');
       return;
     }
-  
+
+    setLoading(true);
+
     if (galleryPhoto) {
-      // Generate a unique name for the image (e.g., using a timestamp)
-      const imageName = Date.now() + '.jpg';
-      const imagePath = `vehicles/${imageName}`;
+      const imagePath = `vehicles/${vehicleData.userId}/${galleryPhoto.filename}`;
       const storageRef = ref(storage, imagePath);
-  
+
       try {
         const response = await fetch(galleryPhoto);
         const blob = await response.blob();
         const uploadTask = uploadBytesResumable(storageRef, blob);
-  
+
         uploadTask.on('state_changed', (snapshot) => {
           // You can add progress handling here
         },
         (error) => {
           console.error('Error uploading image: ', error);
+          setLoading(false);
         },
         () => {
           getDownloadURL(storageRef)
@@ -157,46 +178,34 @@ const AddVehicle = () => {
                 vehicle_image: downloadURL,
               }));
               console.log('Image uploaded successfully. URL:', downloadURL);
+              vehicleData.vehicle_image = downloadURL;
               console.log('Image uploaded successfully. URL:', vehicleData.vehicle_image);
-              // Log the URL
               addVehicle();
-              alert('Vehicle Uploaded Successfully');
             })
             .catch((error) => {
               console.error('Error getting download URL: ', error);
+              setLoading(false);
             });
         });
       } catch (error) {
         console.error('Error while processing the image: ', error);
+        setLoading(false);
       }
     } else {
+      setLoading(false);
       alert('No file selected');
     }
   };
-  
-  
 
   const validateVehicleData = () => {
-    // Add validation logic here for all required fields
     if (!vehicleData.make || !vehicleData.model || !vehicleData.type || !vehicleData.vehicle_image || !vehicleData.plate || !vehicleData.phone || !vehicleData.rate || !vehicleData.deposit || !vehicleData.pickupDropoffLocation) {
       Alert.alert('Validation Error', 'Please fill out all required fields.');
       return false;
     }
     return true;
   };
-  const features = [
-    'Aircondition',
-    'Bluetooth',
-    'GPS',
-    'Sunroof',
-    'Spare Tire',
-    'Airbag',
-    'Dash Cam',
-    'Rear View Camera',
-  ];
-  
+
   const addVehicle = () => {
-    // Send a POST request to the API endpoint with the updated vehicleData
     fetch('https://bulvroom.onrender.com/createVehicle/app', {
       method: 'POST',
       headers: {
@@ -206,19 +215,31 @@ const AddVehicle = () => {
     })
       .then((response) => response.json())
       .then((data) => {
+        setLoading(false);
         if (data.Status === 'Success') {
-          // Vehicle added successfully, you can perform any necessary actions here
           console.log('Vehicle added successfully');
+          Alert.alert(
+            'Success',
+            'Vehicle added successfully. Please wait 2-3 days to verify your vehicle.',
+            [
+              {
+                text: 'OK',
+                onPress: () => {
+                  // Navigate to the 'Vehicles' screen or any other action
+                  console.log('OK Pressed');
+                },},]);
           navigation.navigate('Vehicles');
         } else {
-          // Handle the error, if any
           console.error('Error adding vehicle:', data.Message);
         }
       })
       .catch((error) => {
+        setLoading(false);
         console.error('Error:', error);
       });
   };
+
+  const features = vehicleFeatures[vehicleData.type] || [];
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
@@ -228,8 +249,7 @@ const AddVehicle = () => {
         placeholder="Make"
         onChangeText={(text) => setVehicleData({ ...vehicleData, make: text })}
       />
-      
-          
+
       <TextInput
         style={styles.input}
         placeholder="Model"
@@ -262,20 +282,18 @@ const AddVehicle = () => {
         </View>
       </Modal>
       <View style={styles.selectedImageContainer}>
-      {galleryPhoto && (
+        {galleryPhoto && (
           <Image source={{ uri: galleryPhoto }} style={styles.selectedImage} />
         )}
       </View>
       <TouchableOpacity
-            style={[
-              styles.transmissionButton2,
-              
-            ]}
-            onPress={selectImage}
-          >
-            <Text style={styles.buttonText}>Upload Vehicle Image</Text>
-          </TouchableOpacity>
-
+        style={[
+          styles.transmissionButton2,
+        ]}
+        onPress={selectImage}
+      >
+        <Text style={styles.buttonText}>Upload Vehicle Image</Text>
+      </TouchableOpacity>
       <View style={styles.input}>
         <Text>Seating Capacity</Text>
         <View style={styles.seatingCapacityContainer}>
@@ -344,22 +362,21 @@ const AddVehicle = () => {
         </View>
       </View>
       <View>
-  <Text style={styles.featuresLabel}>Features:</Text>
-  {features.map((feature) => (
-    <View style={styles.featureRow} key={feature}>
-      <Text style={styles.featureText}>{feature}</Text>
-      <RadioButton
-        value={feature}
-        status={
-          vehicleData.features.includes(feature) ? 'checked' : 'unchecked'
-        }
-        onPress={() => handleFeatureToggle(feature)}
-        color="green" // Customize the radio button color
-      />
-    </View>
-  ))}
-</View>
-
+        <Text style={styles.featuresLabel}>Features:</Text>
+        {features.map((feature) => (
+          <View style={styles.featureRow} key={feature}>
+            <Text style={styles.featureText}>{feature}</Text>
+            <RadioButton
+              value={feature}
+              status={
+                vehicleData.features.includes(feature) ? 'checked' : 'unchecked'
+              }
+              onPress={() => handleFeatureToggle(feature)}
+              color="green"
+            />
+          </View>
+        ))}
+      </View>
       <TextInput
         style={styles.input}
         placeholder="Vehicle Plate"
@@ -396,13 +413,20 @@ const AddVehicle = () => {
         onChangeText={(text) => setVehicleData({ ...vehicleData, pickupDropoffLocation: text })}
       />
       <View style={styles.addButtonContainer}>
-  <TouchableOpacity style={styles.addButton} onPress={uploadImageAndAddVehicle}>
-    <Text style={styles.addButtonLabel}>Add Vehicle</Text>
-  </TouchableOpacity>
-</View>
+        <TouchableOpacity style={styles.addButton} onPress={uploadImageAndAddVehicle}>
+          <Text style={styles.addButtonLabel}>Add Vehicle</Text>
+        </TouchableOpacity>
+      </View>
+      <Modal visible={isLoading} transparent={true}>
+        <View style={styles.loadingModal}>
+          <ActivityIndicator size="large" color="green" />
+          <Text style={styles.loadingText}>Adding Vehicle...</Text>
+        </View>
+      </Modal>
     </ScrollView>
   );
 };
+
 
 const styles = StyleSheet.create({
   container: {
@@ -416,7 +440,7 @@ const styles = StyleSheet.create({
   },
   modalContainer: {
     flex: 1,
-    backgroundColor: 'rgba(0, 0, 0, 0.2)', // 50% transparent black
+    backgroundColor: 'rgba(0, 0, 0, 0.2)',
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -463,13 +487,6 @@ const styles = StyleSheet.create({
     borderBottomLeftRadius: 10,
     borderBottomRightRadius: 10,
   },
-    input: {
-    borderWidth: 1,
-    borderColor: 'gray',
-    borderRadius: 5,
-    padding: 8,
-    marginBottom: 16,
-  },
   featuresLabel: {
     fontSize: 18,
     fontWeight: 'bold',
@@ -484,7 +501,6 @@ const styles = StyleSheet.create({
   featureText: {
     fontSize: 16,
   },
-  
   transmissionContainer: {
     marginBottom: 16,
   },
@@ -532,7 +548,6 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: 'white',
   },
- 
   button: {
     width: '100%',
     backgroundColor: 'green',
@@ -559,8 +574,8 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: 'white',
     marginBottom: 16,
-    borderRadius: 5, // Adjust the border radius as needed
-    padding: 10, // Adjust the padding as needed
+    borderRadius: 5,
+    padding: 10,
     shadowColor: 'black',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.2,
@@ -568,31 +583,38 @@ const styles = StyleSheet.create({
   },
   addButton: {
     backgroundColor: 'green',
-    width: 150, // Adjust the width as needed
-    height: 40, // Adjust the height as needed
-    borderRadius: 20, // Half of the height to make it fully rounded
+    width: 150,
+    height: 40,
+    borderRadius: 20,
     alignItems: 'center',
     justifyContent: 'center',
-    marginTop:0, // Adjust the margin as needed
+    marginTop: 0,
     shadowColor: 'rgba(0, 0, 0, 0.2)',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 1,
     shadowRadius: 2,
-    elevation: 3, // Android shadow
+    elevation: 3,
   },
-  
   addButtonLabel: {
     color: 'white',
-    fontSize: 16, // Adjust the font size as needed
+    fontSize: 16,
     fontWeight: 'bold',
   },
   addButtonContainer: {
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
-  }
-  
-  
+  },
+  loadingModal: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.7)',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  loadingText: {
+    color: 'white',
+    marginTop: 10,
+  },
 });
 
 export default AddVehicle;

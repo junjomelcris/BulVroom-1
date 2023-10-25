@@ -3,7 +3,7 @@ import { View, Text, Image, StyleSheet, Dimensions,} from 'react-native';
 
 import Logo1 from '../../../assets/images/bulv.png';
 
-
+import LottieView from 'lottie-react-native';
 const GetStarted = () => {
 
   const MyComponent = () => {
@@ -33,14 +33,18 @@ const GetStarted = () => {
   
   return (
     <View style={styles.root}>
-      <View style={styles.circle3} />
-      <View style={styles.circle} />
-      <View style={styles.circle2} />
 
       <View style={styles.imageContainer}>
+          {/* Replace the Image with LottieView */}
+          <LottieView
+            source={require('../../../assets/images/splash.json')} // Replace with the path to your Lottie JSON file
+            autoPlay
+            loop={true} // Make the animation loop
+            style={styles.lottieAnimation} // Add a style for your Lottie animation
+          />
         <Image source={Logo1} resizeMode='contain' style={styles.image} />
       </View>
-
+      <Text style={styles.appName}>Bulvroom</Text>
 
 
     </View>
@@ -55,7 +59,7 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#2ecc71',
+    backgroundColor: 'white',
   },
   circle: {
     position: 'absolute',
@@ -151,6 +155,19 @@ const styles = StyleSheet.create({
     borderRadius: windowWidth * 0.05,
     fontSize: windowWidth * 0.04,
     backgroundColor: 'white',
+  },
+  lottieAnimation: {
+    width: '100%',
+    height: '100%',
+    position: 'absolute'
+  },
+  appName: {
+    fontSize: windowWidth * 0.10, // Adjust the font size as needed
+    fontWeight: 'bold',
+    color: '#5db370',
+    marginTop: 250,
+    fontStyle: 'italic'
+     // Adjust the margin-top as needed
   },
 });
 

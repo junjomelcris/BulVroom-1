@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
   View,
   StyleSheet,
@@ -18,6 +18,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const DashBoardScreen = () => {
   const navigation = useNavigation();
+  const scrollViewRef = useRef(null);
   const [selectedCategory, setSelectedCategory] = useState('All');
   const [vehicles, setVehicles] = useState([]);
   const [refreshing, setRefreshing] = useState(false);
@@ -75,6 +76,11 @@ const DashBoardScreen = () => {
   const filterVehicles = (category) => {
     setSelectedCategory(category);
   };
+  const scrollToTop = () => {
+    if (scrollViewRef.current) {
+      scrollViewRef.current.scrollTo({ y: 0, animated: true });
+    }
+  };
   const handleCardPress = (vehicle) => {
     // Navigate to the DashboardVehicles screen and pass the vehicle details
     navigation.navigate('DashboardVehicles', { vehicle });
@@ -109,7 +115,9 @@ const DashBoardScreen = () => {
 
   return (
     <View style={styles.container}>
-      <ScrollView style={styles.scrollView} refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}>
+      <ScrollView ref={scrollViewRef} 
+      style={styles.scrollView} 
+      refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}>
       <Swiper
         style={styles.imageSlider}
         autoplay={true} // Auto-play enabled
@@ -216,7 +224,12 @@ const DashBoardScreen = () => {
         </View>
       </PaperCard>
     </TouchableOpacity>
-  ))}
+  ))}<TouchableOpacity
+  style={styles.scrollToTopButton}
+  onPress={scrollToTop}
+>
+  <Text style={styles.scrollToTopButtonText}>Scroll to Top</Text>
+</TouchableOpacity>
 </View>
 
       </ScrollView>
@@ -333,6 +346,19 @@ const styles = StyleSheet.create({
     width: 160,
     elevation: 4,
     marginLeft: 18,
+  },
+  scrollToTopButton: {
+    position: 'absolute',
+    bottom: 30,
+    right: '50%', // Center horizontally
+    transform: [{ translateX: 70 }], // Adjust this value for horizontal positioning
+    backgroundColor: '#2ecc71',
+    padding: 10,
+    borderRadius: 50,
+  },
+  scrollToTopButtonText: {
+    color: 'white',
+    fontWeight: 'bold',
   },
 });
 
