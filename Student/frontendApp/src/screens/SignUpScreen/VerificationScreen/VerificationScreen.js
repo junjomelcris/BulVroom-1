@@ -37,8 +37,8 @@ const windowHeight = Dimensions.get('window').height;
         if (response.status === 200) {
           if (response.data.message === 'match') {
             Alert.alert(
-              'Verified User',
-              'Verification Success ',
+              'Registered Successfully',
+              'Your account is now pending. Please wait 2-3 days to be verified.',
               [
                 {
                   text: 'OK',

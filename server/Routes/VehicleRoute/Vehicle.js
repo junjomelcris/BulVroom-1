@@ -11,6 +11,42 @@ import nodemailer from "nodemailer"
 const router = express.Router();
 import con from '../database.js';
 
+router.post('/bookmark-vehicle', (req, res) => {
+  const { userId, vehicleId } = req.body;
+  const insertBookmarkQuery = 'INSERT INTO user_bookmarks (user_id, vehicle_id) VALUES (?, ?)';
+  const values = [userId, vehicleId];
+
+  con.query(insertBookmarkQuery, values, (err, results) => {
+    if (err) {
+      console.error('Error bookmarking the vehicle:', err);
+      return res.status(500).json({ Status: 'Error', Message: 'Internal Server Error' });
+    }
+
+    return res.json({ Status: 'Success', Message: 'Vehicle bookmarked successfully' });
+  });
+});
+
+// Endpoint to unbookmark a vehicle
+router.delete('/unbookmark-vehicle/:userId/:vehicleId', (req, res) => {
+  const userId = parseInt(req.params.userId);
+  const vehicleId = parseInt(req.params.vehicleId);
+  const deleteBookmarkQuery = 'DELETE FROM user_bookmarks WHERE user_id = ? AND vehicle_id = ?';
+  const values = [userId, vehicleId];
+
+  con.query(deleteBookmarkQuery, values, (err, results) => {
+    if (err) {
+      console.error('Error unbookmarking the vehicle:', err);
+      return res.status(500).json({ Status: 'Error', Message: 'Internal Server Error' });
+    }
+
+    if (results.affectedRows === 1) {
+      return res.json({ Status: 'Success', Message: 'Vehicle unbookmarked successfully' });
+    } else {
+      return res.status(404).json({ Status: 'Error', Message: 'Bookmark not found' });
+    }
+  });
+});
+
 router.put('/vApp/:id', (req, res) => {
     const userId = parseInt(req.params.id);
     const updateStatusQuery = 'UPDATE vehicles SET status = ? WHERE vehicle_id = ?';

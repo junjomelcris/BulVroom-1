@@ -6,6 +6,7 @@ import {
   Text,
   TouchableOpacity,
   Image,
+  Alert
 } from 'react-native';
 import { Card as PaperCard } from 'react-native-paper';
 import Icon from 'react-native-vector-icons/Ionicons';
@@ -17,33 +18,69 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 
 
 const DashBoardScreen = () => {
+  const [userData, setUserData] = useState(null);
+  const [userId, setUserId] = useState(null);
   const navigation = useNavigation();
   const scrollViewRef = useRef(null);
   const [selectedCategory, setSelectedCategory] = useState('All');
   const [vehicles, setVehicles] = useState([]);
   const [refreshing, setRefreshing] = useState(false);
+  const [bookmarkedVehicles, setBookmarkedVehicles] = useState([]);
   const loadBookmarkedVehicles = async () => {
     try {
+      // Load bookmarked vehicle IDs from local storage
       const bookmarks = await AsyncStorage.getItem('bookmarkedVehicles');
-      console.log('Bookmarks:', bookmarks); // Add this line for debugging
       if (bookmarks) {
         const bookmarkedIds = JSON.parse(bookmarks);
-        console.log('Bookmarked IDs:', bookmarkedIds); // Add this line for debugging
-        const updatedVehicles = vehicles.map(vehicle => ({
-          ...vehicle,
-          isBookmarked: bookmarkedIds.includes(vehicle.vehicle_id),
-        }));
-        setVehicles(updatedVehicles);
+        setBookmarkedVehicles(bookmarkedIds);
       }
     } catch (error) {
       console.error('Error loading bookmarked vehicles:', error);
     }
   };
+  const fetchUserData = async (userId) => {
+    try {
+      const response = await axios.get(`https://bulvroom.onrender.com/user/${userId}`);
+      setUserData(response.data);
+    } catch (error) {
+      console.log('Failed to fetch user data:', error);
+    }
+  };const fetchData = async () => {
+    // Fetch dashboard data
+    try {
+      const response = await axios.get('https://bulvroom.onrender.com/api/approved-vehicles');
+      setVehicles(response.data);
+    } catch (error) {
+      console.error('Error fetching approved vehicles:', error);
+    }
+
+    // Fetch user data
+    if (userId) {
+      try {
+        const userResponse = await axios.get(`https://bulvroom.onrender.com/user/${userId}`);
+        setUserData(userResponse.data);
+      } catch (error) {
+        console.error('Failed to fetch user data:', error);
+      }
+    }
+  };
   
+
   useEffect(() => {
-    // Fetch approved vehicle data when the component mounts
+    const retrieveData = async () => {
+      try {
+        const storedId = await AsyncStorage.getItem('id');
+        const storedUser = await AsyncStorage.getItem('username');
+        setUserId(storedId);
+        fetchUserData(storedId);
+      } catch (error) {
+        console.log(error);
+      }
+    };
     fetchApprovedVehicles();
     loadBookmarkedVehicles();
+    loadBookmarkedVehicles();
+    retrieveData();
   }, []);
 
   // Function to fetch approved vehicles
@@ -70,6 +107,16 @@ const DashBoardScreen = () => {
       .catch((error) => {
         console.error('Error fetching approved vehicles:', error);
         setRefreshing(false); // Ensure refreshing is set to false even if there's an error
+      }),
+      axios
+      .get(`https://bulvroom.onrender.com/user/${userId}`)
+      .then((response) => {
+        setUserData(response.data);
+        setRefreshing(false); // Set refreshing to false when data is fetched
+      })
+      .catch((error) => {
+        console.error('Error fetching approved vehicles:', error);
+        setRefreshing(false); // Ensure refreshing is set to false even if there's an error
       });
   };
   
@@ -82,24 +129,47 @@ const DashBoardScreen = () => {
     }
   };
   const handleCardPress = (vehicle) => {
-    // Navigate to the DashboardVehicles screen and pass the vehicle details
-    navigation.navigate('DashboardVehicles', { vehicle });
+    if (userData) {
+      if (userData.status === 'approved') {
+        navigation.navigate('DashboardVehicles', { vehicle });
+      } else if (userData.status === 'pending') {
+        Alert.alert('Approval Pending', 'Your account approval is pending. Please wait for approval.');
+      }else{
+        Alert.alert('Disapproved User', 'Your account is disapproved. Contact support for more information.');
+      }
+    }
+    return null;// Navigate to the DashboardVehicles screen and pass the vehicle details
+    
   };
 
   const toggleBookmark = async (vehicle) => {
-    const updatedVehicles = vehicles.map((v) => {
-      if (v.vehicle_id === vehicle.vehicle_id) {
-        v.isBookmarked = !v.isBookmarked;
-      }
-      return v;
-    });
-    setVehicles(updatedVehicles);
+    // Check if the vehicle is bookmarked
+    const isBookmarked = bookmarkedVehicles.includes(vehicle.vehicle_id);
+
+    // Send a request to the server to bookmark or unbookmark the vehicle
+    if (isBookmarked) {
+      // Unbookmark the vehicle
+      // Send a DELETE request to your server to remove the bookmark
+      await axios.delete(`https://bulvroom.onrender.com/unbookmark-vehicle/${userId}/${vehicle.vehicle_id}`);
+    } else {
+      // Bookmark the vehicle
+      // Send a POST request to your server to add the bookmark
+      await axios.post('https://bulvroom.onrender.com/bookmark-vehicle', { userId, vehicleId: vehicle.vehicle_id });
+    }
+
+    // Update local state and storage
+    if (isBookmarked) {
+      // Remove the vehicle ID from the list of bookmarked vehicles
+      const updatedBookmarks = bookmarkedVehicles.filter((id) => id !== vehicle.vehicle_id);
+      setBookmarkedVehicles(updatedBookmarks);
+    } else {
+      // Add the vehicle ID to the list of bookmarked vehicles
+      const updatedBookmarks = [...bookmarkedVehicles, vehicle.vehicle_id];
+      setBookmarkedVehicles(updatedBookmarks);
+    }
 
     // Update local storage with the latest bookmarked vehicle IDs
-    const bookmarkedIds = updatedVehicles
-      .filter((v) => v.isBookmarked)
-      .map((v) => v.vehicle_id);
-    await AsyncStorage.setItem('bookmarkedVehicles', JSON.stringify(bookmarkedIds));
+    await AsyncStorage.setItem('bookmarkedVehicles', JSON.stringify(updatedBookmarks));
   };
   
 
