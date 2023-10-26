@@ -11,6 +11,48 @@ import nodemailer from "nodemailer"
 const router = express.Router();
 import con from '../database.js';
 
+
+
+router.post('/api/transaction', async (req, res) => {
+  const {
+    vehicle_id,
+    owner_id,
+    booker_id,
+    pickup_location,
+    dropoff_location,
+    pickup_datetime,
+    dropoff_datetime,
+    rate,
+    days_rented,
+    total_payment,
+  } = req.body;
+
+  try {
+    const result = await pool.query(
+      'INSERT INTO transactions (vehicle_id, owner_id, booker_id, pickup_location, dropoff_location, pickup_datetime, dropoff_datetime, rate, days_rented, total_payment) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
+      [
+        vehicle_id,
+        owner_id,
+        booker_id,
+        pickup_location,
+        dropoff_location,
+        pickup_datetime,
+        dropoff_datetime,
+        rate,
+        days_rented,
+        total_payment,
+      ]
+    );
+
+    const insertedTransactionId = result.rows[0].id;
+
+    res.status(201).json({ message: 'Transaction created', transactionId: insertedTransactionId });
+  } catch (error) {
+    console.error('Error creating transaction:', error);
+    res.status(500).json({ message: 'Internal server error' });
+  }
+});
+
 router.post('/bookmark-vehicle', (req, res) => {
   const { userId, vehicleId } = req.body;
   const insertBookmarkQuery = 'INSERT INTO user_bookmarks (user_id, vehicle_id) VALUES (?, ?)';

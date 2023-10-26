@@ -67,7 +67,7 @@ const Apps = () => {
   <Tab.Screen name="Car" component={HomeScreens} />
   {/*<Tab.Screen name="Search" component={SearchScreens} />*/}
   <Tab.Screen name="Search" component={ChatScreens} />
-  <Tab.Screen name="Favorite" component={FaveScreen} />
+ {/* <Tab.Screen name="Favorite" component={FaveScreen} />*/}
   <Tab.Screen name="Settings" component={ProfileScreens} />
 </Tab.Navigator>
 

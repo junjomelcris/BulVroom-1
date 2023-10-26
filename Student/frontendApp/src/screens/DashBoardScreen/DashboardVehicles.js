@@ -81,8 +81,12 @@ const DashboardVehicles = ({ route }) => {
     navigation.navigate('BookingScreen', {
       vehicleMake: vehicle.make,
       vehicleModel: vehicle.model,
-      vehicleKeyImage: vehicle.keyImage, // Replace with the actual key image property name
+      vehicleKeyImage: vehicle.vehicle_image, // Replace with the actual key image property name
       vehiclepickupDropoffLocation: vehicle.pickupDropoffLocation,
+      rate: vehicle.rate,
+      vehicleId: vehicle.vehicle_id,
+      ownerId: vehicle.id
+
     });
   };
 

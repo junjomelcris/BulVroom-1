@@ -1,20 +1,25 @@
 import React, { useState } from 'react';
-import { View, Text, Image, StyleSheet, TouchableOpacity, Linking, Platform } from 'react-native';
-import { Card } from 'react-native-paper';
+import { View, Text, Image, StyleSheet, TouchableOpacity, Linking, Alert } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
 import { useNavigation, useRoute } from '@react-navigation/native';
-import DateTimePicker from '@react-native-community/datetimepicker';
+import DateTimePickerModal from "react-native-modal-datetime-picker";
+import Icons from 'react-native-vector-icons/FontAwesome'; // You can choose an appropriate icon
+
 
 const BookingScreen = () => {
   const navigation = useNavigation();
   const route = useRoute();
   const location = 'Purok 4, Liciada, Bustos, Bulacan';
-  const [showDatePicker, setShowDatePicker] = useState(false);
-  const [showTimePicker, setShowTimePicker] = useState(false);
-  const [selectedDate, setSelectedDate] = useState(new Date());
-  const [dateTimeText, setDateTimeText] = useState('Select date and time'); // Initial text
 
-  const { vehicleMake, vehicleModel, vehiclepickupDropoffLocation } = route.params;
+  const [isPickupDatePickerVisible, setPickupDatePickerVisible] = useState(false);
+  const [isDropoffDatePickerVisible, setDropoffDatePickerVisible] = useState(false);
+  const [selectedPickupDate, setSelectedPickupDate] = useState(new Date());
+  const [selectedDropoffDate, setSelectedDropoffDate] = useState(new Date());
+
+  const [pickupDateTimeText, setPickupDateTimeText] = useState('Select pickup date and time');
+  const [dropoffDateTimeText, setDropoffDateTimeText] = useState('Select drop-off date and time');
+
+  const { vehicleMake, vehicleModel, vehiclepickupDropoffLocation, vehicleKeyImage, rate } = route.params;
 
   const openMapsApp = () => {
     const mapUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(location)}`;
@@ -31,27 +36,63 @@ const BookingScreen = () => {
       });
   };
 
-  const showDateTimePicker = () => {
-    setShowDatePicker(true);
+  const showPickupDatePicker = () => {
+    setPickupDatePickerVisible(true);
   };
 
-  const onTimeChange = (event, selected) => {
-    const currentTime = selected || selectedDate;
-    setShowTimePicker(Platform.OS === 'ios');
-    setSelectedDate(currentTime);
-    setDateTimeText(currentTime.toLocaleString());
+  const hidePickupDatePicker = () => {
+    setPickupDatePickerVisible(false);
   };
 
-  const onDateChange = (event, selected) => {
-    const currentDate = selected || selectedDate;
-    setShowDatePicker(Platform.OS === 'ios');
-    setSelectedDate(currentDate);
-    setShowTimePicker(true);
-    setDateTimeText(currentDate.toLocaleString());
+  const handlePickupConfirm = (date) => {
+    hidePickupDatePicker();
+    setSelectedPickupDate(date);
+    setPickupDateTimeText(date.toLocaleString());
+  };
+
+  const showDropoffDatePicker = () => {
+    setDropoffDatePickerVisible(true);
+  };
+
+  const hideDropoffDatePicker = () => {
+    setDropoffDatePickerVisible(false);
+  };
+
+  const handleDropoffConfirm = (date) => {
+    hideDropoffDatePicker();
+    setSelectedDropoffDate(date);
+    setDropoffDateTimeText(date.toLocaleString());
   };
 
   const onBackPressed = () => {
     navigation.goBack();
+  };
+
+  const onContinuePressed = () => {
+    const currentDateTime = new Date();
+    if (selectedPickupDate < currentDateTime) {
+      Alert.alert('Invalid Pickup Date', 'Please select a pickup date and time in the future.');
+    } else if (selectedPickupDate >= selectedDropoffDate) {
+      Alert.alert('Invalid Dates', 'The drop-off date and time must be after the pickup date and time.');
+    } else {
+      const millisecondsPerDay = 24 * 60 * 60 * 1000;
+      const daysRented = Math.round((selectedDropoffDate - selectedPickupDate) / millisecondsPerDay);
+      Alert.alert('Success', `Vehicle rented for ${daysRented} days. Proceed with the booking.`);
+      const bookingData = {
+        vehicleMake,
+        vehicleModel,
+        vehicleKeyImage,
+        vehiclepickupDropoffLocation,
+        pickupDateTimeText,
+        dropoffDateTimeText,
+        daysRented,
+        rate
+        // Replace with the actual values you want to pass
+      };
+  
+      // Navigate to the BookingSummaryScreen and pass the data as route parameters
+      navigation.navigate('summary', bookingData);
+    }
   };
 
   return (
@@ -63,9 +104,9 @@ const BookingScreen = () => {
         <Text style={styles.titleText}>Booking Information</Text>
       </View>
       <Image
-        source={require('../../../assets/images/sample.png')}
-        style={styles.keyImage}
-      />
+           source={{ uri: vehicleKeyImage }} 
+            style={styles.keyImage}
+          />
       <View style={styles.content}>
         <Text style={styles.vehicleInfo}>
           {vehicleMake} {vehicleModel}
@@ -78,63 +119,46 @@ const BookingScreen = () => {
             </Text>
           </TouchableOpacity>
         </View>
-        <View style={styles.datetime}>
-          <Text>Pick up Date and Time</Text>
-          <TouchableOpacity onPress={showDateTimePicker}>
-            <Text style={styles.selectedDateTime}>
-              {dateTimeText} {/* Display the selected date and time */}
-            </Text>
-          </TouchableOpacity>
-          {showDatePicker && (
-            <DateTimePicker
-              value={selectedDate}
-              mode="datetime"
-              display="default"
-              onChange={onDateChange}
-            />
-          )}
-          {showTimePicker && (
-            <DateTimePicker
-              value={selectedDate}
-              mode="time"
-              display="default"
-              onChange={onTimeChange}
-            />
-          )}
+                <View style={styles.datetime}>
+          <Text>Pickup Date and Time</Text>
+          <View style={styles.dateInput}>
+            <Icons name="calendar" style={styles.calendarIcon} />
+            <TouchableOpacity onPress={showPickupDatePicker}>
+              <Text style={styles.selectedDateTime}>
+                {pickupDateTimeText}
+              </Text>
+            </TouchableOpacity>
+          </View>
         </View>
         <View style={styles.datetime}>
-          <Text>Drop Off Date and Time</Text>
-          <TouchableOpacity onPress={showDateTimePicker}>
+        <Text>Drop-off Date and Time</Text>
+          <View style={styles.dateInput}>
+            <Icons name="calendar" style={styles.calendarIcon} />
+            <TouchableOpacity onPress={showDropoffDatePicker}>
             <Text style={styles.selectedDateTime}>
-              {dateTimeText} {/* Display the selected date and time */}
-            </Text>
-          </TouchableOpacity>
-          {showDatePicker && (
-            <DateTimePicker
-              value={selectedDate}
-              mode="datetime"
-              display="default"
-              onChange={onDateChange}
-            />
-          )}
-          {showTimePicker && (
-            <DateTimePicker
-              value={selectedDate}
-              mode="time"
-              display="default"
-              onChange={onTimeChange}
-            />
-          )}
+            {dropoffDateTimeText}
+              </Text>
+            </TouchableOpacity>
+          </View>
         </View>
+        <DateTimePickerModal
+          isVisible={isPickupDatePickerVisible}
+          mode="datetime"
+          onConfirm={handlePickupConfirm}
+          onCancel={hidePickupDatePicker}
+        />
+        <DateTimePickerModal
+          isVisible={isDropoffDatePickerVisible}
+          mode="datetime"
+          onConfirm={handleDropoffConfirm}
+          onCancel={hideDropoffDatePicker}
+        />
       </View>
       <View style={styles.booknow}>
-      <TouchableOpacity style={styles.bookNowButton}>
-  <View style={styles.titleCenter}>
-    <Text style={styles.titleText}>Continue</Text>
-  </View>
-
-</TouchableOpacity>
-</View>
+        <TouchableOpacity style={styles.bookNowButton} onPress={onContinuePressed}>
+          <Text style={styles.titleText}>Continue</Text>
+        </TouchableOpacity>
+      </View>
     </View>
   );
 };
@@ -154,9 +178,10 @@ const styles = StyleSheet.create({
   },
   keyImage: {
     marginTop: 10,
-    width: '100%',
+    width: '95%',
     height: 210,
     borderRadius: 15,
+    left: 10
   },
   back: {
     fontSize: 30,
@@ -176,18 +201,6 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: 'bold',
   },
-  booknow: {
-    flexDirection: 'row',
-    backgroundColor: '#2ecc71',
-    paddingHorizontal: 16,
-    paddingVertical: 10, // Adjust this value as needed
-    justifyContent: 'center',
-    alignItems: 'center',
-    position: 'absolute',
-    bottom: 0,
-    left: 0,
-    right: 0,
-},
   location: {
     marginTop: 10,
   },
@@ -202,6 +215,36 @@ const styles = StyleSheet.create({
     fontSize: 18,
     color: '#2ecc71',
   },
+  booknow: {
+    backgroundColor: '#2ecc71',
+    paddingVertical: 10,
+    alignItems: 'center',
+    top: 200
+  },
+  bookNowButton: {
+    backgroundColor: '#2ecc71',
+    borderRadius: 5,
+    paddingVertical: 10,
+    width: 200,
+    alignItems: 'center',
+  },
+  dateInput: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    borderBottomWidth: 1,
+    borderColor: '#2ecc71',
+    paddingLeft: 5,
+    paddingRight: 15,
+    marginTop: 5,
+  },
+  
+  calendarIcon: {
+    fontSize: 20,
+    color: '#2ecc71',
+    marginRight: 10,
+  },
+  
+
 });
 
 export default BookingScreen;
