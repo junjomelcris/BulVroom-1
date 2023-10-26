@@ -5,7 +5,7 @@ import Icon from 'react-native-vector-icons/Ionicons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
 const BookingSummaryScreen = ({ route }) => {
-  const { vehicleMake, vehicleModel,vehicleKeyImage, vehiclepickupDropoffLocation, pickupDateTimeText, dropoffDateTimeText, rate, daysRented } = route.params;
+  const { vehicleId, ownerId, vehicleMake, vehicleModel,vehicleKeyImage, vehiclepickupDropoffLocation, pickupDateTimeText, dropoffDateTimeText, rate, daysRented } = route.params;
   const totalPayment = rate * daysRented;
   const navigation = useNavigation();
   const [userData, setUserData] = useState(null);
@@ -72,7 +72,7 @@ const BookingSummaryScreen = ({ route }) => {
         <Text style={styles.daysValue}>{daysRented}</Text>
 
         <Text style={styles.totalPaymentText}>Total Payment:</Text>
-        <Text style={styles.totalPaymentValue}>{totalPayment}</Text>
+        <Text style={styles.totalPaymentValue}>{totalPayment}{vehicleId}{ownerId}</Text>
       </View>
 
       <TouchableOpacity style={styles.continueButton}>

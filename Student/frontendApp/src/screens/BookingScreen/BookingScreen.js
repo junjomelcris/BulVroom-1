@@ -19,7 +19,7 @@ const BookingScreen = () => {
   const [pickupDateTimeText, setPickupDateTimeText] = useState('Select pickup date and time');
   const [dropoffDateTimeText, setDropoffDateTimeText] = useState('Select drop-off date and time');
 
-  const { vehicleMake, vehicleModel, vehiclepickupDropoffLocation, vehicleKeyImage, rate } = route.params;
+  const { vehicleMake, vehicleModel, vehiclepickupDropoffLocation, vehicleKeyImage, rate, vehicleId, ownerId } = route.params;
 
   const openMapsApp = () => {
     const mapUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(location)}`;
@@ -86,7 +86,9 @@ const BookingScreen = () => {
         pickupDateTimeText,
         dropoffDateTimeText,
         daysRented,
-        rate
+        rate,
+        vehicleId,
+        ownerId
         // Replace with the actual values you want to pass
       };
   
