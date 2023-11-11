@@ -9,7 +9,7 @@ import path from 'path'
 import dotenv from 'dotenv'
 import nodemailer from "nodemailer"
 const router = express.Router();
-import con from '../database.js';
+import con from '../../server.js';
 
 const storage = multer.diskStorage({
     destination: (req, file, cb) => {
