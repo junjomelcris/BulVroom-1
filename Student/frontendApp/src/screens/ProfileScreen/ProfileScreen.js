@@ -1,5 +1,16 @@
 import React, { useEffect, useState } from 'react';
-import { View,Alert, Text, StyleSheet, Image, ScrollView, Dimensions, TouchableOpacity, RefreshControl } from 'react-native';
+import {
+  View,
+  Text,
+  StyleSheet,
+  Image,
+  ScrollView,
+  Dimensions,
+  TouchableOpacity,
+  RefreshControl,
+  Modal,
+  Alert,
+} from 'react-native';
 import { Card } from 'react-native-paper';
 import Icon from 'react-native-vector-icons/Ionicons';
 import Logo from '../../../assets/images/bulv.png';
@@ -16,28 +27,29 @@ const ProfileScreen = () => {
   const [userData, setUserData] = useState(null);
   const [userId, setUserId] = useState(null);
   const [refreshing, setRefreshing] = useState(false);
+  const [modalVisible, setModalVisible] = useState(false);
+  const [milestones, setMilestones] = useState([]);
 
   const onRefresh = () => {
     setRefreshing(true);
-  
-    // Fetch your data here
+
     axios
       .get(`https://bulvroom.onrender.com/user/${userId}`)
       .then((response) => {
         setUserData(response.data);
-        setRefreshing(false); // Set refreshing to false when data is fetched
+        setRefreshing(false);
       })
       .catch((error) => {
         console.error('Error fetching approved vehicles:', error);
-        setRefreshing(false); // Ensure refreshing is set to false even if there's an error
+        setRefreshing(false);
       });
-      
   };
 
   const fetchUserData = async (userId) => {
     try {
       const response = await axios.get(`https://bulvroom.onrender.com/user/${userId}`);
       setUserData(response.data);
+      checkMilestones(response.data);
     } catch (error) {
       console.log('Failed to fetch user data:', error);
     }
@@ -71,8 +83,8 @@ const ProfileScreen = () => {
             text: 'Log Out',
             onPress: async () => {
               try {
-                await AsyncStorage.clear(); // Clear the entire AsyncStorage
-                navigation.navigate('SignIn'); // Navigate to the sign-in screen
+                await AsyncStorage.clear();
+                navigation.navigate('SignIn');
               } catch (error) {
                 console.error('Error logging out:', error);
               }
@@ -85,7 +97,6 @@ const ProfileScreen = () => {
 
     confirmLogout();
   };
-  
 
   const onNotifPressed = () => {
     navigation.navigate('NotifScreen');
@@ -96,32 +107,92 @@ const ProfileScreen = () => {
   };
 
   const onEditPressed = () => {
-    navigation.navigate('Edit'); // Replace 'EditProfileScreen' with your desired screen name
+    navigation.navigate('Edit');
   };
 
   const onAddVehicle = () => {
-    navigation.navigate('Vehicles'); // Replace 'EditProfileScreen' with your desired screen name
+    navigation.navigate('Vehicles');
   };
 
   const renderStatusIcon = () => {
     if (userData) {
       if (userData.status === 'approved') {
         return (
-          <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-            <Icon name="checkmark-circle" style={{ fontSize: 17, color: '#1b944e' }} />
-            <Text style={{ fontSize: 17, color: '#1b944e' }}>{userData.status}</Text>
-          </View>
+          <TouchableOpacity onPress={() => setModalVisible(true)}>
+            <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+              <Icon name="checkmark-circle" style={{ fontSize: 17, color: '#1b944e' }} />
+              <Text style={{ fontSize: 17, color: '#1b944e', textDecorationLine: 'underline' }}>
+                {userData.status}
+              </Text>
+            </View>
+          </TouchableOpacity>
         );
       } else if (userData.status === 'disapproved') {
         return (
-          <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-            <Icon name="close-circle" style={{ fontSize: 17, color: 'red' }} />
-            <Text style={{ fontSize: 17, color: 'red' }}>{userData.status}</Text>
-          </View>
+          <TouchableOpacity onPress={() => showDisapprovedInstructions()}>
+            <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+              <Icon name="close-circle" style={{ fontSize: 17, color: 'red' }} />
+              <Text style={{ fontSize: 17, color: 'red', textDecorationLine: 'underline' }}>
+                {userData.status}
+              </Text>
+            </View>
+          </TouchableOpacity>
+        );
+      } else if (userData.status === 'pending') {
+        return (
+          <TouchableOpacity onPress={() => showPendingInstructions()}>
+            <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+              <Icon name="hourglass-outline" style={{ fontSize: 17, color: 'orange' }} />
+              <Text style={{ fontSize: 17, color: 'orange', textDecorationLine: 'underline' }}>
+                {userData.status}
+              </Text>
+            </View>
+          </TouchableOpacity>
         );
       }
     }
-    return null; // Return null if userData is still loading or not available
+    return null;
+  };
+
+  const showPendingInstructions = () => {
+    Alert.alert(
+      'Pending Approval',
+      'Your profile is pending approval. To expedite the process, please edit your profile and upload any valid ID and driver\'s license.',
+      [
+        {
+          text: 'OK',
+          onPress: () => console.log('OK Pressed'),
+        },
+      ]
+    );
+  };
+
+  const showDisapprovedInstructions = () => {
+    Alert.alert(
+      'Disapproved Profile',
+      'Your profile has been disapproved. Please ensure that the uploaded ID and driver\'s license information matches your inputted name, and make sure also the your drivers license is valid.',
+      [
+        {
+          text: 'OK',
+          onPress: () => console.log('OK Pressed'),
+        },
+      ]
+    );
+  };
+
+  const checkMilestones = (userData) => {
+    // You can customize this logic based on your actual milestones and user data
+    const userMilestones = [];
+
+    if (userData.profile_pic) {
+      userMilestones.push('ID Uploaded');
+    }
+
+    if (userData.id_document && userData.driver_license) {
+      userMilestones.push('ID and Driver\'s License Uploaded');
+    }
+
+    setMilestones(userMilestones);
   };
 
   const MyComponent = () => (
@@ -177,11 +248,11 @@ const ProfileScreen = () => {
     >
       <View style={{ width: width * 1, marginTop: 20, margin: 10 }}>
         <View style={{ flexDirection: 'row' }}>
-        <Image
-  source={userData && userData.profile_pic ? { uri: userData.profile_pic } : require('../../../assets/images/bulv.png')}
-  resizeMode="contain"
-  style={styles.image}
-/>
+          <Image
+            source={userData && userData.profile_pic ? { uri: userData.profile_pic } : require('../../../assets/images/bulv.png')}
+            resizeMode="contain"
+            style={styles.image}
+          />
           <View style={{ flexDirection: 'column', marginLeft: 10 }}>
             {renderStatusIcon()}
             <Text style={{ color: 'black', fontSize: 20 }}>
@@ -199,9 +270,30 @@ const ProfileScreen = () => {
           <MyComponent />
         </View>
       </View>
+
+      {/* Modal for Milestones */}
+      <Modal
+        animationType="slide"
+        transparent={true}
+        visible={modalVisible}
+        onRequestClose={() => setModalVisible(false)}
+      >
+        <View style={styles.modalContainer}>
+          <View style={styles.modalContent}>
+            <Text style={styles.modalTitle}>Milestones</Text>
+            {milestones.map((milestone, index) => (
+              <Text key={index} style={styles.milestoneText}>{milestone}</Text>
+            ))}
+            <TouchableOpacity style={styles.closeButton} onPress={() => setModalVisible(false)}>
+              <Text style={styles.closeButtonText}>Close</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
     </ScrollView>
   );
 };
+
 
 const styles = StyleSheet.create({
   Logo1: {
@@ -271,6 +363,38 @@ const styles = StyleSheet.create({
     borderColor: 'black',
     alignItems: 'center',
     justifyContent: 'center',
+  },modalContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+  },
+  modalContent: {
+    backgroundColor: 'white',
+    padding: 20,
+    borderRadius: 10,
+    elevation: 5,
+  },
+  modalTitle: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    marginBottom: 10,
+    textAlign: 'center',
+  },
+  milestoneText: {
+    fontSize: 16,
+    marginBottom: 5,
+  },
+  closeButton: {
+    marginTop: 15,
+    backgroundColor: '#2ecc71',
+    padding: 10,
+    borderRadius: 5,
+  },
+  closeButtonText: {
+    color: 'white',
+    fontWeight: 'bold',
+    textAlign: 'center',
   },
 });
 

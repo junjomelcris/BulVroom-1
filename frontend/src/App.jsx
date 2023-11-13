@@ -1,6 +1,6 @@
 import React from 'react'
 import Login from './Login'
-import {BrowserRouter, Routes, Route} from 'react-router-dom'
+import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import Dashboard from './Dashboard'
 import Employee from './Employee'
 import Profile from './Profile'
@@ -12,27 +12,29 @@ import EmployeeDetail from './EmployeeDetail'
 import EmployeeLogin from './EmployeeLogin'
 import Vehicles from './Vehicles'
 import AddVehicle from './AddVehicle'
+import Transactions from './Transactions'
 
 function App() {
   return (
     <BrowserRouter>
-    <Routes>
-      <Route path='/' element={<Dashboard />}>
-        <Route path='' element={<Home />}></Route>
-        <Route path='/employee' element={<Employee />}></Route>
-        <Route path='/vehicles' element={<Vehicles />}></Route>
-        <Route path='/profile' element={<Profile />}></Route>
-        <Route path='/saveData' element={<Profile />}></Route>
-        <Route path='/create' element={<AddEmployee />}></Route>
-        <Route path='/addvehicle' element={<AddVehicle />}></Route>
-        <Route path='/employeeEdit/:id' element={<EditEmployee />}></Route>
+      <Routes>
+        <Route path='/' element={<Dashboard />}>
+          <Route path='' element={<Home />}></Route>
+          <Route path='/employee' element={<Employee />}></Route>
+          <Route path='/vehicles' element={<Vehicles />}></Route>
+          <Route path='/profile' element={<Profile />}></Route>
+          <Route path='/saveData' element={<Profile />}></Route>
+          <Route path='/create' element={<AddEmployee />}></Route>
+          <Route path='/addvehicle' element={<AddVehicle />}></Route>
+          <Route path='/employeeEdit/:id' element={<EditEmployee />}></Route>
+          <Route path='/create' element={<AddEmployee />}></Route>
+          <Route path='/transactions' element={<Transactions />}></Route>
         </Route>
-      <Route path='/login' element={<Login />}></Route>
-      <Route path='/start' element={<Start />}></Route>
-      <Route path='/employeeLogin' element={<EmployeeLogin />}></Route>
-      <Route path='/employeedetail/:id' element={<EmployeeDetail />}></Route>
-      
-    </Routes>
+        <Route path='/login' element={<Login />}></Route>
+        <Route path='/start' element={<Start />}></Route>
+        <Route path='/employeeLogin' element={<EmployeeLogin />}></Route>
+
+      </Routes>
     </BrowserRouter>
   )
 }

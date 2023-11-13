@@ -42,11 +42,11 @@ const AddVehicle = () => {
   const [isTypeModalVisible, setTypeModalVisible] = useState(false);
   const [isLoading, setLoading] = useState(false);
   const vehicleFeatures = {
-    Motorcycle: ['Feature1', 'Feature2', 'Feature3'],
-    Sedan: ['Feature4', 'Feature5', 'Feature6'],
-    SUV: ['Feature7', 'Feature8', 'Feature9'],
-    Van: ['Feature10', 'Feature11', 'Feature12'],
-    Others: ['Feature13', 'Feature14', 'Feature15'],
+    Motorcycle: ['Cellphone Holder', 'Hazard Light ', 'Fairings', 'Disk Brake', 'ABS', 'Drum Brake', 'Suspension', 'None'],
+    Sedan: ['Airconditioned', 'Infotainment System', 'Audio System', 'Keyless Entry and Ignition', 'Sunroof/Moonroof' , 'ABS', 'None'],
+    SUV: ['Airconditioned', 'Infotainment System', 'Audio System', 'Keyless Entry and Ignition', 'Sunroof/Moonroof' , 'ABS', 'None'],
+    Van: ['Roof Rails','Overhead Bins/Storage','Entertainment Systems','Sliding Doors', 'Rearview Camera', 'Infotainment System', 'None'],
+    Others: ['Others', 'None'],
   };
   const vehicleTypes = ['Motorcycle', 'Sedan', 'SUV', 'Van', 'Others'];
 

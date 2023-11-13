@@ -5,7 +5,7 @@ import {
   ScrollView,
   Text,
   TouchableOpacity,
-  Image,
+  Image,Alert,
 } from 'react-native';
 import { Card as PaperCard } from 'react-native-paper';
 import Icon from 'react-native-vector-icons/Ionicons';
@@ -16,9 +16,12 @@ import { RefreshControl } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage'; 
 
 
+
 const DashBoardScreen = () => {
   const navigation = useNavigation();
   const scrollViewRef = useRef(null);
+  const [userData, setUserData] = useState(null);
+  const [userId, setUserId] = useState(null);
   const [selectedCategory, setSelectedCategory] = useState('All');
   const [vehicles, setVehicles] = useState([]);
   const [refreshing, setRefreshing] = useState(false);
@@ -39,11 +42,29 @@ const DashBoardScreen = () => {
       console.error('Error loading bookmarked vehicles:', error);
     }
   };
-  
+  const fetchUserData = async (userId) => {
+    try {
+      const response = await axios.get(`https://bulvroom.onrender.com/user/${userId}`);
+      setUserData(response.data);
+    } catch (error) {
+      console.log('Failed to fetch user data:', error);
+    }
+  };
   useEffect(() => {
     // Fetch approved vehicle data when the component mounts
     fetchApprovedVehicles();
     loadBookmarkedVehicles();
+    const retrieveData = async () => {
+      try {
+        const storedId = await AsyncStorage.getItem('id');
+        const storedUser = await AsyncStorage.getItem('username');
+        setUserId(storedId);
+        fetchUserData(storedId);
+      } catch (error) {
+        console.log(error);
+      }
+    };
+    retrieveData();
   }, []);
 
   // Function to fetch approved vehicles
@@ -59,7 +80,16 @@ const DashBoardScreen = () => {
   };
   const onRefresh = () => {
     setRefreshing(true);
-  
+    axios
+    .get(`https://bulvroom.onrender.com/user/${userId}`)
+    .then((response) => {
+      setUserData(response.data);
+      setRefreshing(false); // Set refreshing to false when data is fetched
+    })
+    .catch((error) => {
+      console.error('Error fetching approved vehicles:', error);
+      setRefreshing(false); // Ensure refreshing is set to false even if there's an error
+    });
     // Fetch your data here
     axios
       .get('https://bulvroom.onrender.com/api/approved-vehicles')
@@ -194,7 +224,27 @@ const DashBoardScreen = () => {
     <TouchableOpacity
       key={vehicle.vehicle_id}
       style={styles.cardTouchable}
-      onPress={() => handleCardPress(vehicle)}
+      onPress={() => {
+                // Check if the user is approved before allowing interaction
+                if (userData && userData.status === 'approved') {
+                  handleCardPress(vehicle);
+                } else {
+                  // Log the user status for debugging
+                  console.log('User Status:', userData?.status);
+                  
+                  // Display an alert with instructions to check the profile
+                  Alert.alert(
+                    'Not Approved',
+                    'You are not approved to view this vehicle. Please check your profile and make sure it is approved.',
+                    [
+                      {
+                        text: 'OK',
+                        onPress: () => console.log('OK Pressed'),
+                      },
+                    ]
+                  );
+                }
+              }}
     >
       <PaperCard key={vehicle.id} style={styles.card}>
         {/* Display the vehicle image */}
