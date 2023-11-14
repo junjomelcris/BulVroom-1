@@ -409,6 +409,58 @@ router.post('/notifications', (req, res) => {
   });
 });
 
+router.get('/mybookings/:user_id', (req, res) => {
+  const user_id = req.params.user_id;
+  const query = `
+    SELECT transactions.id AS transaction_id, transactions.*, vehicles.*
+    FROM transactions
+    LEFT JOIN vehicles ON transactions.vehicle_id = vehicles.vehicle_id
+    WHERE transactions.booker_id = ${user_id}`;
 
+  con.query(query, (error, results) => {
+    if (error) {
+      console.error('Failed to fetch data:', error);
+      res.sendStatus(500);
+    } else {
+      res.json(results);
+    }
+  });
+});
+
+router.delete('/mybookings/delete/:id', (req, res) => {
+  const id = req.params.id;
+  const query = `DELETE FROM transactions WHERE id = ${id}`;
+
+  con.query(query, (error, result) => {
+    if (error) {
+      console.error('Failed to delete entry:', error);
+      res.sendStatus(500);
+    } else {
+      if (result.affectedRows > 0) {
+        res.sendStatus(204); 
+      } else {
+        res.sendStatus(404); 
+      }
+    }
+  });
+});
+
+router.get('/bookedvehicle/:user_id', (req, res) => {
+  const user_id = req.params.user_id;
+  const query = `
+    SELECT transactions.*, vehicles.*
+    FROM transactions
+    LEFT JOIN vehicles ON transactions.vehicle_id = vehicles.vehicle_id
+    WHERE transactions.owner_id = ${user_id}`;
+
+  con.query(query, (error, results) => {
+    if (error) {
+      console.error('Failed to fetch data:', error);
+      res.sendStatus(500);
+    } else {
+      res.json(results);
+    }
+  });
+});
 
 export default router;
