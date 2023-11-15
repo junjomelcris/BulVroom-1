@@ -178,23 +178,61 @@ router.post('/option', (req, res) => {
       }
     });
   });
-  
+  const transporter = nodemailer.createTransport({
+    service: 'gmail',
+    auth: {
+      user: 'bulvroom7@gmail.com', 
+      pass: 'ekrlnkgsxzjzalah', 
+    },
+  });
   router.put('/verify/:id', (req, res) => {
     const userId = parseInt(req.params.id);
   
-    // Update the 'status' field in the 'users' table to 'verified' for the given user ID
-    const updateStatusQuery = 'UPDATE users SET status = ? WHERE id = ?';
-    const values = ['approved', userId];
-  
-    con.query(updateStatusQuery, values, (err, results) => {
+    // Fetch the user's email from the database
+    const getEmailQuery = 'SELECT email FROM users WHERE id = ?';
+    con.query(getEmailQuery, [userId], (err, emailResult) => {
       if (err) {
-        console.error('Error updating user status:', err);
+        console.error('Error fetching user email:', err);
         return res.status(500).json({ Status: 'Error', Message: 'Internal Server Error' });
       }
   
-      if (results.affectedRows === 1) {
-        // The query successfully updated one row
-        return res.json({ Status: 'Success', Message: 'User status updated to verified' });
+      if (emailResult.length === 1) {
+        const userEmail = emailResult[0].email;
+  
+        // Update the 'status' field in the 'users' table to 'approved' for the given user ID
+        const updateStatusQuery = 'UPDATE users SET status = ? WHERE id = ?';
+        const values = ['approved', userId];
+  
+        con.query(updateStatusQuery, values, (updateErr, results) => {
+          if (updateErr) {
+            console.error('Error updating user status:', updateErr);
+            return res.status(500).json({ Status: 'Error', Message: 'Internal Server Error' });
+          }
+  
+          if (results.affectedRows === 1) {
+            // The query successfully updated one row
+  
+            // Send an email to the user notifying them of approval
+            const mailOptions = {
+              from: 'bulvroom7@gmail.com', // Sender email address
+              to: userEmail,                // User's email address
+              subject: 'Account Approved',
+              text: 'Your account has been approved. You can now rent a Vehicle and add a Vehicl. Enjoy our Platform, THANKYOU!',
+            };
+  
+            transporter.sendMail(mailOptions, (error, info) => {
+              if (error) {
+                console.error('Error sending email:', error);
+              } else {
+                console.log('Email sent:', info.response);
+              }
+            });
+  
+            return res.json({ Status: 'Success', Message: 'User status updated to approved' });
+          } else {
+            return res.status(404).json({ Status: 'Error', Message: 'User not found' });
+          }
+        });
       } else {
         return res.status(404).json({ Status: 'Error', Message: 'User not found' });
       }
@@ -205,19 +243,51 @@ router.post('/option', (req, res) => {
   router.put('/disApp/:id', (req, res) => {
     const userId = parseInt(req.params.id);
   
-    // Update the 'status' field in the 'users' table to 'verified' for the given user ID
-    const updateStatusQuery = 'UPDATE users SET status = ? WHERE id = ?';
-    const values = ['disapproved', userId];
-  
-    con.query(updateStatusQuery, values, (err, results) => {
+    // Fetch the user's email from the database
+    const getEmailQuery = 'SELECT email FROM users WHERE id = ?';
+    con.query(getEmailQuery, [userId], (err, emailResult) => {
       if (err) {
-        console.error('Error updating user status:', err);
+        console.error('Error fetching user email:', err);
         return res.status(500).json({ Status: 'Error', Message: 'Internal Server Error' });
       }
   
-      if (results.affectedRows === 1) {
-        // The query successfully updated one row
-        return res.json({ Status: 'Success', Message: 'User status updated to verified' });
+      if (emailResult.length === 1) {
+        const userEmail = emailResult[0].email;
+  
+        // Update the 'status' field in the 'users' table to 'disapproved' for the given user ID
+        const updateStatusQuery = 'UPDATE users SET status = ? WHERE id = ?';
+        const values = ['disapproved', userId];
+  
+        con.query(updateStatusQuery, values, (updateErr, results) => {
+          if (updateErr) {
+            console.error('Error updating user status:', updateErr);
+            return res.status(500).json({ Status: 'Error', Message: 'Internal Server Error' });
+          }
+  
+          if (results.affectedRows === 1) {
+            // The query successfully updated one row
+  
+            // Send an email to the user notifying them of disapproval
+            const mailOptions = {
+              from: 'bulvroom7@gmail.com', // Sender email address
+              to: userEmail,                // User's email address
+              subject: 'Account Disapproved',
+              text: 'Your account has been disapproved. Please contact support for more information.',
+            };
+  
+            transporter.sendMail(mailOptions, (error, info) => {
+              if (error) {
+                console.error('Error sending email:', error);
+              } else {
+                console.log('Email sent:', info.response);
+              }
+            });
+  
+            return res.json({ Status: 'Success', Message: 'User status updated to disapproved' });
+          } else {
+            return res.status(404).json({ Status: 'Error', Message: 'User not found' });
+          }
+        });
       } else {
         return res.status(404).json({ Status: 'Error', Message: 'User not found' });
       }
