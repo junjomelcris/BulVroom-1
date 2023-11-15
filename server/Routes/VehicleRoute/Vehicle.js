@@ -282,15 +282,19 @@ router.get('/api/vehicles', async (req, res) => {
     // Execute the SQL query
     const [results] = await con.query(sql, params);
 
-    // Convert the results to a plain JavaScript object
-    const plainResults = JSON.parse(JSON.stringify(results));
+    // Check if the results object has a property called 'results'
+    const rows = results.results ? results.results : results;
 
-    res.json(plainResults);
+    // Convert the rows to a plain JavaScript array
+    const plainRows = JSON.parse(JSON.stringify(rows));
+
+    res.json(plainRows);
   } catch (error) {
     console.error('Error in /api/vehicles:', error);
     res.status(500).json({ error: 'Internal server error' });
   }
 });
+
 
 
 router.get('/transactions', (req, res) => {
