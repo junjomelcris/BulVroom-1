@@ -280,7 +280,7 @@ router.get('/api/vehicles', async (req, res) => {
     }
 
     // Execute the SQL query
-    const results = await db.query(sql, params);
+    const results = await con.query(sql, params);
 
     res.json(results);
   } catch (error) {
