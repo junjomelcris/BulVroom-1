@@ -254,17 +254,17 @@ router.get('/api/vehicles', async (req, res) => {
 
     // Construct the SQL query based on the parameters
     let sql = `
-  SELECT 
-    *
-  FROM 
-    vehicles
-`;
+      SELECT 
+        *
+      FROM 
+        vehicles
+    `;
 
     // Conditionally add filters based on the query parameters
     const params = [];
 
     if (searchText) {
-      sql += ` AND (make LIKE ? OR model LIKE ?)`;
+      sql += ` WHERE make LIKE ? OR model LIKE ?`;
       params.push(`%${searchText}%`);
       params.push(`%${searchText}%`);
     }
@@ -280,14 +280,18 @@ router.get('/api/vehicles', async (req, res) => {
     }
 
     // Execute the SQL query
-    const results = await con.query(sql, params);
+    const [results] = await con.query(sql, params);
 
-    res.json(results);
+    // Convert the results to a plain JavaScript object
+    const plainResults = JSON.parse(JSON.stringify(results));
+
+    res.json(plainResults);
   } catch (error) {
     console.error('Error in /api/vehicles:', error);
     res.status(500).json({ error: 'Internal server error' });
   }
 });
+
 
 router.get('/transactions', (req, res) => {
   const query = 'SELECT transactions.*, CONCAT(users.fName, " ", users.lName) AS fullname, CONCAT(owners.fName, " ", owners.lName) AS owner FROM transactions LEFT JOIN users ON transactions.booker_id = users.id LEFT JOIN users AS owners ON transactions.owner_id = owners.id';
