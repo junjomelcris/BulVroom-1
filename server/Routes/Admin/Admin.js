@@ -217,7 +217,7 @@ router.post('/option', (req, res) => {
               from: 'bulvroom7@gmail.com', // Sender email address
               to: userEmail,                // User's email address
               subject: 'Account Approved',
-              text: 'Your account has been approved. You can now rent a Vehicle and add a Vehicl. Enjoy our Platform, THANKYOU!',
+              text: 'Your account has been approved. You can now rent a Vehicle and add a Vehicle. Enjoy our Platform, THANKYOU!',
             };
   
             transporter.sendMail(mailOptions, (error, info) => {
@@ -272,7 +272,7 @@ router.post('/option', (req, res) => {
               from: 'bulvroom7@gmail.com', // Sender email address
               to: userEmail,                // User's email address
               subject: 'Account Disapproved',
-              text: 'Your account has been disapproved. Please contact support for more information.',
+              text: 'Your account has been disapproved. Check your profile in the app make sure all the ID is valid.',
             };
   
             transporter.sendMail(mailOptions, (error, info) => {
