@@ -280,10 +280,10 @@ router.get('/api/vehicles', async (req, res) => {
     }
 
     // Execute the SQL query
-    const [results] = await con.query(sql, params);
+    const [results] = await con.promise().query(sql, params);
 
-    // Check if the results object has a property called 'results'
-    const rows = results.results ? results.results : results;
+    // Extract the actual rows from the results object
+    const rows = Array.isArray(results) ? results[0] : [];
 
     // Convert the rows to a plain JavaScript array
     const plainRows = JSON.parse(JSON.stringify(rows));
@@ -293,6 +293,17 @@ router.get('/api/vehicles', async (req, res) => {
     console.error('Error in /api/vehicles:', error);
     res.status(500).json({ error: 'Internal server error' });
   }
+});
+router.get('/vehicles', (req, res) => {
+  const query = 'SELECT * FROM vehicles'; // Select all data from the "users" table
+  con.query(query, (error, results) => {
+    if (error) {
+      console.error('Failed to fetch data:', error);
+      res.sendStatus(500);
+    } else {
+      res.json(results); // Send all user data as a JSON response
+    }
+  });
 });
 
 
