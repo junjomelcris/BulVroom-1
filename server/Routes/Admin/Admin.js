@@ -353,4 +353,29 @@ router.post('/createVehicle', (req, res) => {
   });
 });
 
+
+router.get('/approvedPendingUserCount', (req, res) => {
+  const query = 'SELECT COUNT(id) AS approvedUsers, (SELECT COUNT(id) FROM users WHERE status = "pending") AS pendingUsers FROM users WHERE status = "approved"';
+  con.query(query, (error, results) => {
+    if (error) {
+      console.error('Failed to fetch data:', error);
+      res.sendStatus(500);
+    } else {
+      res.json(results);
+    }
+  });
+});
+
+router.get('/approvedPendingVehicleCount', (req, res) => {
+  const query = 'SELECT COUNT(id) AS approvedVehicles, (SELECT COUNT(id) FROM vehicles WHERE status = "pending") AS pendingVehicles FROM vehicles WHERE status = "approved"';
+  con.query(query, (error, results) => {
+    if (error) {
+      console.error('Failed to fetch data:', error);
+      res.sendStatus(500);
+    } else {
+      res.json(results);
+    }
+  });
+});
+
 export default router;
