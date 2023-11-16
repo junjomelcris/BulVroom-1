@@ -41,8 +41,8 @@ router.get('/dashboard',verifyUser, (req, res) => {
     return res.json({Status: "Success", role: req.role, id: req.id})
 })
 
-router.get('/adminCount', (req, res) => {
-    const sql = "Select count(id) as admin from admin";
+router.get('/userCountpen', (req, res) => {
+    const sql = "SELECT COUNT(id) AS users FROM users WHERE status = 'pending'";
     con.query(sql, (err, result) => {
         if(err) return res.json({Error: "Error in runnig query"});
         return res.json(result);
@@ -63,6 +63,13 @@ router.get('/vCount', (req, res) => {
   });
 });
 
+router.get('/pendingvCount', (req, res) => {
+  const sql = "SELECT COUNT(id) AS vehicles FROM vehicles WHERE status = 'pending'";
+  con.query(sql, (err, result) => {
+      if (err) return res.json({ Error: "Error in running query" });
+      return res.json(result);
+  });
+});
 
 
 
