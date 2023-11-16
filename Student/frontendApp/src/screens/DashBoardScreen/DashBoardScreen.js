@@ -5,19 +5,28 @@ import {
   ScrollView,
   Text,
   TouchableOpacity,
-  Image,Alert,
+  Image,
+  Alert,
+  Animated,
+  ActivityIndicator,
 } from 'react-native';
 import { Card as PaperCard } from 'react-native-paper';
 import Icon from 'react-native-vector-icons/Ionicons';
 import { useNavigation } from '@react-navigation/native';
 import axios from 'axios';
-import Swiper from 'react-native-swiper'; 
+import Swiper from 'react-native-swiper';
 import { RefreshControl } from 'react-native';
-import AsyncStorage from '@react-native-async-storage/async-storage'; 
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
-
+const PlaceholderCard = () => (
+  <View style={styles.placeholderCard}>
+    <View style={styles.placeholderImage} />
+    <View style={styles.placeholderText} />
+  </View>
+);
 
 const DashBoardScreen = () => {
+  const [loading, setLoading] = useState(true);
   const navigation = useNavigation();
   const scrollViewRef = useRef(null);
   const [userData, setUserData] = useState(null);
@@ -25,33 +34,10 @@ const DashBoardScreen = () => {
   const [selectedCategory, setSelectedCategory] = useState('All');
   const [vehicles, setVehicles] = useState([]);
   const [refreshing, setRefreshing] = useState(false);
-  const loadBookmarkedVehicles = async () => {
-    try {
-      const bookmarks = await AsyncStorage.getItem('bookmarkedVehicles');
-      console.log('Bookmarks:', bookmarks); // Add this line for debugging
-      if (bookmarks) {
-        const bookmarkedIds = JSON.parse(bookmarks);
-        console.log('Bookmarked IDs:', bookmarkedIds); // Add this line for debugging
-        const updatedVehicles = vehicles.map(vehicle => ({
-          ...vehicle,
-          isBookmarked: bookmarkedIds.includes(vehicle.vehicle_id),
-        }));
-        setVehicles(updatedVehicles);
-      }
-    } catch (error) {
-      console.error('Error loading bookmarked vehicles:', error);
-    }
-  };
-  const fetchUserData = async (userId) => {
-    try {
-      const response = await axios.get(`https://bulvroom.onrender.com/user/${userId}`);
-      setUserData(response.data);
-    } catch (error) {
-      console.log('Failed to fetch user data:', error);
-    }
-  };
+  const fadeAnim = useRef(new Animated.Value(0)).current;
+  const bgColorAnim = useRef(new Animated.Value(0)).current;
+
   useEffect(() => {
-    // Fetch approved vehicle data when the component mounts
     fetchApprovedVehicles();
     loadBookmarkedVehicles();
     const retrieveData = async () => {
@@ -67,52 +53,83 @@ const DashBoardScreen = () => {
     retrieveData();
   }, []);
 
-  // Function to fetch approved vehicles
   const fetchApprovedVehicles = () => {
+    setLoading(true);
     axios
       .get('https://bulvroom.onrender.com/api/approved-vehicles')
       .then((response) => {
         setVehicles(response.data);
+        setLoading(false);
       })
       .catch((error) => {
         console.error('Error fetching approved vehicles:', error);
+        setLoading(true);
       });
   };
+
+  const loadBookmarkedVehicles = async () => {
+    try {
+      const bookmarks = await AsyncStorage.getItem('bookmarkedVehicles');
+      console.log('Bookmarks:', bookmarks);
+      if (bookmarks) {
+        const bookmarkedIds = JSON.parse(bookmarks);
+        console.log('Bookmarked IDs:', bookmarkedIds);
+        const updatedVehicles = vehicles.map((vehicle) => ({
+          ...vehicle,
+          isBookmarked: bookmarkedIds.includes(vehicle.vehicle_id),
+        }));
+        setVehicles(updatedVehicles);
+      }
+    } catch (error) {
+      console.error('Error loading bookmarked vehicles:', error);
+    }
+  };
+
+  const fetchUserData = async (userId) => {
+    try {
+      const response = await axios.get(`https://bulvroom.onrender.com/user/${userId}`);
+      setUserData(response.data);
+    } catch (error) {
+      console.log('Failed to fetch user data:', error);
+    }
+  };
+
   const onRefresh = () => {
     setRefreshing(true);
     axios
-    .get(`https://bulvroom.onrender.com/user/${userId}`)
-    .then((response) => {
-      setUserData(response.data);
-      setRefreshing(false); // Set refreshing to false when data is fetched
-    })
-    .catch((error) => {
-      console.error('Error fetching approved vehicles:', error);
-      setRefreshing(false); // Ensure refreshing is set to false even if there's an error
-    });
-    // Fetch your data here
+      .get(`https://bulvroom.onrender.com/user/${userId}`)
+      .then((response) => {
+        setUserData(response.data);
+        setRefreshing(false);
+      })
+      .catch((error) => {
+        console.error('Error fetching approved vehicles:', error);
+        setRefreshing(false);
+      });
+
     axios
       .get('https://bulvroom.onrender.com/api/approved-vehicles')
       .then((response) => {
         setVehicles(response.data);
-        setRefreshing(false); // Set refreshing to false when data is fetched
+        setRefreshing(false);
       })
       .catch((error) => {
         console.error('Error fetching approved vehicles:', error);
-        setRefreshing(false); // Ensure refreshing is set to false even if there's an error
+        setRefreshing(false);
       });
   };
-  
+
   const filterVehicles = (category) => {
     setSelectedCategory(category);
   };
+
   const scrollToTop = () => {
     if (scrollViewRef.current) {
       scrollViewRef.current.scrollTo({ y: 0, animated: true });
     }
   };
+
   const handleCardPress = (vehicle) => {
-    // Navigate to the DashboardVehicles screen and pass the vehicle details
     navigation.navigate('DashboardVehicles', { vehicle });
   };
 
@@ -125,49 +142,35 @@ const DashBoardScreen = () => {
     });
     setVehicles(updatedVehicles);
 
-    // Update local storage with the latest bookmarked vehicle IDs
     const bookmarkedIds = updatedVehicles
       .filter((v) => v.isBookmarked)
       .map((v) => v.vehicle_id);
     await AsyncStorage.setItem('bookmarkedVehicles', JSON.stringify(bookmarkedIds));
   };
-  
 
-  // Filter vehicles based on selected category
   const filteredVehicles =
     selectedCategory === 'All'
       ? vehicles
       : vehicles.filter((vehicle) => vehicle.type === selectedCategory);
 
-       const renderImage = ({ item }) => (
-    <Image source={item.source} style={styles.image} />
-  );
-
   return (
     <View style={styles.container}>
-      <ScrollView ref={scrollViewRef} 
-      style={styles.scrollView} 
-      refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}>
-      <Swiper
-        style={styles.imageSlider}
-        autoplay={true} // Auto-play enabled
-        autoplayTimeout={2000} // Auto-play interval in milliseconds (5 seconds)
-        showsPagination={true} // Show pagination dots
-        dotStyle={styles.paginationDot}       // Style for inactive dots
-       activeDotStyle={styles.activeDot} 
-      >
-        {/* Replace with your image data */}
-        <Image source={require('../../../assets/images/offer.png')} style={styles.image} />
-        <Image source={require('../../../assets/images/TEST.png')} style={styles.image} />
-        <Image source={require('../../../assets/images/TEST2.png')} style={styles.image} />
-        {/* Add more images as needed */}
-      </Swiper>
+      <View style={styles.swiperContainer}>
+        <Swiper
+          showsPagination={true}
+          autoplay={true}
+          autoplayTimeout={2000}
+          loop={true}
+          dotStyle={styles.paginationDot}
+          activeDotStyle={styles.activeDot}
+        >
+          <Image source={require('../../../assets/images/offer.png')} style={styles.image} />
+          <Image source={require('../../../assets/images/TEST.png')} style={styles.image} />
+          <Image source={require('../../../assets/images/TEST2.png')} style={styles.image} />
+        </Swiper>
         <View style={styles.buttonContainer}>
           <TouchableOpacity
-            style={[
-              styles.filterButton,
-              selectedCategory === 'All' && styles.selectedButton,
-            ]}
+            style={[styles.filterButton, selectedCategory === 'All' && styles.selectedButton]}
             onPress={() => filterVehicles('All')}
           >
             <Text style={styles.buttonText}>All</Text>
@@ -182,143 +185,159 @@ const DashBoardScreen = () => {
             <Text style={styles.buttonText}>Motorcycle</Text>
           </TouchableOpacity>
           <TouchableOpacity
-            style={[
-              styles.filterButton,
-              selectedCategory === 'Sedan' && styles.selectedButton,
-            ]}
+            style={[styles.filterButton, selectedCategory === 'Sedan' && styles.selectedButton]}
             onPress={() => filterVehicles('Sedan')}
           >
             <Text style={styles.buttonText}>Sedan</Text>
           </TouchableOpacity>
           <TouchableOpacity
-            style={[
-              styles.filterButton,
-              selectedCategory === 'SUV' && styles.selectedButton,
-            ]}
+            style={[styles.filterButton, selectedCategory === 'SUV' && styles.selectedButton]}
             onPress={() => filterVehicles('SUV')}
           >
             <Text style={styles.buttonText}>SUV</Text>
           </TouchableOpacity>
           <TouchableOpacity
-            style={[
-              styles.filterButton,
-              selectedCategory === 'Van' && styles.selectedButton,
-            ]}
+            style={[styles.filterButton, selectedCategory === 'Van' && styles.selectedButton]}
             onPress={() => filterVehicles('Van')}
           >
             <Text style={styles.buttonText}>Van</Text>
           </TouchableOpacity>
           <TouchableOpacity
-            style={[
-              styles.filterButton,
-              selectedCategory === 'Others' && styles.selectedButton,
-            ]}
+            style={[styles.filterButton, selectedCategory === 'Others' && styles.selectedButton]}
             onPress={() => filterVehicles('Others')}
           >
             <Text style={styles.buttonText}>Others</Text>
           </TouchableOpacity>
         </View>
-        <View style={styles.cardContainer}>
-  {/* Display filtered vehicle data here */}
-  {filteredVehicles.map((vehicle) => (
-    <TouchableOpacity
-      key={vehicle.vehicle_id}
-      style={styles.cardTouchable}
-      onPress={() => {
-                // Check if the user is approved before allowing interaction
-                if (userData && userData.status === 'approved') {
-                  handleCardPress(vehicle);
-                } else {
-                  // Log the user status for debugging
-                  console.log('User Status:', userData?.status);
-                  
-                  // Display an alert with instructions to check the profile
-                  Alert.alert(
-                    'Not Approved',
-                    'You are not approved to view this vehicle. Please check your profile and make sure it is approved.',
-                    [
-                      {
-                        text: 'OK',
-                        onPress: () => console.log('OK Pressed'),
-                      },
-                    ]
-                  );
-                }
-              }}
-    >
-      <PaperCard key={vehicle.id} style={styles.card}>
-        {/* Display the vehicle image */}
-        <Image source={{ uri: vehicle.vehicle_image }} style={styles.VecImage} />
-        <Text style={styles.vehicleName}>
-          {vehicle.make} {vehicle.model}
-        </Text>
-        <View style={styles.ratings}>
-          {/* Replace this with your actual rating */}
-          <Icon name="star" style={styles.star}></Icon>
-          <Icon name="star" style={styles.star}></Icon>
-          <Icon name="star" style={styles.star}></Icon>
-          <Icon name="star" style={styles.star}></Icon>
-          <Icon name="star" style={styles.star}></Icon>
-        </View>
-        <Text style={styles.seater}>
-          {vehicle.seatingCapacity}-Seater
-        </Text>
-        <View style={styles.saveContainer}>
-          <Text style={styles.price}>P{vehicle.rate}/DAY</Text>
-          {/*<TouchableOpacity onPress={() => toggleBookmark(vehicle)}>
-            <Icon
-              name={vehicle.isBookmarked ? 'bookmark' : 'bookmark-outline'}
-              style={styles.save}
-            />
-  </TouchableOpacity>*/}
-        </View>
-      </PaperCard>
-    </TouchableOpacity>
-  ))}<TouchableOpacity
-  style={styles.scrollToTopButton}
-  onPress={scrollToTop}
->
-  <Text style={styles.scrollToTopButtonText}>Scroll to Top</Text>
-</TouchableOpacity>
-</View>
+      </View>
+      {loading ? (
+         <View style={styles.cardContainer}>
+         <PlaceholderCard />
+         <PlaceholderCard />
+         <PlaceholderCard />
+         <PlaceholderCard />
+         <PlaceholderCard />
+         <PlaceholderCard />
+       </View>
+      ) : (
+        <ScrollView
+          ref={scrollViewRef}
+          style={styles.scrollView}
+          refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
+          onScroll={Animated.event(
+            [{ nativeEvent: { contentOffset: { y: fadeAnim } } }],
+            { useNativeDriver: false }
+          )}
+        >
+          <View style={styles.cardContainer}>
+            {filteredVehicles.map((vehicle) => (
+              <TouchableOpacity
+                key={vehicle.vehicle_id}
+                style={styles.cardTouchable}
+                onPress={() => {
+                  if (userData && userData.status === 'approved') {
+                    handleCardPress(vehicle);
+                  } else {
+                    console.log('User Status:', userData?.status);
+                    Alert.alert(
+                      'Not Approved',
+                      'You are not approved to view this vehicle. Please check your profile and make sure it is approved.',
+                      [
+                        {
+                          text: 'OK',
+                          onPress: () => console.log('OK Pressed'),
+                        },
+                      ]
+                    );
+                  }
+                }}
+              >
+                <PaperCard key={vehicle.id} style={styles.card}>
+                <Image source={{ uri: vehicle.vehicle_image }} style={styles.VecImage} />
+                <Text style={styles.vehicleName}>
+                  {vehicle.make} {vehicle.model}
+                </Text>
+                <View style={styles.ratings}>
+                  <Icon name="star" style={styles.star}></Icon>
+                  <Icon name="star" style={styles.star}></Icon>
+                  <Icon name="star" style={styles.star}></Icon>
+                  <Icon name="star" style={styles.star}></Icon>
+                  <Icon name="star" style={styles.star}></Icon>
+                </View>
+                <Text style={styles.seater}>{vehicle.seatingCapacity}-Seater</Text>
+                <View style={styles.saveContainer}>
+                  <Text style={styles.price}>P{vehicle.rate}/DAY</Text>
+                </View>
+              </PaperCard>
+              </TouchableOpacity>
+            ))}
+          </View>
+        </ScrollView>
+      )}
 
-      </ScrollView>
+      <Animated.View
+        style={[
+          styles.scrollToTopButton,
+          {
+            opacity: fadeAnim,
+            backgroundColor: bgColorAnim.interpolate({
+              inputRange: [0, 1],
+              outputRange: ['rgba(46, 204, 113, 1)', 'rgba(46, 204, 113, 0.8)'],
+            }),
+          },
+        ]}
+      >
+        <TouchableOpacity onPress={scrollToTop}>
+          <Text style={styles.scrollToTopButtonText}>
+            <Icon name="arrow-up" color="white" size={24} />
+          </Text>
+        </TouchableOpacity>
+      </Animated.View>
     </View>
   );
 };
-
 const styles = StyleSheet.create({
-  imageSlider: {
-    height: 230, // Set the desired height of your image slider
-    
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  container: {
+    height: '102%',
+    width: '100%',
+    backgroundColor: 'rgba(0, 0, 0, 0)', 
+    // Transparent background
+  },
+  swiperContainer: {
+    height: 250,
   },
   image: {
     width: '100%',
-    height: '90%',
+    height: '100%',
   },
   paginationDot: {
-    width: 10,          // Adjust the width of the inactive dots
-    height: 10,         // Adjust the height of the inactive dots
-    borderRadius: 5,   // Make the inactive dots circular
-    backgroundColor: 'rgba(0, 0, 0, 0.2)', // Color of inactive dots
-    marginHorizontal: 5, // Spacing between dots
+    width: 10,
+    height: 10,
+    borderRadius: 5,
+    backgroundColor: 'rgba(0, 0, 0, 0.2)',
+    marginHorizontal: 5,
   },
   activeDot: {
-    width: 12,          // Adjust the width of the active dot
-    height: 12,         // Adjust the height of the active dot
-    borderRadius: 6,   // Make the active dot circular
-    backgroundColor: 'black', // Color of the active dot
-    marginHorizontal: 5, // Spacing between dots
+    width: 12,
+    height: 12,
+    borderRadius: 6,
+    backgroundColor: 'black',
+    marginHorizontal: 5,
   },
   buttonContainer: {
-    marginTop: -15,
-    marginLeft: 18,
+    marginTop: 15,
+    marginLeft: 15,
+    marginRight: 15,
     flexDirection: 'row',
     justifyContent: 'center',
     alignSelf: 'center',
     marginBottom: 10,
-    justifyContent: 'space-evenly', 
-    
+    justifyContent: 'space-evenly',
   },
   filterButton: {
     paddingHorizontal: 7,
@@ -326,9 +345,11 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     marginHorizontal: 10,
     backgroundColor: '#ddd',
+    
+    elevation: 9,
   },
   selectedButton: {
-    backgroundColor: '#2ecc71', // Change to your selected button color
+    backgroundColor: '#2ecc71',
   },
   buttonText: {
     fontWeight: 'bold',
@@ -340,11 +361,6 @@ const styles = StyleSheet.create({
   saveContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-  },
-  save: {
-    marginLeft: 45,
-    fontSize: 28,
-    color: '#2ecc71',
   },
   price: {
     color: '#2ecc71',
@@ -374,19 +390,16 @@ const styles = StyleSheet.create({
   scrollView: {
     height: '100%',
     width: '100%',
-    marginTop: -10,
     marginBottom: 30,
     paddingTop: 10,
-    paddingBottom: 30,
     marginLeft: -10,
-    
   },
   cardContainer: {
+    height: '100%',
+    width: '100%',
     flexDirection: 'row',
     flexWrap: 'wrap',
     justifyContent: 'space-evenly',
-    paddingBottom: 65,
-    
   },
   card: {
     backgroundColor: '#fff',
@@ -394,21 +407,52 @@ const styles = StyleSheet.create({
     padding: 16,
     marginBottom: 16,
     width: 160,
-    elevation: 4,
+    elevation: 9,
     marginLeft: 18,
   },
   scrollToTopButton: {
     position: 'absolute',
-    bottom: 30,
-    right: '50%', // Center horizontally
-    transform: [{ translateX: 70 }], // Adjust this value for horizontal positioning
+    bottom: 50,
+    right: 20,
+    opacity: 0.5,
     backgroundColor: '#2ecc71',
     padding: 10,
     borderRadius: 50,
+    elevation: 6,
+    opacity: 0.8,
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.7,
+    shadowRadius: 5,
   },
   scrollToTopButtonText: {
     color: 'white',
     fontWeight: 'bold',
+  },
+  placeholderCard: {
+    backgroundColor: '#ddd', // Placeholder background color
+    borderRadius: 8, // Placeholder border radius
+    padding: 16, // Placeholder padding
+    marginBottom: 16, // Placeholder margin bottom
+    width: 160, // Placeholder width
+    elevation: 9, // Margin for spacing between cards
+  },
+  placeholderImage: {
+    width: '100%', // Image width
+    height: 110, // Image height
+    backgroundColor: '#ccc', // Image placeholder color
+    borderRadius: 15, // Image border radius
+    marginBottom: 8, // Margin bottom for spacing
+  },
+  placeholderText: {
+    width: '70%', // Text width
+    height: 16, // Text height
+    backgroundColor: '#ccc', // Text placeholder color
+    borderRadius: 4, // Text border radius
+    marginBottom: 8, // Margin bottom for spacing
   },
 });
 

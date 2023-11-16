@@ -14,7 +14,7 @@ import {
 import { Card } from 'react-native-paper';
 import Icon from 'react-native-vector-icons/Ionicons';
 import Logo from '../../../assets/images/bulv.png';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation,useFocusEffect } from '@react-navigation/native';
 import CustomButton from '../../components/CustomButton/CustomButton';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
@@ -55,19 +55,21 @@ const ProfileScreen = () => {
     }
   };
 
-  useEffect(() => {
-    const retrieveData = async () => {
-      try {
-        const storedId = await AsyncStorage.getItem('id');
-        const storedUser = await AsyncStorage.getItem('username');
-        setUserId(storedId);
-        fetchUserData(storedId);
-      } catch (error) {
-        console.log(error);
-      }
-    };
-    retrieveData();
-  }, []);
+  useFocusEffect(
+    React.useCallback(() => {
+      const retrieveData = async () => {
+        try {
+          const storedId = await AsyncStorage.getItem('id');
+          const storedUser = await AsyncStorage.getItem('username');
+          setUserId(storedId);
+          fetchUserData(storedId);
+        } catch (error) {
+          console.log(error);
+        }
+      };
+      retrieveData();
+    }, [])
+  );
 
   const handleLogout = async () => {
     const confirmLogout = () => {
