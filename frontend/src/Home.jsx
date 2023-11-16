@@ -4,8 +4,10 @@ import { Bar } from 'react-chartjs-2';
 import Chart from 'chart.js/auto';
 
 function Home() {
-  const [adminCount, setAdminCount] = useState(0);
-  const [employeeCount, setEmployeeCount] = useState(0);
+  const [approvedUserCount, setApprovedUserCount] = useState(0);
+  const [pendingUserCount, setPendingUserCount] = useState(0);
+  const [approvedVehicleCount, setApprovedVehicleCount] = useState(0);
+  const [pendingVehicleCount, setPendingVehicleCount] = useState(0);
   const [vCount, setvCount] = useState(0);
 
   const chartRef = useRef(null);
@@ -14,16 +16,18 @@ function Home() {
   useEffect(() => {
     // Fetch data and set state
     axios
-      .get('https://bulvroom.onrender.com/adminCount')
+      .get('https://bulvroom.onrender.com/approvedPendingUserCount')
       .then((res) => {
-        setAdminCount(res.data[0].admin);
+        setApprovedUserCount(res.data.approvedUsers);
+        setPendingUserCount(res.data.pendingUsers);
       })
       .catch((err) => console.log(err));
 
     axios
-      .get('https://bulvroom.onrender.com/userCount')
+      .get('https://bulvroom.onrender.com/approvedPendingVehicleCount')
       .then((res) => {
-        setEmployeeCount(res.data[0].users);
+        setApprovedVehicleCount(res.data.approvedVehicles);
+        setPendingVehicleCount(res.data.pendingVehicles);
       })
       .catch((err) => console.log(err));
 
@@ -39,7 +43,13 @@ function Home() {
     if (chartRef.current) {
       if (chartInstance.current) {
         // Update the existing chart instance when data changes
-        chartInstance.current.data.datasets[0].data = [adminCount, employeeCount, vCount];
+        chartInstance.current.data.datasets[0].data = [
+          approvedUserCount,
+          pendingUserCount,
+          approvedVehicleCount,
+          pendingVehicleCount,
+          vCount,
+        ];
         chartInstance.current.update();
       } else {
         // Create a new chart instance when chartInstance is not initialized
@@ -47,16 +57,16 @@ function Home() {
         chartInstance.current = new Chart(ctx, {
           type: 'bar',
           data: {
-            labels: ['Admin', 'Verified Users', 'Verified Vehicles'],
+            labels: ['Approved Users', 'Pending Users', 'Approved Vehicles', 'Pending Vehicles', 'Verified Vehicles'],
             datasets: [
               {
                 label: 'Count',
-                backgroundColor: ['#007BFF', '#28A745', '#FFC107'],
+                backgroundColor: ['#007BFF', '#FFC107', '#28A745', '#FFA000', '#6610f2'],
                 borderColor: 'rgba(0,123,255,0.8)',
                 borderWidth: 1,
-                hoverBackgroundColor: ['#0056b3', '#218838', '#FFA000'],
+                hoverBackgroundColor: ['#0056b3', '#FFA000', '#218838', '#FFA000', '#5a1ca6'],
                 hoverBorderColor: 'rgba(0,123,255,1)',
-                data: [adminCount, employeeCount, vCount],
+                data: [approvedUserCount, pendingUserCount, approvedVehicleCount, pendingVehicleCount, vCount],
               },
             ],
           },
@@ -70,27 +80,45 @@ function Home() {
         });
       }
     }
-  }, [adminCount, employeeCount, vCount]);
+  }, [approvedUserCount, pendingUserCount, approvedVehicleCount, pendingVehicleCount, vCount]);
 
   return (
     <div>
       <div className='p-3 d-flex justify-content-around mt-3'>
         <div className='px-3 pt-2 pb-3 border shadow-sm w-25'>
           <div className='text-center pb-1'>
-            <h4>Admin</h4>
+            <h4>Approved Users</h4>
           </div>
           <hr />
           <div className=''>
-            <h5>Total: {adminCount}</h5>
+            <h5>Total: {approvedUserCount}</h5>
           </div>
         </div>
         <div className='px-3 pt-2 pb-3 border shadow-sm w-25'>
           <div className='text-center pb-1'>
-            <h4>Verified Users</h4>
+            <h4>Pending Users</h4>
           </div>
           <hr />
           <div className=''>
-            <h5>Total: {employeeCount}</h5>
+            <h5>Total: {pendingUserCount}</h5>
+          </div>
+        </div>
+        <div className='px-3 pt-2 pb-3 border shadow-sm w-25'>
+          <div className='text-center pb-1'>
+            <h4>Approved Vehicles</h4>
+          </div>
+          <hr />
+          <div className=''>
+            <h5>Total: {approvedVehicleCount}</h5>
+          </div>
+        </div>
+        <div className='px-3 pt-2 pb-3 border shadow-sm w-25'>
+          <div className='text-center pb-1'>
+            <h4>Pending Vehicles</h4>
+          </div>
+          <hr />
+          <div className=''>
+            <h5>Total: {pendingVehicleCount}</h5>
           </div>
         </div>
         <div className='px-3 pt-2 pb-3 border shadow-sm w-25'>
