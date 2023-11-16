@@ -59,12 +59,12 @@ function Home() {
           datasets: [
             {
               label: 'Count',
+              data: [approvedUserCount, pendingUserCount],
               backgroundColor: ['#28A745', '#FFC107'],
               borderColor: 'rgba(0,123,255,0.8)',
               borderWidth: 1,
               hoverBackgroundColor: ['#218838', '#FFA000'],
               hoverBorderColor: 'rgba(0,123,255,1)',
-              data: [approvedUserCount, pendingUserCount],
             },
           ],
         },
@@ -72,6 +72,9 @@ function Home() {
           scales: {
             x: {
               type: 'category',
+            },
+            y: {
+              beginAtZero: true,
             },
           },
         },
@@ -94,12 +97,12 @@ function Home() {
           datasets: [
             {
               label: 'Count',
+              data: [approvedVehicleCount, pendingVehicleCount],
               backgroundColor: ['#28A745', '#FFC107'],
               borderColor: 'rgba(0,123,255,0.8)',
               borderWidth: 1,
               hoverBackgroundColor: ['#218838', '#FFA000'],
               hoverBorderColor: 'rgba(0,123,255,1)',
-              data: [approvedVehicleCount, pendingVehicleCount],
             },
           ],
         },
@@ -107,6 +110,9 @@ function Home() {
           scales: {
             x: {
               type: 'category',
+            },
+            y: {
+              beginAtZero: true,
             },
           },
         },
@@ -152,17 +158,17 @@ function Home() {
     <div>
       <div className='mt-4 px-5 pt-3'>
         <h3>User Count Statistics</h3>
-        <canvas ref={userChartRef} width='7' height='1'></canvas>
+        <canvas ref={userChartRef} width='400' height='200'></canvas>
       </div>
 
       <div className='mt-4 px-5 pt-3'>
         <h3>Vehicle Count Statistics</h3>
-        <canvas ref={vehicleChartRef} width='7' height='1'></canvas>
+        <canvas ref={vehicleChartRef} width='400' height='200'></canvas>
       </div>
 
       <div className='mt-4 px-5 pt-3'>
         <h3>Transaction Statistics</h3>
-        <canvas ref={transactionChartRef} width='7' height='1'></canvas>
+        <canvas ref={transactionChartRef} width='400' height='200'></canvas>
       </div>
 
       <div className='mt-4 px-5 pt-3'>
