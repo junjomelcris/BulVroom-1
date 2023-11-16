@@ -354,30 +354,34 @@ router.post('/createVehicle', (req, res) => {
 });
 
 
-// Route to get approved and pending user counts
-router.get('/userCounts', (req, res) => {
-  const query = 'SELECT COUNT(id) AS approvedUsers, (SELECT COUNT(id) FROM users WHERE status = "pending") AS pendingUsers FROM users WHERE status = "approved"';
-  con.query(query, (error, results) => {
-    if (error) {
-      console.error('Failed to fetch user counts:', error);
-      res.sendStatus(500);
-    } else {
-      res.json(results);
-    }
-  });
-});
+router.get('/appVehicle', (req, res) => {
+  const sql = 'Select count(id) as vehicles from vehicles WHERE status = "approved"';
+  con.query(sql, (err, result) => {
+      if(err) return res.json({Error: "Error in runnig query"});
+      return res.json(result);
+  })
+})
+router.get('/appUsers', (req, res) => {
+  const sql = 'Select count(id) as users from vehicles WHERE status = "approved"';
+  con.query(sql, (err, result) => {
+      if(err) return res.json({Error: "Error in runnig query"});
+      return res.json(result);
+  })
+})
 
-// Route to get approved and pending vehicle counts
-router.get('/vehicleCounts', (req, res) => {
-  const query = 'SELECT COUNT(id) AS approvedVehicles, (SELECT COUNT(id) FROM vehicles WHERE status = "pending") AS pendingVehicles FROM vehicles WHERE status = "approved"';
-  con.query(query, (error, results) => {
-    if (error) {
-      console.error('Failed to fetch vehicle counts:', error);
-      res.sendStatus(500);
-    } else {
-      res.json(results);
-    }
-  });
-});
+router.get('/penUsers', (req, res) => {
+  const sql = 'Select count(id) as users from users WHERE status = "pending"';
+  con.query(sql, (err, result) => {
+      if(err) return res.json({Error: "Error in runnig query"});
+      return res.json(result);
+  })
+})
 
+router.get('/penVehicles', (req, res) => {
+  const sql = 'Select count(id) as vehicles from vehicles WHERE status = "pending"';
+  con.query(sql, (err, result) => {
+      if(err) return res.json({Error: "Error in runnig query"});
+      return res.json(result);
+  })
+})
 export default router;
