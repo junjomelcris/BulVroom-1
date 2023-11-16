@@ -16,7 +16,7 @@ function Home() {
   useEffect(() => {
     // Fetch data and set state
     axios
-      .get('https://bulvroom.onrender.com/approvedPendingUserCount')
+      .get('https://bulvroom.onrender.com/userCounts')
       .then((res) => {
         setApprovedUserCount(res.data.approvedUsers);
         setPendingUserCount(res.data.pendingUsers);
@@ -24,7 +24,7 @@ function Home() {
       .catch((err) => console.log(err));
 
     axios
-      .get('https://bulvroom.onrender.com/approvedPendingVehicleCount')
+      .get('https://bulvroom.onrender.com/vehicleCounts')
       .then((res) => {
         setApprovedVehicleCount(res.data.approvedVehicles);
         setPendingVehicleCount(res.data.pendingVehicles);

@@ -354,11 +354,12 @@ router.post('/createVehicle', (req, res) => {
 });
 
 
-router.get('/approvedPendingUserCount', (req, res) => {
+// Route to get approved and pending user counts
+router.get('/userCounts', (req, res) => {
   const query = 'SELECT COUNT(id) AS approvedUsers, (SELECT COUNT(id) FROM users WHERE status = "pending") AS pendingUsers FROM users WHERE status = "approved"';
   con.query(query, (error, results) => {
     if (error) {
-      console.error('Failed to fetch data:', error);
+      console.error('Failed to fetch user counts:', error);
       res.sendStatus(500);
     } else {
       res.json(results);
@@ -366,11 +367,12 @@ router.get('/approvedPendingUserCount', (req, res) => {
   });
 });
 
-router.get('/approvedPendingVehicleCount', (req, res) => {
+// Route to get approved and pending vehicle counts
+router.get('/vehicleCounts', (req, res) => {
   const query = 'SELECT COUNT(id) AS approvedVehicles, (SELECT COUNT(id) FROM vehicles WHERE status = "pending") AS pendingVehicles FROM vehicles WHERE status = "approved"';
   con.query(query, (error, results) => {
     if (error) {
-      console.error('Failed to fetch data:', error);
+      console.error('Failed to fetch vehicle counts:', error);
       res.sendStatus(500);
     } else {
       res.json(results);
