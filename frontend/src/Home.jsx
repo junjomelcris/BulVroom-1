@@ -1,176 +1,116 @@
 import React, { useEffect, useState, useRef } from 'react';
 import axios from 'axios';
-import { Bar, Line } from 'react-chartjs-2';
+import { Bar } from 'react-chartjs-2';
 import Chart from 'chart.js/auto';
 
 function Home() {
-  const [approvedUserCount, setApprovedUserCount] = useState(0);
-  const [pendingUserCount, setPendingUserCount] = useState(0);
-  const [approvedVehicleCount, setApprovedVehicleCount] = useState(0);
-  const [pendingVehicleCount, setPendingVehicleCount] = useState(0);
-  const [transactionData, setTransactionData] = useState([]);
+  const [adminCount, setAdminCount] = useState(0);
+  const [employeeCount, setEmployeeCount] = useState(0);
+  const [vCount, setvCount] = useState(0);
 
-  const userChartRef = useRef(null);
-  const vehicleChartRef = useRef(null);
-  const transactionChartRef = useRef(null);
-  const userChartInstance = useRef(null);
-  const vehicleChartInstance = useRef(null);
-  const transactionChartInstance = useRef(null);
+  const chartRef = useRef(null);
+  const chartInstance = useRef(null);
 
   useEffect(() => {
     // Fetch data and set state
     axios
-      .get('https://bulvroom.onrender.com/approvedPendingUserCount')
+      .get('https://bulvroom.onrender.com/adminCount')
       .then((res) => {
-        setApprovedUserCount(res.data.approved);
-        setPendingUserCount(res.data.pending);
+        setAdminCount(res.data[0].admin);
       })
       .catch((err) => console.log(err));
 
     axios
-      .get('https://bulvroom.onrender.com/approvedPendingVehicleCount')
+      .get('https://bulvroom.onrender.com/userCount')
       .then((res) => {
-        setApprovedVehicleCount(res.data.approved);
-        setPendingVehicleCount(res.data.pending);
+        setEmployeeCount(res.data[0].users);
       })
       .catch((err) => console.log(err));
 
     axios
-      .get('https://bulvroom.onrender.com/transactions')
+      .get('https://bulvroom.onrender.com/vCount')
       .then((res) => {
-        // Assuming transaction data is an array of numbers
-        setTransactionData(res.data);
+        setvCount(res.data[0].vehicles);
       })
       .catch((err) => console.log(err));
   }, []);
 
   useEffect(() => {
-    // Create or update user count chart
-    if (userChartRef.current) {
-      if (userChartInstance.current) {
-        userChartInstance.current.destroy();
-      }
-
-      const ctx = userChartRef.current.getContext('2d');
-      userChartInstance.current = new Chart(ctx, {
-        type: 'bar',
-        data: {
-          labels: ['Approved Users', 'Pending Users'],
-          datasets: [
-            {
-              label: 'Count',
-              data: [approvedUserCount, pendingUserCount],
-              backgroundColor: ['#28A745', '#FFC107'],
-              borderColor: 'rgba(0,123,255,0.8)',
-              borderWidth: 1,
-              hoverBackgroundColor: ['#218838', '#FFA000'],
-              hoverBorderColor: 'rgba(0,123,255,1)',
-            },
-          ],
-        },
-        options: {
-          scales: {
-            x: {
-              type: 'category',
-            },
-            y: {
-              beginAtZero: true,
+    if (chartRef.current) {
+      if (chartInstance.current) {
+        // Update the existing chart instance when data changes
+        chartInstance.current.data.datasets[0].data = [adminCount, employeeCount, vCount];
+        chartInstance.current.update();
+      } else {
+        // Create a new chart instance when chartInstance is not initialized
+        const ctx = chartRef.current.getContext('2d');
+        chartInstance.current = new Chart(ctx, {
+          type: 'bar',
+          data: {
+            labels: ['Admin', 'Verified Users', 'Verified Vehicles'],
+            datasets: [
+              {
+                label: 'Count',
+                backgroundColor: ['#007BFF', '#28A745', '#FFC107'],
+                borderColor: 'rgba(0,123,255,0.8)',
+                borderWidth: 1,
+                hoverBackgroundColor: ['#0056b3', '#218838', '#FFA000'],
+                hoverBorderColor: 'rgba(0,123,255,1)',
+                data: [adminCount, employeeCount, vCount],
+              },
+            ],
+          },
+          options: {
+            scales: {
+              x: {
+                type: 'category',
+              },
             },
           },
-        },
-      });
-    }
-  }, [approvedUserCount, pendingUserCount]);
-
-  useEffect(() => {
-    // Create or update vehicle count chart
-    if (vehicleChartRef.current) {
-      if (vehicleChartInstance.current) {
-        vehicleChartInstance.current.destroy();
+        });
       }
-
-      const ctx = vehicleChartRef.current.getContext('2d');
-      vehicleChartInstance.current = new Chart(ctx, {
-        type: 'bar',
-        data: {
-          labels: ['Approved Vehicles', 'Pending Vehicles'],
-          datasets: [
-            {
-              label: 'Count',
-              data: [approvedVehicleCount, pendingVehicleCount],
-              backgroundColor: ['#28A745', '#FFC107'],
-              borderColor: 'rgba(0,123,255,0.8)',
-              borderWidth: 1,
-              hoverBackgroundColor: ['#218838', '#FFA000'],
-              hoverBorderColor: 'rgba(0,123,255,1)',
-            },
-          ],
-        },
-        options: {
-          scales: {
-            x: {
-              type: 'category',
-            },
-            y: {
-              beginAtZero: true,
-            },
-          },
-        },
-      });
     }
-  }, [approvedVehicleCount, pendingVehicleCount]);
-
-  useEffect(() => {
-    // Create or update transaction line chart
-    if (transactionChartRef.current) {
-      if (transactionChartInstance.current) {
-        transactionChartInstance.current.destroy();
-      }
-
-      const ctx = transactionChartRef.current.getContext('2d');
-      transactionChartInstance.current = new Chart(ctx, {
-        type: 'line',
-        data: {
-          labels: Array.from({ length: transactionData.length }, (_, i) => i + 1),
-          datasets: [
-            {
-              label: 'Transactions',
-              borderColor: '#007BFF',
-              borderWidth: 1,
-              data: transactionData,
-              fill: false,
-            },
-          ],
-        },
-        options: {
-          scales: {
-            x: {
-              type: 'linear',
-              position: 'bottom',
-            },
-          },
-        },
-      });
-    }
-  }, [transactionData]);
+  }, [adminCount, employeeCount, vCount]);
 
   return (
     <div>
-      <div className='mt-4 px-5 pt-3'>
-        <h3>User Count Statistics</h3>
-        <canvas ref={userChartRef} width='400' height='200'></canvas>
+      <div className='p-3 d-flex justify-content-around mt-3'>
+        <div className='px-3 pt-2 pb-3 border shadow-sm w-25'>
+          <div className='text-center pb-1'>
+            <h4>Admin</h4>
+          </div>
+          <hr />
+          <div className=''>
+            <h5>Total: {adminCount}</h5>
+          </div>
+        </div>
+        <div className='px-3 pt-2 pb-3 border shadow-sm w-25'>
+          <div className='text-center pb-1'>
+            <h4>Verified Users</h4>
+          </div>
+          <hr />
+          <div className=''>
+            <h5>Total: {employeeCount}</h5>
+          </div>
+        </div>
+        <div className='px-3 pt-2 pb-3 border shadow-sm w-25'>
+          <div className='text-center pb-1'>
+            <h4>Verified Vehicles</h4>
+          </div>
+          <hr />
+          <div className=''>
+            <h5>Total: {vCount}</h5>
+          </div>
+        </div>
       </div>
 
+      {/* Bar Chart */}
       <div className='mt-4 px-5 pt-3'>
-        <h3>Vehicle Count Statistics</h3>
-        <canvas ref={vehicleChartRef} width='400' height='200'></canvas>
+        <h3>Count Statistics</h3>
+        <canvas ref={chartRef} width='7' height='1'></canvas>
       </div>
 
-      <div className='mt-4 px-5 pt-3'>
-        <h3>Transaction Statistics</h3>
-        <canvas ref={transactionChartRef} width='400' height='200'></canvas>
-      </div>
-
+      {/* List of admin  */}
       <div className='mt-4 px-5 pt-3'>
         <h3>List of Admins</h3>
         <table className='table'>
