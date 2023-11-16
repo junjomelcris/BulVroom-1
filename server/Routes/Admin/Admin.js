@@ -49,7 +49,7 @@ router.get('/adminCount', (req, res) => {
     })
 })
 router.get('/userCount', (req, res) => {
-    const sql = "Select count(id) as users from users";
+    const sql = "SELECT COUNT(id) AS users FROM users WHERE status = 'approved'";
     con.query(sql, (err, result) => {
         if(err) return res.json({Error: "Error in runnig query"});
         return res.json(result);
