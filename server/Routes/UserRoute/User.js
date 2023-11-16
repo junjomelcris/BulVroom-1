@@ -412,7 +412,7 @@ router.post('/notifications', (req, res) => {
 router.get('/mybookings/:user_id', (req, res) => {
   const user_id = req.params.user_id;
   const query = `
-    SELECT transactions.id AS transaction_id, transactions.*, vehicles.*
+    SELECT transactions.id AS transaction_id, transactions.status AS transaction_status, transactions.*, vehicles.*
     FROM transactions
     LEFT JOIN vehicles ON transactions.vehicle_id = vehicles.vehicle_id
     WHERE transactions.booker_id = ${user_id}`;
@@ -448,10 +448,11 @@ router.delete('/mybookings/delete/:id', (req, res) => {
 router.get('/bookedvehicle/:user_id', (req, res) => {
   const user_id = req.params.user_id;
   const query = `
-    SELECT transactions.*, vehicles.*
+    SELECT transactions.id AS transaction_id, transactions.status AS transaction_status, transactions.*, vehicles.*, users.*
     FROM transactions
     LEFT JOIN vehicles ON transactions.vehicle_id = vehicles.vehicle_id
-    WHERE transactions.owner_id = ${user_id}`;
+    LEFT JOIN users ON transactions.booker_id = users.id
+    WHERE transactions.booker_id = ${user_id}`;
 
   con.query(query, (error, results) => {
     if (error) {
@@ -462,5 +463,29 @@ router.get('/bookedvehicle/:user_id', (req, res) => {
     }
   });
 });
+
+router.put('/bookedvehicle/:transaction_id', (req, res) => {
+  const transaction_id = req.params.transaction_id;
+  const newStatus = req.body.status; // Assuming the new status is sent in the request body
+
+  if (!newStatus) {
+    return res.status(400).json({ error: 'New status is required' });
+  }
+
+  const updateQuery = `
+    UPDATE transactions
+    SET status = '${newStatus}'
+    WHERE id = ${transaction_id}`;
+
+  con.query(updateQuery, (error, results) => {
+    if (error) {
+      console.error('Failed to update status:', error);
+      res.sendStatus(500);
+    } else {
+      res.json({ message: 'Status updated successfully' });
+    }
+  });
+});
+
 
 export default router;
