@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { Link, useNavigate } from 'react-router-dom';
 import ReactModal from 'react-modal';
+import { BsEye, BsCheck, BsX, BsSlash } from 'react-icons/bs';
 
 function Vehicles() {
   const [vehicles, setVehicles] = useState([]);
@@ -10,6 +11,9 @@ function Vehicles() {
   const [modalIsOpen, setModalIsOpen] = useState(false);
   const [modalImage, setModalImage] = useState('');
   const [modalTitle, setModalTitle] = useState('');
+  const [viewDataModalIsOpen, setViewDataModalIsOpen] = useState(false);
+  const [viewDataModalData, setViewDataModalData] = useState({});
+
   const navigate = useNavigate();
 
   const handleDelete = (vehicleId) => {
@@ -135,6 +139,7 @@ function Vehicles() {
 
     fetchData();
   }, []);
+
   const handleOpenModal = (image, title) => {
     setModalImage(image);
     setModalTitle(title);
@@ -144,6 +149,16 @@ function Vehicles() {
   const handleCloseModal = () => {
     setModalIsOpen(false);
   };
+
+  const handleOpenViewDataModal = (data) => {
+    setViewDataModalData(data);
+    setViewDataModalIsOpen(true);
+  };
+
+  const handleCloseViewDataModal = () => {
+    setViewDataModalIsOpen(false);
+  };
+
   const filteredData = vehicles.filter((vehicle) => {
     if (filter === 'all') return true;
     if (filter === 'approved' && vehicle.status === 'approved') return true;
@@ -157,7 +172,6 @@ function Vehicles() {
       <div className='d-flex justify-content-center mt-2'>
         <h3>VEHICLE MANAGEMENT</h3>
       </div>
-      <Link to="/addvehicle" className='btn btn-success'>Add Vehicles</Link>
       {/* Filter dropdown */}
       <div className='d-flex justify-content-start mt-2'>
         <div className='dropdown'>
@@ -192,18 +206,11 @@ function Vehicles() {
         <table className='table'>
           <thead>
             <tr>
-              <th>Owner Username</th>
+              <th>Owner</th>
               <th>Make</th>
               <th>Model</th>
               <th>Type</th>
               <th>Image</th>
-              <th>Seating Capacity</th>
-              <th>Transmission</th>
-              <th>Gas</th>
-              <th>Features</th>
-              <th>Plate</th>
-              <th>Description</th>
-              <th>Phone</th>
               <th>Rate</th>
               <th>Deposit</th>
               <th>Status</th>
@@ -221,27 +228,22 @@ function Vehicles() {
                 <td>
                   <button
                     onClick={() => handleOpenModal(vehicle.vehicle_image, 'image')}
-                    className='btn btn-sm btn-light me-2'
+                    className='btn btn-sm btn-success me-2'
                   >
-                    <span style={{ textDecoration: 'underline' }}>View Image</span>
+                    <BsEye />
                   </button>
                 </td>
-                <td>{vehicle.seatingCapacity}</td>
-                <td>{vehicle.transmission}</td>
-                <td>{vehicle.gas}</td>
-                <td>{vehicle.features}</td>
-                <td>{vehicle.plate}</td>
-                <td>{vehicle.description}</td>
-                <td>{vehicle.phone}</td>
+                
                 <td>{vehicle.rate}</td>
                 <td>{vehicle.deposit}</td>
                 <td>{vehicle.status}</td>
                 
                 <td>
                   <div className="mt-2">
+                    <button onClick={() => handleOpenViewDataModal(vehicle)} className='btn btn-sm btn-success me-2'>View Data</button>
                     <button onClick={() => handleApprove(vehicle.vehicle_id)} className='btn btn-sm btn-success me-2'>Approve</button>
-                    <button onClick={() => handleDisapprove(vehicle.vehicle_id)} className='btn btn-sm btn-dark me-2'>Disapprove</button>
-                    <button onClick={() => handleDelete(vehicle.vehicle_id)} className='btn btn-sm btn-danger'>Delete</button>
+                    <button onClick={() => handleDisapprove(vehicle.vehicle_id)} className='btn btn-sm btn-success me-2'>Disapprove</button>
+                   {/*<button onClick={() => handleDelete(vehicle.vehicle_id)} className='btn btn-sm btn-danger'>X</button>*/}
                   </div>
                 </td>
               </tr>
@@ -249,6 +251,8 @@ function Vehicles() {
           </tbody>
         </table>
       </div>
+
+      {/* Image Modal */}
       <ReactModal
         isOpen={modalIsOpen}
         onRequestClose={handleCloseModal}
@@ -275,6 +279,50 @@ function Vehicles() {
         <button onClick={handleCloseModal} className="btn btn-danger mt-3">
           Close
         </button>
+      </ReactModal>
+
+      {/* View Data Modal */}
+      <ReactModal
+        isOpen={viewDataModalIsOpen}
+        onRequestClose={handleCloseViewDataModal}
+        contentLabel="View Data Modal"
+        style={{
+          overlay: {
+            backgroundColor: 'rgba(0, 0, 0, 0.8)',
+          },
+          content: {
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            justifyContent: 'center',
+            top: '50%',
+            left: '50%',
+            right: 'auto',
+            bottom: 'auto',
+            marginRight: '-50%',
+            transform: 'translate(-50%, -50%)',
+          },
+        }}
+      >
+        <div>
+          <p>Owner Username: {viewDataModalData.ownerUsername}</p>
+          <p>Make: {viewDataModalData.make}</p>
+          <p>Model: {viewDataModalData.model}</p>
+          <p>Type: {viewDataModalData.type}</p>
+          <p>SeatingCapacity: {viewDataModalData.seatingCapacity}</p>
+          <p>Transmission: {viewDataModalData.transmission}</p>
+          <p>Gas: {viewDataModalData.gas}</p>
+          <p>Features: {viewDataModalData.features}</p>
+          <p>Plate: {viewDataModalData.plate}</p>
+          <p>Description: {viewDataModalData.description}</p>
+          <p>Phone: {viewDataModalData.phone}</p>
+          <p>Rate: {viewDataModalData.rate}</p>
+          <p>Deposit: {viewDataModalData.deposit}</p>
+          <p>Status: {viewDataModalData.status}</p>
+          <button onClick={handleCloseViewDataModal} className="btn btn-danger mt-3">
+            Close
+          </button>
+        </div>
       </ReactModal>
     </div>
   );

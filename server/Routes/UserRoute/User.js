@@ -396,10 +396,10 @@ router.get('/notifications/:user_id', (req, res) => {
 });
 
 router.post('/notifications', (req, res) => {
-  const { title, label, date_time, user_id } = req.body;
-  const query = 'INSERT INTO notifications (title, label, date_time, user_id) VALUES (?, ?, ?, ?)';
+  const { title, label, date_time, user_id, vehicle_id } = req.body;
+  const query = 'INSERT INTO notifications (title, label, date_time, user_id, vehicle_id) VALUES (?, ?, ?, ?, ?)';
 
-  con.query(query, [title, label, date_time, user_id], (error, results) => {
+  con.query(query, [title, label, date_time, user_id, vehicle_id], (error, results) => {
     if (error) {
       console.error('Failed to insert notification:', error);
       res.sendStatus(500);
@@ -437,9 +437,9 @@ router.delete('/mybookings/delete/:id', (req, res) => {
       res.sendStatus(500);
     } else {
       if (result.affectedRows > 0) {
-        res.sendStatus(204); 
+        res.sendStatus(204);
       } else {
-        res.sendStatus(404); 
+        res.sendStatus(404);
       }
     }
   });
@@ -451,8 +451,8 @@ router.get('/bookedvehicle/:user_id', (req, res) => {
     SELECT transactions.id AS transaction_id, transactions.status AS transaction_status, transactions.*, vehicles.*, users.*
     FROM transactions
     LEFT JOIN vehicles ON transactions.vehicle_id = vehicles.vehicle_id
-    LEFT JOIN users ON transactions.booker_id = users.id
-    WHERE transactions.booker_id = ${user_id}`;
+    LEFT JOIN users ON transactions.owner_id = users.id
+    WHERE transactions.owner_id = ${user_id}`;
 
   con.query(query, (error, results) => {
     if (error) {
@@ -472,18 +472,105 @@ router.put('/bookedvehicle/:transaction_id', (req, res) => {
     return res.status(400).json({ error: 'New status is required' });
   }
 
-  const updateQuery = `
-    UPDATE transactions
-    SET status = '${newStatus}'
+  // Step 1: Get the transaction row using the transaction_id and store it in a variable
+  const getTransactionQuery = `
+    SELECT * FROM transactions
     WHERE id = ${transaction_id}`;
 
-  con.query(updateQuery, (error, results) => {
+  con.query(getTransactionQuery, (error, transaction) => {
     if (error) {
-      console.error('Failed to update status:', error);
-      res.sendStatus(500);
-    } else {
-      res.json({ message: 'Status updated successfully' });
+      console.error('Failed to retrieve transaction:', error);
+      return res.sendStatus(500);
     }
+
+    if (!transaction || transaction.length === 0) {
+      return res.status(404).json({ error: 'Transaction not found' });
+    }
+
+    // Step 2: Edit the status as in the current example
+    const updateQuery = `
+      UPDATE transactions
+      SET status = '${newStatus}'
+      WHERE id = ${transaction_id}`;
+
+    con.query(updateQuery, (updateError, updateResults) => {
+      if (updateError) {
+        console.error('Failed to update status:', updateError);
+        return res.sendStatus(500);
+      }
+
+      // Step 3: Get all the transaction rows using the vehicle_id column
+      const vehicle_id = transaction[0].vehicle_id;
+      const getAllTransactionsQuery = `
+        SELECT * FROM transactions
+        WHERE vehicle_id = ${vehicle_id}`;
+
+      con.query(getAllTransactionsQuery, (getAllError, allTransactions) => {
+        if (getAllError) {
+          console.error('Failed to retrieve all transactions:', getAllError);
+          return res.sendStatus(500);
+        }
+
+        // Step 4: Set all the other status columns of the rows to 3 only if the current status is 1
+        const updateAllQuery = `
+                              UPDATE transactions
+                              SET status = 3
+                              WHERE vehicle_id = ${vehicle_id}
+                                AND status = 1
+                                AND id != ${transaction_id}`;
+
+        con.query(updateAllQuery, (updateAllError, updateAllResults) => {
+          if (updateAllError) {
+            console.error('Failed to update all transactions status:', updateAllError);
+            return res.sendStatus(500);
+          }
+
+          res.json({ message: 'Status updated successfully' });
+        });
+      });
+    });
+  });
+});
+
+// POST route for adding a rating
+router.post('/ratings', (req, res) => {
+  const { rating, comment, vehicle_id, user_id } = req.body;
+
+  if (!rating || !comment || !vehicle_id || !user_id) {
+    return res.status(400).json({ error: 'All fields (rating, comment, vehicle_id, user_id) are required' });
+  }
+
+  const addRatingQuery = `
+    INSERT INTO ratings (rating, comment, vehicle_id, user_id)
+    VALUES (${rating}, '${comment}', ${vehicle_id}, ${user_id})`;
+
+  con.query(addRatingQuery, (error, results) => {
+    if (error) {
+      console.error('Failed to add rating:', error);
+      return res.sendStatus(500);
+    }
+
+    res.json({ message: 'Rating added successfully' });
+  });
+});
+
+// GET route for fetching ratings
+router.get('/ratings/:vehicle_id', (req, res) => {
+  const vehicle_id = req.params.vehicle_id;
+
+  const getRatingsQuery = `
+    SELECT ratings.*, users.*
+    FROM ratings
+    LEFT JOIN users ON ratings.user_id = users.id
+    WHERE ratings.vehicle_id = ${vehicle_id}`;
+
+  con.query(getRatingsQuery, (error, ratings) => {
+    if (error) {
+      console.error('Failed to retrieve ratings:', error);
+      return res.sendStatus(500);
+    }
+
+    res.json({ ratings });
   });
 });
 
