@@ -99,10 +99,12 @@ router.post('/login/app', (req, res) => {
     if (results.length > 0) {
       const hashedPassword = results[0].password;
       const userId = results[0].id;
+
       // Compare the hashed password with the plaintext password
       bcrypt.compare(password, hashedPassword, (err, result) => {
         if (err) {
           // Handle error
+          console.error(err);
           return res.status(500).json({ message: "Internal server error" });
         }
 
@@ -111,15 +113,16 @@ router.post('/login/app', (req, res) => {
           return res.status(200).json({ message: "Success", id: userId });
         } else {
           // Passwords don't match
-          return res.status(401).json({ message: "incorrect" });
+          return res.status(401).json({ message: "Incorrect username or password" });
         }
       });
     } else {
-      // No user with matching email found
-      return res.status(404).json({ message: "notfound" });
+      // No user with matching username found
+      return res.status(404).json({ message: "User not found" });
     }
   });
 });
+
 
 router.get('/logout/app', (req, res) => {
   res.clearCookie('token');
