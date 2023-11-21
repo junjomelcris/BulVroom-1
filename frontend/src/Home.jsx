@@ -191,7 +191,7 @@ function Home() {
           </thead>
           <tbody>
             <tr>
-              <td>admin@gmail.com</td>
+              <td>bulvroom7@gmail.com</td>
             </tr>
             {/* Add more rows as needed */}
           </tbody>
