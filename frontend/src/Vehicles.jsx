@@ -214,7 +214,6 @@ function Vehicles() {
               <th>Rate</th>
               <th>Deposit</th>
               <th>Status</th>
-              
               <th>Action</th>
             </tr>
           </thead>
@@ -233,11 +232,9 @@ function Vehicles() {
                     <BsEye />
                   </button>
                 </td>
-                
                 <td>{vehicle.rate}</td>
                 <td>{vehicle.deposit}</td>
                 <td>{vehicle.status}</td>
-                
                 <td>
                   <div className="mt-2">
                     <button onClick={() => handleOpenViewDataModal(vehicle)} className='btn btn-sm btn-success me-2'>View Data</button>
