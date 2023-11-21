@@ -402,4 +402,42 @@ router.get('/vehicles', (req, res) => {
   });
 });
 
+router.put('/update-vehicle-image/:vehicleId', (req, res) => {
+  const vehicleId = req.params.vehicleId;
+  const newVehicleImage = req.body.vehicleImage; // Assuming you send the new image URL in the request body
+
+  // Update the vehicle_image column in the vehicles table
+  const updateImageQuery = 'UPDATE vehicles SET vehicle_image = ? WHERE vehicle_id = ?';
+  con.query(updateImageQuery, [newVehicleImage, vehicleId], (updateErr, updateResult) => {
+    if (updateErr) {
+      console.error('Failed to update vehicle image:', updateErr);
+      res.status(500).json({ message: 'Server error' });
+    } else if (updateResult.affectedRows === 0) {
+      // No rows were affected, meaning the vehicle with the specified ID was not found
+      res.status(404).json({ message: 'Vehicle not found' });
+    } else {
+      res.json({ message: 'Vehicle image updated successfully' });
+    }
+  });
+});
+
+router.delete('/delete-vehicle/:vehicleId', (req, res) => {
+  const vehicleId = req.params.vehicleId;
+
+  // Delete the vehicle entry from the vehicles table
+  const deleteVehicleQuery = 'DELETE FROM vehicles WHERE vehicle_id = ?';
+  con.query(deleteVehicleQuery, [vehicleId], (deleteErr, deleteResult) => {
+    if (deleteErr) {
+      console.error('Failed to delete vehicle:', deleteErr);
+      res.status(500).json({ message: 'Server error' });
+    } else if (deleteResult.affectedRows === 0) {
+      // No rows were affected, meaning the vehicle with the specified ID was not found
+      res.status(404).json({ message: 'Vehicle not found' });
+    } else {
+      res.json({ message: 'Vehicle deleted successfully' });
+    }
+  });
+});
+
+
 export default router;

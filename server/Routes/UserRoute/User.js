@@ -10,6 +10,8 @@ import dotenv from 'dotenv'
 import nodemailer from "nodemailer"
 const router = express.Router();
 import con from '../database.js';
+//const crypto = require('crypto');
+import crypto from 'crypto'
 
 
 
@@ -384,7 +386,7 @@ router.get('/users', (req, res) => {
 });
 
 router.post('/verification', (req, res) => {
-  const userProvidedVerification = req.body.verificationCodes;
+  const userProvidedVerification = req.body.verificationCode;
 
   // Query the database to check if the provided OTP exists in the user_info table
   const verifyQuery = 'SELECT * FROM users WHERE verificationToken = ?';
@@ -395,8 +397,18 @@ router.post('/verification', (req, res) => {
       res.status(500).json({ error: 'Failed to verify OTP' });
     } else {
       if (results.length > 0) {
+        // If there is a match, update the is_verified column to 1
+        const userId = results[0].id; // Replace 'id' with the actual primary key column name in your 'users' table
+        const updateQuery = 'UPDATE users SET is_verified = 1 WHERE id = ?';
 
-        res.send({ message: 'match' });
+        con.query(updateQuery, [userId], (updateError) => {
+          if (updateError) {
+            console.error('Failed to update is_verified column:', updateError);
+            res.status(500).json({ error: 'Failed to update is_verified column' });
+          } else {
+            res.send({ message: 'match' });
+          }
+        });
       } else {
         // If no results are returned, the provided OTP does not exist in the table
         res.send({ message: 'not match' });
@@ -404,6 +416,7 @@ router.post('/verification', (req, res) => {
     }
   });
 });
+
 
 router.get('/notifications/:user_id', (req, res) => {
   const userId = req.params.user_id;
@@ -595,6 +608,84 @@ router.get('/ratings/:vehicle_id', (req, res) => {
     }
 
     res.json({ ratings });
+  });
+});
+
+router.post('/forget-password', (req, res) => {
+  const userEmail = req.body.email;
+
+  const resetCode = generateRandomCode();
+
+  const findUserQuery = 'SELECT id FROM users WHERE email = ?';
+  con.query(findUserQuery, [userEmail], (findErr, findResult) => {
+    if (findErr) {
+      console.error('Error finding user:', findErr);
+      res.send({ message: 'Server error' });
+    } else if (findResult.length === 0) {
+      res.send({ message: 'User not found' });
+    } else {
+      const userId = findResult[0].id;
+      const updateCodeQuery = 'UPDATE users SET forget_code = ? WHERE id = ?';
+      con.query(updateCodeQuery, [resetCode, userId], (updateErr, updateResult) => {
+        if (updateErr) {
+          console.error('Failed to update forget code:', updateErr);
+          res.send({ message: 'Server error' });
+        } else {
+
+          sendForgetPasswordEmail(userEmail, resetCode);
+
+          res.send({ message: 'Reset code sent successfully' });
+        }
+      });
+    }
+  });
+});
+
+function sendForgetPasswordEmail(email, code) {
+  const transporter = nodemailer.createTransport({
+    service: 'gmail',
+    auth: {
+      user: 'bulvroom7@gmail.com',
+      pass: 'ekrlnkgsxzjzalah',
+    },
+  });
+
+  // Setup email data
+  const mailOptions = {
+    from: 'bulvroom7@gmail.com',
+    to: email,
+    subject: 'Forget Password Email',
+    html: `<p>Here is your forget password code: ${code}</p>`,
+  };
+
+  // Send the email
+  transporter.sendMail(mailOptions, (error, info) => {
+    if (error) {
+      console.error('Failed to send email:', error);
+    } else {
+      console.log('email sent:', info.response);
+    }
+  });
+}
+
+function generateRandomCode() {
+  return crypto.randomBytes(3).toString('hex').toUpperCase(); // Adjust the length as needed
+}
+
+router.get('/reset-code/:code', (req, res) => {
+  const verificationCode = req.params.code;
+
+  const checkCodeQuery = 'SELECT id FROM users WHERE forget_code = ?';
+  con.query(checkCodeQuery, [verificationCode], (checkErr, checkResult) => {
+    if (checkErr) {
+      console.error('Error checking verification code:', checkErr);
+      res.status(500).json({ message: 'Server error' });
+    } else if (checkResult.length === 0) {
+      res.status(404).json({ message: 'Invalid code' });
+    } else {
+      const userId = checkResult[0].id;
+      res.json({ userId: userId });
+    }
   });
 });
 
