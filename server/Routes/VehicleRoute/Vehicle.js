@@ -390,4 +390,16 @@ router.get('/renterbookings', (req, res) => {
   });
 });
 
+router.get('/vehicles', (req, res) => {
+  const query = 'SELECT * FROM vehicles'; // Select all data from the "users" table
+  con.query(query, (error, results) => {
+    if (error) {
+      console.error('Failed to fetch data:', error);
+      res.sendStatus(500);
+    } else {
+      res.json(results); // Send all user data as a JSON response
+    }
+  });
+});
+
 export default router;
