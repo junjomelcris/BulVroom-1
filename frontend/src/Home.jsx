@@ -9,30 +9,45 @@ function Home() {
   const [vCount, setvCount] = useState(0);
   const [perTypeCount, setPerTypeCount] = useState([]);
   const [userVehicleCount, setUserVehicleCount] = useState([]);
+  const [approvedUserCount, setApprovedUserCount] = useState(0);
+  const [pendingUserCount, setPendingUserCount] = useState(0);
+  const [approvedVehicleCount, setApprovedVehicleCount] = useState(0);
+  const [pendingVehicleCount, setPendingVehicleCount] = useState(0);
 
+  const chartUserRef = useRef(null);
+  const chartVehicleRef = useRef(null);
+  const chartUserInstance = useRef(null);
+  const chartVehicleInstance = useRef(null);
   const chartRef = useRef(null);
   const chartInstance = useRef(null);
 
   useEffect(() => {
     // Fetch data and set state
     axios
-      .get('https://bulvroom.onrender.com/adminCount')
+      .get('https://bulvroom.onrender.com/userCount')
       .then((res) => {
-        setAdminCount(res.data[0].admin);
+        setApprovedUserCount(res.data[0].users);
       })
       .catch((err) => console.log(err));
 
     axios
-      .get('https://bulvroom.onrender.com/userCount')
+      .get('https://bulvroom.onrender.com/userCountpen')
       .then((res) => {
-        setEmployeeCount(res.data[0].users);
+        setPendingUserCount(res.data[0].users);
       })
       .catch((err) => console.log(err));
 
     axios
       .get('https://bulvroom.onrender.com/vCount')
       .then((res) => {
-        setvCount(res.data[0].vehicles);
+        setApprovedVehicleCount(res.data[0].vehicles);
+      })
+      .catch((err) => console.log(err));
+
+    axios
+      .get('https://bulvroom.onrender.com/pendingvCount')
+      .then((res) => {
+        setPendingVehicleCount(res.data[0].vehicles);
       })
       .catch((err) => console.log(err));
 
@@ -53,79 +68,117 @@ function Home() {
   }, []);
 
   useEffect(() => {
-    if (chartRef.current) {
-      if (chartInstance.current) {
-        // Update the existing chart instance when data changes
-        chartInstance.current.data.datasets[0].data = [adminCount, employeeCount, vCount];
-        chartInstance.current.update();
-      } else {
-        // Create a new chart instance when chartInstance is not initialized
-        const ctx = chartRef.current.getContext('2d');
-        chartInstance.current = new Chart(ctx, {
-          type: 'bar',
-          data: {
-            labels: ['Admin', 'Verified Users', 'Verified Vehicles'],
-            datasets: [
-              {
-                label: 'Count',
-                backgroundColor: ['#007BFF', '#28A745', '#FFC107'],
-                borderColor: 'rgba(0,123,255,0.8)',
-                borderWidth: 1,
-                hoverBackgroundColor: ['#0056b3', '#218838', '#FFA000'],
-                hoverBorderColor: 'rgba(0,123,255,1)',
-                data: [adminCount, employeeCount, vCount],
-              },
-            ],
-          },
-          options: {
-            scales: {
-              x: {
-                type: 'category',
-              },
+    const totalUsers = approvedUserCount + pendingUserCount + 10; // Adding 30 for better visualization
+    const maxYUser = Math.ceil(totalUsers / 10) * 10; // Round up to the nearest 10
+
+    // Create or update user count chart
+    if (chartUserRef.current) {
+      if (chartUserInstance.current) {
+        chartUserInstance.current.destroy();
+      }
+
+      const ctx = chartUserRef.current.getContext('2d');
+      chartUserInstance.current = new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels: ['Approved Users', 'Pending Users'],
+          datasets: [
+            {
+              label: 'Count',
+              backgroundColor: ['#28A745', '#218838'],
+              borderColor: 'rgba(40, 167, 69, 0.8)',
+              borderWidth: 1,
+              hoverBackgroundColor: ['#218838', '#1e7e34'],
+              hoverBorderColor: 'rgba(40, 167, 69, 1)',
+              data: [approvedUserCount, pendingUserCount],
+            },
+          ],
+        },
+        options: {
+          scales: {
+            x: {
+              type: 'category',
+            },
+            y: {
+              beginAtZero: true,
+              max: maxYUser,
             },
           },
-        });
-      }
+        },
+      });
     }
-  }, [adminCount, employeeCount, vCount]);
+  }, [approvedUserCount, pendingUserCount]);
 
+  useEffect(() => {
+    const totalVehicles = approvedVehicleCount + pendingVehicleCount + 10; // Adding 30 for better visualization
+    const maxYVehicle = Math.ceil(totalVehicles / 10) * 10; // Round up to the nearest 10
+
+    // Create or update vehicle count chart
+    if (chartVehicleRef.current) {
+      if (chartVehicleInstance.current) {
+        chartVehicleInstance.current.destroy();
+      }
+
+      const ctx = chartVehicleRef.current.getContext('2d');
+      chartVehicleInstance.current = new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels: ['Approved Vehicles', 'Pending Vehicles'],
+          datasets: [
+            {
+              label: 'Count',
+              backgroundColor: ['#28A745', '#218838'],
+              borderColor: 'rgba(40, 167, 69, 0.8)',
+              borderWidth: 1,
+              hoverBackgroundColor: ['#218838', '#1e7e34'],
+              hoverBorderColor: 'rgba(40, 167, 69, 1)',
+              data: [approvedVehicleCount, pendingVehicleCount],
+            },
+          ],
+        },
+        options: {
+          scales: {
+            x: {
+              type: 'category',
+            },
+            y: {
+              beginAtZero: true,
+              max: maxYVehicle,
+            },
+          },
+        },
+      });
+    }
+  }, [approvedVehicleCount, pendingVehicleCount]);
   return (
-    <div>
-      <div className='p-3 d-flex justify-content-around mt-3'>
-        <div className='px-3 pt-2 pb-3 border shadow-sm w-25'>
-          <div className='text-center pb-1'>
-            <h4>Admin</h4>
-          </div>
-          <hr />
-          <div className=''>
-            <h5>Total: {adminCount}</h5>
-          </div>
-        </div>
-        <div className='px-3 pt-2 pb-3 border shadow-sm w-25'>
-          <div className='text-center pb-1'>
-            <h4>Verified Users</h4>
-          </div>
-          <hr />
-          <div className=''>
-            <h5>Total: {employeeCount}</h5>
-          </div>
-        </div>
-        <div className='px-3 pt-2 pb-3 border shadow-sm w-25'>
+    <div> 
+      <div className='mt-4 px-5 pt-3'>
+    <center><h3>Count Statistics</h3></center>
+  </div>
+       <div className='p-3 d-flex justify-content-around mt-3'>
+        <div className='px-3 pt-2 pb-3 border shadow-sm w-50'>
           <div className='text-center pb-1'>
             <h4>Verified Vehicles</h4>
           </div>
           <hr />
           <div className=''>
-            <h5>Total: {vCount}</h5>
+            <h5>Total: {approvedVehicleCount}</h5>
           </div>
+          <canvas ref={chartVehicleRef} width='7' height='3'></canvas>
+        </div>
+        <div className='px-3 pt-2 pb-3 border shadow-sm w-50'>
+          <div className='text-center pb-1'>
+            <h4>Verified Users</h4>
+          </div>
+          <hr />
+          <div className=''>
+            <h5>Total: {approvedUserCount}</h5>
+          </div>
+          <canvas ref={chartUserRef} width='7' height='3'></canvas>
         </div>
       </div>
-
       {/* Bar Chart */}
-      <div className='mt-4 px-5 pt-3'>
-        <h3>Count Statistics</h3>
-        <canvas ref={chartRef} width='7' height='1'></canvas>
-      </div>
+     
 
       {/* List of admin  */}
       <div className='mt-4 px-5 pt-3'>
@@ -134,13 +187,11 @@ function Home() {
           <thead>
             <tr>
               <th>Email</th>
-              <th>Action</th>
             </tr>
           </thead>
           <tbody>
             <tr>
-              <td>Admin</td>
-              <td>Admin</td>
+              <td>admin@gmail.com</td>
             </tr>
             {/* Add more rows as needed */}
           </tbody>

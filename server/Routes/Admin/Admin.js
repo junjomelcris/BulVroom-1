@@ -48,20 +48,7 @@ router.get('/adminCount', (req, res) => {
     return res.json(result);
   })
 })
-router.get('/userCount', (req, res) => {
-  const sql = "Select count(id) as users from users";
-  con.query(sql, (err, result) => {
-    if (err) return res.json({ Error: "Error in runnig query" });
-    return res.json(result);
-  })
-})
-router.get('/vCount', (req, res) => {
-  const sql = "Select count(id) as vehicles from vehicles";
-  con.query(sql, (err, result) => {
-    if (err) return res.json({ Error: "Error in runnig query" });
-    return res.json(result);
-  })
-})
+
 
 
 
@@ -341,6 +328,35 @@ router.post('/createVehicle', (req, res) => {
       res.status(200).json({ Status: 'Success', Message: 'Vehicle created successfully' });
     }
   });
+});
+router.get('/userCountpen', (req, res) => {
+  const sql = "SELECT COUNT(id) AS users FROM users WHERE status = 'pending'";
+  con.query(sql, (err, result) => {
+      if(err) return res.json({Error: "Error in runnig query"});
+      return res.json(result);
+  })
+})
+router.get('/userCount', (req, res) => {
+  const sql = "SELECT COUNT(id) AS users FROM users WHERE status = 'approved'";
+  con.query(sql, (err, result) => {
+      if(err) return res.json({Error: "Error in runnig query"});
+      return res.json(result);
+  })
+})
+router.get('/vCount', (req, res) => {
+const sql = "SELECT COUNT(id) AS vehicles FROM vehicles WHERE status = 'approved'";
+con.query(sql, (err, result) => {
+    if (err) return res.json({ Error: "Error in running query" });
+    return res.json(result);
+});
+});
+
+router.get('/pendingvCount', (req, res) => {
+const sql = "SELECT COUNT(id) AS vehicles FROM vehicles WHERE status = 'pending'";
+con.query(sql, (err, result) => {
+    if (err) return res.json({ Error: "Error in running query" });
+    return res.json(result);
+});
 });
 
 export default router;

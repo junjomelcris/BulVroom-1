@@ -56,7 +56,7 @@ function Dashboard() {
 									<i className="fs-4 bi-car-front"></i> <span className="ms-1 d-none d-sm-inline">Manage Vehicles</span> </Link>
 							</li>
 							<li>
-								<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" integrity="sha512-...." crossorigin="anonymous" />
+								<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" integrity="sha512-...." crossOrigin="anonymous" />
 
 								<Link to="/transactions" className="nav-link px-0 align-middle text-white">
 									<i className="fs-4 fas fa-book"></i> <span className="ms-1 d-none d-sm-inline">Transactions</span>
