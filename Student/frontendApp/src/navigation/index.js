@@ -28,6 +28,8 @@ import BookingScreen from '../screens/BookingScreen/BookingScreen';
 import VerificationScreen from '../screens/SignUpScreen/VerificationScreen/VerificationScreen';
 import BookingSummaryScreen from '../screens/BookingScreen/BookingSummaryScreen';
 //import BookingScreen from '../screens/BookingScreen/BookingScreen';
+import MyBooking from '../screens/BookingScreen/MyBooking';
+import RenterBookingSummary from '../screens/BookingScreen/RenterBookingSummary';
 
 
 const Navigation = () => {
@@ -72,6 +74,8 @@ const Navigation = () => {
         <Stack.Screen name="BookingScreen" component={BookingScreen} />
         <Stack.Screen name="verify" component={VerificationScreen} />
         <Stack.Screen name="summary" component={BookingSummaryScreen} />  
+        <Stack.Screen name="myBooking" component={MyBooking}/>
+        <Stack.Screen name="renterBookingSummary" component={RenterBookingSummary}/>
         {/*<Stack.Screen name="BookingScreen" component={BookingScreen} />*/}
 
         

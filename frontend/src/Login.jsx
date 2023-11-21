@@ -9,6 +9,7 @@ function Login() {
         email: '',
         password: ''
     })
+    
     const navigate = useNavigate()
     const [error, setError] = useState('')
 
@@ -17,6 +18,9 @@ function Login() {
         axios.post('https://bulvroom.onrender.com/login', values)
         .then(res => {
             if(res.data.Status === 'Success') {
+                localStorage.setItem('id', res.data.result[0].id);
+                localStorage.setItem('auth', true);
+                console.log(res.data);
                 navigate('/');
             } else {
                 setError(res.data.Error);

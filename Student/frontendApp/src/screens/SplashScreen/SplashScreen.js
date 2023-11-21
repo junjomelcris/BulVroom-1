@@ -124,23 +124,23 @@ const styles = StyleSheet.create({
   },
   welcome: {
     color: 'black',
-    fontFamily: 'Poppins',
-    fontWeight: 'bold',
+    fontFamily: 'Roboto',
+    fontWeight: '900',
     fontSize: windowWidth * 0.04,
     marginTop: windowHeight * -0.01,
     marginBottom: windowHeight * 0.01,
   },
   welcome1: {
     color: 'white',
-    fontFamily: 'Poppins',
-    fontWeight: 'bold',
+    fontFamily: 'Roboto',
+    fontWeight: '900',
     fontSize: windowWidth * 0.16,
     marginTop: windowHeight * 0.25,
   },
   content: {
     fontSize: windowWidth * 0.04,
     color: '#ffffff',
-    fontFamily: 'Poppins',
+    fontFamily: 'Roboto',
     padding: windowHeight * 0.01,
     textAlign: 'center',
   },
@@ -163,7 +163,7 @@ const styles = StyleSheet.create({
   },
   appName: {
     fontSize: windowWidth * 0.10, // Adjust the font size as needed
-    fontWeight: 'bold',
+    fontWeight: '900',
     color: '#5db370',
     marginTop: 250,
     fontStyle: 'italic'

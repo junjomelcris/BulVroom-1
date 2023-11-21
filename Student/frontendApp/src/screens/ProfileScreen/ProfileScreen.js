@@ -14,7 +14,7 @@ import {
 import { Card } from 'react-native-paper';
 import Icon from 'react-native-vector-icons/Ionicons';
 import Logo from '../../../assets/images/bulv.png';
-import { useNavigation,useFocusEffect } from '@react-navigation/native';
+import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import CustomButton from '../../components/CustomButton/CustomButton';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
@@ -116,6 +116,10 @@ const ProfileScreen = () => {
     navigation.navigate('Vehicles');
   };
 
+  const onMyBooking = () => {
+    navigation.navigate('myBooking');
+  };
+
   const renderStatusIcon = () => {
     if (userData) {
       if (userData.status === 'approved') {
@@ -208,6 +212,13 @@ const ProfileScreen = () => {
           </View>
         </TouchableOpacity>
         <View style={styles.line} />
+        <TouchableOpacity onPress={onMyBooking}>
+          <View style={styles.itemContainer}>
+            <Icon name="book-outline" style={styles.icon} />
+            <Text style={styles.itemText}>MY BOOKINGS</Text>
+          </View>
+        </TouchableOpacity>
+        <View style={styles.line} />
         <TouchableOpacity onPress={onNotifPressed}>
           <View style={styles.itemContainer}>
             <Icon name="notifications-outline" style={styles.icon} />
@@ -237,7 +248,7 @@ const ProfileScreen = () => {
         </TouchableOpacity>
         <View style={styles.line} />
         <TouchableOpacity onPress={handleLogout} style={styles.logoutButtonContainer}>
-          <CustomButton mode="elevated" text="Log Out" />
+          <CustomButton style={styles.btn} mode="elevated" text="Log Out"  labelStyle={{ color: '#2ecc71' }} />
         </TouchableOpacity>
       </Card.Content>
     </Card>
@@ -346,6 +357,11 @@ const styles = StyleSheet.create({
     width: '90%',
     marginTop: 20,
     alignSelf: 'center',
+    
+  },
+  btn:{
+    backgroundColor:'white',
+    color: 'green',
   },
   image: {
     width: 120 / 2,  // Set both width and height to the same value

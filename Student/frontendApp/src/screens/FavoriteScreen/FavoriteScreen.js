@@ -71,7 +71,7 @@ const FavoriteScreen = ({ toggleBookmark }) => {
 const styles = StyleSheet.create({
   title: {
     fontSize: 24,
-    fontWeight: 'bold',
+    fontWeight: '900',
     marginBottom: 16,
   },
   emptyText: {
@@ -94,7 +94,7 @@ const styles = StyleSheet.create({
   },
   vehicleName: {
     fontSize: 18,
-    fontWeight: 'bold',
+    fontWeight: '900',
   },
   vehicleRate: {
     fontSize: 16,

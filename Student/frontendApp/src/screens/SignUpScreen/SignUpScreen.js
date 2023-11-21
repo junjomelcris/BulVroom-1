@@ -85,7 +85,7 @@ const toggleModal = () => {
         })
         .then((response) => {
           console.log(response.data.message);
-          if (response.data.message === 'email already exists') {
+          if (response.data.message === 'Email already exists') {
             ToastAndroid.show('Email Already Exists', ToastAndroid.SHORT);
           } else if (response.data.message === 'Username already exists') {
             ToastAndroid.show('Username Already Exists', ToastAndroid.SHORT);
@@ -141,7 +141,7 @@ const toggleModal = () => {
           onChangeText={(e) => setContact(e)}
           mode="outlined"
           label="Contact"
-          placeholder="Enter Contact"
+          placeholder="Enter Contact (Use Gcash connected mobile number)"
         />
 
         <CustomInputs
@@ -178,12 +178,11 @@ const toggleModal = () => {
           <Text style={styles.termsText}>I agree to the Terms and Conditions</Text>
         </TouchableOpacity>
 
-        <TouchableOpacity style={styles.btnContainer} onPress={onSignInPressed}>
+        <TouchableOpacity onPress={onSignInPressed}>
           <CustomButton
-            style={styles.btn}
+           
             mode="contained"
             text="Register"
-            labelStyle={styles.btnLabel}
             disabled={!agreeToTerms}
           />
         </TouchableOpacity>
@@ -196,69 +195,57 @@ const toggleModal = () => {
         </Text>
 
         <Modal
-          animationType="slide"
-          transparent={true}
-          visible={modalVisible}
-          onRequestClose={() => {
-            setModalVisible(false);
-          }}
-        >
-          <View style={styles.modalContainer}>
-            <ScrollView contentContainerStyle={styles.modalContent}>
-              <Text>Terms and Conditions for Vehicle Rental
+  animationType="slide"
+  transparent={true}
+  visible={modalVisible}
+  onRequestClose={() => {
+    setModalVisible(false);
+  }}
+>
+  <View style={styles.modalContainer}>
+    <ScrollView contentContainerStyle={styles.modalContent}>
+      <Text style={styles.heading}>Terms and Conditions for Vehicle Rental</Text>
 
-1. Introduction
-Welcome to Bul-Vroom! Please read these Terms and Conditions carefully before renting a vehicle from us. By renting a vehicle, you agree to abide by these terms and conditions.
+      {/* Section 1: Introduction */}
+      <Text style={styles.sectionHeading}>1. Introduction</Text>
+      <Text>Welcome to Bul-Vroom! Please read these Terms and Conditions carefully before renting a vehicle from us. By renting a vehicle, you agree to abide by these terms and conditions.</Text>
 
-2. Policies of Renting a Vehicle
-a. Eligibility: To rent a vehicle, you must be at least [18] years old and possess a valid driver's license.
+      {/* Section 2: Policies of Renting a Vehicle */}
+      <Text style={styles.sectionHeading}>2. Policies of Renting a Vehicle</Text>
+      <Text>a. Eligibility: To rent a vehicle, you must be at least [18] years old and possess a valid driver's license.</Text>
+      <Text>b. Reservation: Reservations are subject to vehicle availability.</Text>
+      <Text>c. Rental Period: The rental period begins on the agreed start date and time and ends on the agreed return date and time.</Text>
+      {/* Add other policies here... */}
 
-b. Reservation: Reservations are subject to vehicle availability.
+      {/* Section 3: Legal Terms of Renting a Vehicle */}
+      <Text style={styles.sectionHeading}>3. Legal Terms of Renting a Vehicle</Text>
+      <Text>a. Liability: You are liable for any accidents, damages, or injuries that occur during the rental period, unless covered by insurance.</Text>
+      <Text>b. Indemnification: You agree to indemnify us against any claims, losses, or liabilities arising from your use of the vehicle.</Text>
+      {/* Section 4: Sign-up Terms */}
+      <Text style={styles.sectionHeading}>4. Sign-up Terms</Text>
+      <Text>a. Registration: To rent a vehicle, you must provide accurate and complete information during the sign-up process.</Text>
+      <Text>b. Account Security: You are responsible for maintaining the confidentiality of your account login information.</Text>
 
-c. Rental Period: The rental period begins on the agreed start date and time and ends on the agreed return date and time.
+      {/* Section 5: Information Privacy Terms */}
+      <Text style={styles.sectionHeading}>5. Information Privacy Terms</Text>
+      <Text>a. Data Collection: We collect and use personal information as described in our Privacy Policy.</Text>
+      <Text>b. Consent: By using our service, you consent to the collection and use of your information as outlined in our Privacy Policy.</Text>
 
-d. Payment: Rental charges must be paid in advance. Additional fees may apply for mileage exceeding the agreed limit or late returns.
+      {/* Section 6: Miscellaneous */}
+      <Text style={styles.sectionHeading}>6. Miscellaneous</Text>
+      <Text>a. Severability: If any provision of these terms is found to be invalid or unenforceable, it will not affect the validity of the remaining provisions.</Text>
+      <Text>b. Changes: We may modify these terms at any time, and it is your responsibility to review them periodically.</Text>
 
-e. Insurance: You are responsible for any damages to the vehicle during the rental period. We offer optional insurance coverage for an additional fee.
+      {/* Section 7: Contact Information */}
+      <Text style={styles.sectionHeading}>7. Contact Information</Text>
+      <Text>If you have any questions or concerns regarding these terms and conditions, please contact us at bulvroom7@gmail.com.</Text>
 
-f. Prohibited Use: The vehicle must not be used for illegal purposes, racing, off-roading, or transporting hazardous materials.
-
-g. Maintenance: You are responsible for checking and maintaining proper fluid levels and tire pressure during the rental.
-
-h. Return: The vehicle must be returned in the same condition as when rented, with a full tank of fuel, or as specified in your rental agreement.
-
-3. Legal Terms of Renting a Vehicle
-a. Liability: You are liable for any accidents, damages, or injuries that occur during the rental period, unless covered by insurance.
-
-b. Indemnification: You agree to indemnify us against any claims, losses, or liabilities arising from your use of the vehicle.
-
-c. Termination: We reserve the right to terminate the rental agreement if you breach any terms or misuse the vehicle.
-
-4. Sign-up Terms
-a. Registration: To rent a vehicle, you must provide accurate and complete information during the sign-up process.
-
-b. Account Security: You are responsible for maintaining the confidentiality of your account login information.
-
-5. Information Privacy Terms
-a. Data Collection: We collect and use personal information as described in our Privacy Policy.
-
-b. Consent: By using our service, you consent to the collection and use of your information as outlined in our Privacy Policy.
-
-6. Miscellaneous
-
-a. Severability: If any provision of these terms is found to be invalid or unenforceable, it will not affect the validity of the remaining provisions.
-
-b. Changes: We may modify these terms at any time, and it is your responsibility to review them periodically.
-
-7. Contact Information
-If you have any questions or concerns regarding these terms and conditions, please contact us at bulvroom@gmail.com.</Text>
-              <Text>Your Terms and Conditions Here</Text>
-              <TouchableOpacity onPress={() => setModalVisible(false)}>
-                <Text style={styles.closeText}>Close</Text>
-              </TouchableOpacity>
-            </ScrollView>
-          </View>
-        </Modal>
+      <TouchableOpacity onPress={() => setModalVisible(false)}>
+        <Text style={styles.closeText}>Close</Text>
+      </TouchableOpacity>
+    </ScrollView>
+  </View>
+</Modal>
       </ScrollView>
     </KeyboardAvoidingView>
   );
@@ -275,9 +262,9 @@ const styles = StyleSheet.create({
     minHeight: height,
   },
   title: {
-    fontFamily: 'poppins',
+    fontFamily: 'Roboto',
     fontSize: 30,
-    fontWeight: 'bold',
+    fontWeight: '900',
     color: 'black',
     margin: 10,
   },
@@ -297,31 +284,33 @@ const styles = StyleSheet.create({
     margin: 15
   },
   termsText: {
-    fontFamily: 'poppins',
+    fontFamily: 'Roboto',
     fontSize: 14,
     color: 'black',
     marginLeft: 8,
   },
   btnContainer: {
-    width: width * 0.9,
+    elevation: 4,
   },
   btn: {
     marginVertical: 20,
     backgroundColor: '#2ecc71',
+    
   },
   btnLabel: {
     color: 'white',
     fontSize: 20,
   },
   text: {
-    fontFamily: 'poppins',
+    fontFamily: 'Roboto',
     color: 'black',
     fontSize: 14,
     marginVertical: 10,
     letterSpacing: 1.2,
   },
   signInText: {
-    color: '#59C4CB',
+    color: '#2ecc71',
+    textDecorationLine: 'underline',
   },
   modalContainer: {
     flex: 1,
@@ -336,7 +325,7 @@ const styles = StyleSheet.create({
     width: width * 0.9,
   },
   closeText: {
-    fontFamily: 'poppins',
+    fontFamily: 'Roboto',
     fontSize: 14,
     color: '#59C4CB',
     textAlign: 'right',
@@ -347,9 +336,9 @@ const styles = StyleSheet.create({
     marginTop: 10,
   },
   openTermsButtonText: {
-    fontFamily: 'poppins',
+    fontFamily: 'Roboto',
     fontSize: 14,
-    color: '#59C4CB',
+    color: '#2ecc71',
   },
 });
 

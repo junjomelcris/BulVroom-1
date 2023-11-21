@@ -17,7 +17,7 @@ import { RadioButton } from 'react-native-paper';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { storage } from '../../../firebase';
 import { ref, uploadBytesResumable, getDownloadURL } from 'firebase/storage';
-import { launchImageLibrary } from 'react-native-image-picker';
+import * as ImagePicker from 'react-native-image-picker';
 
 const AddVehicle = () => {
   const [vehicleData, setVehicleData] = useState({
@@ -43,9 +43,9 @@ const AddVehicle = () => {
   const [isLoading, setLoading] = useState(false);
   const vehicleFeatures = {
     Motorcycle: ['Cellphone Holder', 'Hazard Light ', 'Fairings', 'Disk Brake', 'ABS', 'Drum Brake', 'Suspension', 'None'],
-    Sedan: ['Airconditioned', 'Infotainment System', 'Audio System', 'Keyless Entry and Ignition', 'Sunroof/Moonroof' , 'ABS', 'None'],
-    SUV: ['Airconditioned', 'Infotainment System', 'Audio System', 'Keyless Entry and Ignition', 'Sunroof/Moonroof' , 'ABS', 'None'],
-    Van: ['Roof Rails','Overhead Bins/Storage','Entertainment Systems','Sliding Doors', 'Rearview Camera', 'Infotainment System', 'None'],
+    Sedan: ['Airconditioned', 'Infotainment System', 'Audio System', 'Keyless Entry and Ignition', 'Sunroof/Moonroof', 'ABS', 'None'],
+    SUV: ['Airconditioned', 'Infotainment System', 'Audio System', 'Keyless Entry and Ignition', 'Sunroof/Moonroof', 'ABS', 'None'],
+    Van: ['Roof Rails', 'Overhead Bins/Storage', 'Entertainment Systems', 'Sliding Doors', 'Rearview Camera', 'Infotainment System', 'None'],
     Others: ['Others', 'None'],
   };
   const vehicleTypes = ['Motorcycle', 'Sedan', 'SUV', 'Van', 'Others'];
@@ -121,20 +121,32 @@ const AddVehicle = () => {
   };
 
   const selectImage = async () => {
-    const result = await launchImageLibrary(options, (response)=>{
-      if (response.didCancel) {
-        console.log('Image selection canceled');
-      } else if (response.error) {
-        console.error('Image selection error: ', response.error);
-        // Handle the error appropriately, such as displaying an alert
-        alert('Error selecting image');
-      } else {
-        // Image selected successfully, update the galleryPhoto state
-         setGalleryPhoto(response.assets[0].uri);
-    console.log(result);
-      }
+    let result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      allowsEditing: false,
+      aspect: [4, 3],
+      quality: 1,
     });
-   
+
+    if (!result.canceled) {
+      setGalleryPhoto(result.assets[0].uri);
+      console.log(result.assets[0].uri);
+    }
+
+    // const result = await ImagePicker.launchImageLibraryAsync(options, (response)=>{
+    //   if (response.didCancel) {
+    //     console.log('Image selection canceled');
+    //   } else if (response.error) {
+    //     console.error('Image selection error: ', response.error);
+    //     // Handle the error appropriately, such as displaying an alert
+    //     alert('Error selecting image');
+    //   } else {
+    //     // Image selected successfully, update the galleryPhoto state
+    //      setGalleryPhoto(response.assets[0].uri);
+    // console.log(result);
+    //   }
+    // });
+
   };
 
   const uploadImageAndAddVehicle = async () => {
@@ -166,27 +178,27 @@ const AddVehicle = () => {
         uploadTask.on('state_changed', (snapshot) => {
           // You can add progress handling here
         },
-        (error) => {
-          console.error('Error uploading image: ', error);
-          setLoading(false);
-        },
-        () => {
-          getDownloadURL(storageRef)
-            .then((downloadURL) => {
-              setVehicleData((prevData) => ({
-                ...prevData,
-                vehicle_image: downloadURL,
-              }));
-              console.log('Image uploaded successfully. URL:', downloadURL);
-              vehicleData.vehicle_image = downloadURL;
-              console.log('Image uploaded successfully. URL:', vehicleData.vehicle_image);
-              addVehicle();
-            })
-            .catch((error) => {
-              console.error('Error getting download URL: ', error);
-              setLoading(false);
-            });
-        });
+          (error) => {
+            console.error('Error uploading image: ', error);
+            setLoading(false);
+          },
+          () => {
+            getDownloadURL(storageRef)
+              .then((downloadURL) => {
+                setVehicleData((prevData) => ({
+                  ...prevData,
+                  vehicle_image: downloadURL,
+                }));
+                console.log('Image uploaded successfully. URL:', downloadURL);
+                vehicleData.vehicle_image = downloadURL;
+                console.log('Image uploaded successfully. URL:', vehicleData.vehicle_image);
+                addVehicle();
+              })
+              .catch((error) => {
+                console.error('Error getting download URL: ', error);
+                setLoading(false);
+              });
+          });
       } catch (error) {
         console.error('Error while processing the image: ', error);
         setLoading(false);
@@ -227,7 +239,8 @@ const AddVehicle = () => {
                 onPress: () => {
                   // Navigate to the 'Vehicles' screen or any other action
                   console.log('OK Pressed');
-                },},]);
+                },
+              },]);
           navigation.navigate('Vehicles');
         } else {
           console.error('Error adding vehicle:', data.Message);

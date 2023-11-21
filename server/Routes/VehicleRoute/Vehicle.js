@@ -94,6 +94,33 @@ router.post('/api/transaction', async (req, res) => {
   }
 });
 
+router.put('/api/transaction/:transactionId', async (req, res) => {
+  const { gcash_ref_no } = req.body;
+  const { transactionId } = req.params;
+
+  const query = `
+    UPDATE transactions 
+    SET gcash_ref_no = ?
+    WHERE id = ?
+  `;
+
+  const values = [gcash_ref_no, transactionId];
+
+  try {
+    con.query(query, values, (error, result) => {
+      if (error) {
+        console.error('Error updating transaction:', error);
+        res.status(500).json({ message: 'Internal server error' });
+      } else {
+        res.status(200).json({ message: 'Transaction updated' });
+      }
+    });
+  } catch (error) {
+    console.error('Error updating transaction:', error);
+    res.status(500).json({ message: 'Internal server error' });
+  }
+});
+
 router.post('/bookmark-vehicle', (req, res) => {
   const { userId, vehicleId } = req.body;
   const insertBookmarkQuery = 'INSERT INTO user_bookmarks (user_id, vehicle_id) VALUES (?, ?)';
@@ -231,19 +258,64 @@ router.post('/createVehicle/app', (req, res) => {
 });
 
 router.get('/api/approved-vehicles', (req, res) => {
-  // Query your database to fetch approved vehicles
-  // Replace the database query with your actual query code
-  const query = 'SELECT * FROM vehicles WHERE status = ?';
+  const query = `
+    SELECT vehicles.*, rating_data.rating_count, rating_data.rating_values
+    FROM vehicles
+    LEFT JOIN (
+      SELECT vehicle_id, COUNT(vehicle_id) AS rating_count, GROUP_CONCAT(rating) AS rating_values
+      FROM ratings
+      GROUP BY vehicle_id
+    ) AS rating_data ON vehicles.vehicle_id = rating_data.vehicle_id
+    LEFT JOIN transactions ON vehicles.vehicle_id = transactions.vehicle_id
+    WHERE vehicles.status = ? AND (transactions.vehicle_id IS NULL OR transactions.status <> 2)
+    GROUP BY vehicles.vehicle_id`;
+
   const status = 'approved';
 
-  // Execute the query to fetch approved vehicles
   con.query(query, [status], (err, results) => {
     if (err) {
       console.error('Error fetching approved vehicles:', err);
       return res.status(500).json({ Status: 'Error', Message: 'Internal Server Error' });
     }
 
-    // Send the list of approved vehicles as a JSON response
+    res.status(200).json(results);
+  });
+});
+
+router.get('/api/vehicles-per-type-count', (req, res) => {
+  const query = `
+    SELECT vehicles.type, COUNT(*) as count
+    FROM vehicles
+    WHERE status = ?
+    GROUP BY vehicles.type
+  `;
+
+  const status = 'approved';
+
+  con.query(query, [status], (err, results) => {
+    if (err) {
+      console.error('Error fetching approved vehicles:', err);
+      return res.status(500).json({ Status: 'Error', Message: 'Internal Server Error' });
+    }
+
+    res.status(200).json(results);
+  });
+});
+
+router.get('/api/user-vehicle-count', (req, res) => {
+  const query = `
+    SELECT users.id, CONCAT(users.fName, ' ', users.lName) AS fullName, COUNT(vehicles.id) AS vehicleCount
+    FROM users
+    LEFT JOIN vehicles ON users.id = vehicles.id
+    GROUP BY users.id
+  `;
+
+  con.query(query, (err, results) => {
+    if (err) {
+      console.error('Error fetching user vehicle counts:', err);
+      return res.status(500).json({ Status: 'Error', Message: 'Internal Server Error' });
+    }
+
     res.status(200).json(results);
   });
 });
@@ -254,17 +326,17 @@ router.get('/api/vehicles', async (req, res) => {
 
     // Construct the SQL query based on the parameters
     let sql = `
-      SELECT 
-        *
-      FROM 
-        vehicles
-    `;
+  SELECT 
+    *
+  FROM 
+    vehicles
+`;
 
     // Conditionally add filters based on the query parameters
     const params = [];
 
     if (searchText) {
-      sql += ` WHERE make LIKE ? OR model LIKE ?`;
+      sql += ` AND (make LIKE ? OR model LIKE ?)`;
       params.push(`%${searchText}%`);
       params.push(`%${searchText}%`);
     }
@@ -280,33 +352,14 @@ router.get('/api/vehicles', async (req, res) => {
     }
 
     // Execute the SQL query
-    const [results] = await con.promise().query(sql, params);
+    const results = await db.query(sql, params);
 
-    // Extract the actual rows from the results object
-    const rows = Array.isArray(results) ? results[0] : [];
-
-    // Convert the rows to a plain JavaScript array
-    const plainRows = JSON.parse(JSON.stringify(rows));
-
-    res.json(plainRows);
+    res.json(results);
   } catch (error) {
     console.error('Error in /api/vehicles:', error);
     res.status(500).json({ error: 'Internal server error' });
   }
 });
-router.get('/vehicles', (req, res) => {
-  const query = 'SELECT * FROM vehicles'; // Select all data from the "users" table
-  con.query(query, (error, results) => {
-    if (error) {
-      console.error('Failed to fetch data:', error);
-      res.sendStatus(500);
-    } else {
-      res.json(results); // Send all user data as a JSON response
-    }
-  });
-});
-
-
 
 router.get('/transactions', (req, res) => {
   const query = 'SELECT transactions.*, CONCAT(users.fName, " ", users.lName) AS fullname, CONCAT(owners.fName, " ", owners.lName) AS owner FROM transactions LEFT JOIN users ON transactions.booker_id = users.id LEFT JOIN users AS owners ON transactions.owner_id = owners.id';
@@ -320,9 +373,14 @@ router.get('/transactions', (req, res) => {
   });
 });
 
-router.get('/transactions', (req, res) => {
-  const query = 'SELECT * FROM transactions';
-  con.query(query, (error, results) => {
+router.get('/renterbookings', (req, res) => {
+  const {
+    user_id,
+  } = req.body;
+
+  const query = 'SELECT * FROM transactions WHERE owner_id = ?';
+
+  con.query(query, [user_id], (error, results) => {
     if (error) {
       console.error('Failed to fetch data:', error);
       res.sendStatus(500);

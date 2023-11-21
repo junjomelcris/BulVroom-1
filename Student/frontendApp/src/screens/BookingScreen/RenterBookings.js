@@ -3,6 +3,9 @@ import { View, StyleSheet, Text, ScrollView, TouchableOpacity, Alert, Image, } f
 import Icon from 'react-native-vector-icons/Ionicons';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { getVehicles } from '../../screens/Vehicles/Vehicless'; // Import the getVehicles function
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import axios from 'axios';
+import { RefreshControl } from 'react-native';
 
 const DashboardScreen = () => {
   const [cardData, setCardData] = useState([]);
@@ -10,16 +13,37 @@ const DashboardScreen = () => {
   const navigation = useNavigation();
   const route = useRoute();
   const newVehicle = route.params?.newVehicle;
+  const [refreshing, setRefreshing] = useState(false);
 
   useEffect(() => {
     // Load vehicles data from vehicles.js when the component mounts
-    const vehicles = getVehicles();
+    //const vehicles = getVehicles();
     if (newVehicle) {
       // If a new vehicle was added, add it to the existing list
-      vehicles.push(newVehicle);
+      //vehicles.push(newVehicle);
+      setCardData({ ...cardData, newVehicle });
     }
-    setCardData(vehicles);
+    //setCardData(vehicles);
+    getBookings();
   }, [newVehicle]);
+
+  const getBookings = async () => {
+    const user_id = await AsyncStorage.getItem('id');
+    try {
+      const response = await axios.get(`https://bulvroom.onrender.com/bookedvehicle/${user_id}`);
+      setCardData(response.data);
+      console.log(response.data);
+      //setRefreshing(false);
+    } catch (error) {
+      console.log('Failed to fetch notifications data:', error);
+      //setRefreshing(false);
+    }
+  }
+
+  const onRefresh = () => {
+    setRefreshing(true);
+    getBookings();
+  };
 
   const toggleFavorite = (item, isFavorite) => {
     const updatedCardData = cardData.map((card) =>
@@ -30,7 +54,7 @@ const DashboardScreen = () => {
 
   const onCarCardPress = (item) => {
     // Navigate to the 'CarDetails' screen and pass the car data
-    navigation.navigate('RenterBookings', { car: item });
+    navigation.navigate('renterBookingSummary', { bookingData: item });
   };
 
   const onBackPressed = () => {
@@ -44,39 +68,59 @@ const DashboardScreen = () => {
   };
 
   const approveVehicle = (item) => {
-    // Change the status of the vehicle to "approved"
-    item.status = 'APPROVED';
-    Alert.alert('Success', 'Moved to done bookings.');
-    // You may want to update the backend or perform other actions here.
+    console.log(item);
 
-    // Reload the data by refetching the vehicles from the source
-    const updatedVehicles = getVehicles();
-    setCardData(updatedVehicles);
+    try {
+      Alert.alert("Approve Booking",
+        "Do you want to approve this booking?",
+        [
+          {
+            text: 'Yes',
+            onPress: async () => {
+              const response = await axios.put(`https://bulvroom.onrender.com/bookedvehicle/${item.transaction_id}`, {
+                status: 2
+              });
+              if (response.data.message == "Status updated successfully") {
+                Alert.alert("Booking Approved", "Booking Approved Successful.");
+                getBookings();
+              }
+            },
+          },
+          {
+            text: 'No',
+            onPress: () => console.log('No Pressed'),
+          },
+        ]);
+    } catch (error) {
+      console.log('Failed to approved:', error);
+    }
   };
 
   // Filter vehicles based on the showPending state
   const filteredVehicles = showPending
-    ? cardData.filter((item) => item.status === 'PENDING')
-    : cardData.filter((item) => item.status === 'APPROVED');
+    ? cardData.filter((item) => item.transaction_status === 1)
+    : cardData.filter((item) => item.transaction_status === 2);
 
   const myComponents = filteredVehicles.map((item) => (
     <TouchableOpacity
-      key={item.id}
+      key={item.transaction_id}
       style={styles.card}
       onPress={() => onCarCardPress(item)} // Navigate to CarDetails on press
-    > 
-     <View style={styles.row}>
-        <Image source={require('../../../assets/images/sample.png')} style={styles.VecImage} />
+    >
+      <View style={styles.row}>
+        <Image source={{
+          uri: item.vehicle_image
+        }} style={styles.VecImage} />
         <View style={styles.textContainer}>
           <Text style={styles.vehicleTitle}>{item.make} {item.model}</Text>
           <Text style={styles.vehicleInfo}>Type: {item.type}</Text>
           <Text style={styles.vehicleInfo}>Rental Price: {item.rate}</Text>
-          <Text style={styles.vehicleStatus}>{item.status}</Text>
+          <Text style={styles.vehicleStatus}>{item.transaction_status === 1 ? "Pending" : "Done"}</Text>
         </View>
       </View>
-      {item.status === 'PENDING' && (
+      {item.transaction_status === 1 && (
         <TouchableOpacity onPress={() => approveVehicle(item)} style={styles.approveButton}>
-          <Text style={styles.approveButtonText}>Mark as done</Text>
+          <Text style={styles.approveButtonText}>Approve</Text>
         </TouchableOpacity>
       )}
     </TouchableOpacity>
@@ -90,24 +134,24 @@ const DashboardScreen = () => {
         </TouchableOpacity>
         <View style={styles.titleCenter}>
           <Icon name="book" style={styles.carIcon}></Icon>
-          <Text style={styles.titleText}>  My Bookings</Text>
+          <Text style={styles.titleText}> My Bookings</Text>
         </View>
       </View>
       <View style={styles.filterButtons}>
-          <TouchableOpacity
-            onPress={() => setShowPending(true)}
-            style={[styles.filterButton, showPending && styles.activeFilterButton]}
-          >
-            <Text style={[styles.filterButtonText, showPending && styles.activeFilterButtonText]}>On Process</Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            onPress={() => setShowPending(false)}
-            style={[styles.filterButton, !showPending && styles.activeFilterButton]}
-          >
-            <Text style={[styles.filterButtonText, !showPending && styles.activeFilterButtonText]}>Done</Text>
-          </TouchableOpacity>
-        </View>
-      <ScrollView style={styles.scrollView}>
+        <TouchableOpacity
+          onPress={() => setShowPending(true)}
+          style={[styles.filterButton, showPending && styles.activeFilterButton]}
+        >
+          <Text style={[styles.filterButtonText, showPending && styles.activeFilterButtonText]}>On Process</Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          onPress={() => setShowPending(false)}
+          style={[styles.filterButton, !showPending && styles.activeFilterButton]}
+        >
+          <Text style={[styles.filterButtonText, !showPending && styles.activeFilterButtonText]}>Approved</Text>
+        </TouchableOpacity>
+      </View>
+      <ScrollView style={styles.scrollView} refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}>
         {myComponents}
       </ScrollView>
     </View>
@@ -157,7 +201,7 @@ const styles = StyleSheet.create({
   },
   titleText: {
     fontSize: 20,
-    fontWeight: 'bold',
+    fontWeight: '900',
     color: 'white',
   },
   addButton: {
@@ -172,7 +216,7 @@ const styles = StyleSheet.create({
   addButtonText: {
     color: 'white',
     fontSize: 16,
-    fontWeight: 'bold',
+    fontWeight: '900',
   },
   scrollView: {
     flex: 1,
@@ -188,7 +232,7 @@ const styles = StyleSheet.create({
   },
   vehicleTitle: {
     fontSize: 18,
-    fontWeight: 'bold',
+    fontWeight: '900',
     marginBottom: 8,
   },
   vehicleInfo: {
@@ -211,7 +255,7 @@ const styles = StyleSheet.create({
   approveButtonText: {
     color: 'white',
     fontSize: 16,
-    fontWeight: 'bold',
+    fontWeight: '900',
   },
   filterButtons: {
     marginTop: 25,
@@ -228,7 +272,7 @@ const styles = StyleSheet.create({
   },
   filterButtonText: {
     fontSize: 16,
-    
+
   },
   activeFilterButton: {
     backgroundColor: '#2ecc71',
@@ -239,3 +283,5 @@ const styles = StyleSheet.create({
 });
 
 export default DashboardScreen;
+
+

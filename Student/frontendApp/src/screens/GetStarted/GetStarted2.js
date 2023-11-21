@@ -93,7 +93,7 @@ const styles = StyleSheet.create({
   
   imageContainer: {
     top: -70,
-    left: windowWidth * 0.0,
+    left: windowWidth * 0.1,
     width: windowWidth,
     justifyContent: 'center',
     alignItems: 'center',
@@ -113,20 +113,20 @@ const styles = StyleSheet.create({
   },
   appName: {
     color: '#333',
-    fontFamily: 'Poppins-Bold',
+    fontFamily: 'Roboto',
     fontSize: windowWidth * 0.08,
     marginBottom: 10,
   },
   appDescription: {
     color: '#555',
-    fontFamily: 'Poppins-Regular',
+    fontFamily: 'Roboto',
     fontSize: windowWidth * 0.04,
     marginBottom: 20,
   },
   appContent: {
     fontSize: windowWidth * 0.04,
     color: '#777',
-    fontFamily: 'Poppins-Light',
+    fontFamily: 'Roboto',
     textAlign: 'center',
   },
   bottomContainer: {
@@ -146,7 +146,7 @@ const styles = StyleSheet.create({
   },
   nextButtonText: {
     color: 'white',
-    fontFamily: 'Poppins-Bold',
+    fontFamily: 'Roboto',
     fontSize: 20,
   },
   skipButton: {
@@ -160,7 +160,7 @@ const styles = StyleSheet.create({
     left: 150,
     color: 'black',
     textDecorationLine: 'underline',
-    fontFamily: 'Poppins-Bold',
+    fontFamily: 'Roboto',
     fontSize: 15,
     top: 100
   },

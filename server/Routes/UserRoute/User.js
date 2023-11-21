@@ -35,6 +35,7 @@ router.get('/user/:userId/vehicles', (req, res) => {
     res.json(result);
   });
 });
+
 router.get('/getVehicles', (req, res) => {
   const sql = "SELECT * FROM vehicles";
   con.query(sql, (err, result) => {
@@ -51,7 +52,6 @@ router.get('/get/:id', (req, res) => {
     return res.json({ Status: "Success", Result: result })
   })
 })
-
 
 router.put('/update/:id', (req, res) => {
   const id = req.params.id;
@@ -129,7 +129,6 @@ router.get('/logout/app', (req, res) => {
   return res.json({ Status: "Success" });
 })
 
-
 router.post('/register/app', (req, res) => {
   const fName = req.body.fName;
   const lName = req.body.lName;
@@ -198,6 +197,29 @@ router.post('/register/app', (req, res) => {
   });
 });
 
+router.post('/change-password', (req, res) => {
+  const userId = req.body.userId; // Assuming you send the user's ID along with the request
+  const newPassword = req.body.newPassword;
+
+  // Hash the new password
+  bcrypt.hash(newPassword, 10, (hashErr, hashedPassword) => {
+    if (hashErr) {
+      console.error('Failed to hash new password:', hashErr);
+      res.send({ message: 'Server error' });
+    } else {
+      // Update the user's password in the database
+      const updatePasswordQuery = 'UPDATE users SET password = ? WHERE id = ?';
+      con.query(updatePasswordQuery, [hashedPassword, userId], (updateErr, updateResult) => {
+        if (updateErr) {
+          console.error('Failed to update password:', updateErr);
+          res.send({ message: 'Server error' });
+        } else {
+          res.send({ message: 'Password changed successfully' });
+        }
+      });
+    }
+  });
+});
 
 function generateVerificationToken() {
   // Generate a random token
@@ -361,7 +383,6 @@ router.get('/users', (req, res) => {
   });
 });
 
-
 router.post('/verification', (req, res) => {
   const userProvidedVerification = req.body.verificationCodes;
 
@@ -386,9 +407,9 @@ router.post('/verification', (req, res) => {
 
 router.get('/notifications/:user_id', (req, res) => {
   const userId = req.params.user_id;
-  const query = 'SELECT * FROM notifications WHERE user_id = ?';
+  const query = 'SELECT notifications.*, vehicles.* FROM notifications LEFT JOIN vehicles ON notifications.vehicle_id = vehicles.vehicle_id WHERE notifications.user_id = ? OR (notifications.is_admin_made = 1 AND notifications.user_id = ?)';
 
-  con.query(query, [userId], (error, results) => {
+  con.query(query, [userId, userId], (error, results) => {
     if (error) {
       console.error('Failed to fetch notifications:', error);
       res.sendStatus(500);

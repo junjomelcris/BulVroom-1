@@ -30,11 +30,11 @@ const GetStarted3 = () => {
         </View>
       </View>
       <View style={styles.textContainer}>
-      <Text style={styles.appName}>LET'S RIDE</Text>
+        <Text style={styles.appName}>LET'S RIDE</Text>
         <Text style={styles.appDescription}>
-Let us put you in the driver's seat of your adventure</Text>
+          Let us put you in the driver's seat of your adventure</Text>
         <Text style={styles.appContent}>
-        So, are you ready to use the app and embark on hassle-free travels? With Bulvroom, the road to adventure is just a tap away!
+          So, are you ready to use the app and embark on hassle-free travels? With Bulvroom, the road to adventure is just a tap away!
         </Text>
       </View>
       <View style={styles.bottomContainer}>
@@ -91,10 +91,10 @@ const styles = StyleSheet.create({
     backgroundColor: '#FFFDD0',
     transform: [{ rotate: '180deg' }] // Rotate the half-circle 180 degrees
   },
-  
+
   imageContainer: {
-    top: -70,
-    left: windowWidth * 0.0,
+    top: -60,
+    left: windowWidth * 0.2,
     width: windowWidth,
     justifyContent: 'center',
     alignItems: 'center',
@@ -114,20 +114,20 @@ const styles = StyleSheet.create({
   },
   appName: {
     color: '#333',
-    fontFamily: 'Poppins-Bold',
+    fontFamily: 'Roboto',
     fontSize: windowWidth * 0.08,
     marginBottom: 10,
   },
   appDescription: {
     color: '#555',
-    fontFamily: 'Poppins-Regular',
+    fontFamily: 'Roboto',
     fontSize: windowWidth * 0.04,
     marginBottom: 20,
   },
   appContent: {
     fontSize: windowWidth * 0.04,
     color: '#777',
-    fontFamily: 'Poppins-Light',
+    fontFamily: 'Roboto',
     textAlign: 'center',
   },
   bottomContainer: {
@@ -147,7 +147,7 @@ const styles = StyleSheet.create({
   },
   nextButtonText: {
     color: 'white',
-    fontFamily: 'Poppins-Bold',
+    fontFamily: 'Roboto',
     fontSize: 20,
   },
   skipButton: {
@@ -161,7 +161,7 @@ const styles = StyleSheet.create({
     left: 150,
     color: 'black',
     textDecorationLine: 'underline',
-    fontFamily: 'Poppins-Bold',
+    fontFamily: 'Roboto',
     fontSize: 15,
     top: 100
   },

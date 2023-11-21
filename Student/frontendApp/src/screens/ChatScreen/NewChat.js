@@ -103,7 +103,7 @@ const styles = StyleSheet.create({
   titleText: {
     marginLeft: 5,
     fontSize: 20,
-    fontWeight: 'bold',
+    fontWeight: '900',
     color: 'black',
   },
   scrollView: {

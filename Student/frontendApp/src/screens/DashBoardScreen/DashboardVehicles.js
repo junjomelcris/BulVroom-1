@@ -85,8 +85,8 @@ const DashboardVehicles = ({ route }) => {
       vehiclepickupDropoffLocation: vehicle.pickupDropoffLocation,
       rate: vehicle.rate,
       vehicleId: vehicle.vehicle_id,
-      ownerId: vehicle.id
-
+      ownerId: vehicle.id,
+      user: vehicle
     });
   };
 
@@ -207,7 +207,7 @@ const toggleDescription = () => {
       </Text>
     </TouchableOpacity>
   </View>
-        <Text style={styles.head}>More pictures</Text>
+        {/* <Text style={styles.head}>More pictures</Text>
         <View style={styles.contain}>
       <View style={styles.collage}>
       <TouchableOpacity onPress={toggleModal} style={styles.keyImageContainer}>
@@ -235,7 +235,7 @@ const toggleDescription = () => {
         />
         </TouchableOpacity>
       </View>
-    </View>
+    </View> */}
       </ScrollView>
       <View style={styles.booknow}>
       <TouchableOpacity onPress={navigateToBookingScreen} style={styles.bookNowButton}>
@@ -283,7 +283,7 @@ const styles = StyleSheet.create({
   },
   titleText: {
     fontSize: 28,
-    fontWeight: 'bold',
+    fontWeight: '900',
     color: 'white',
   },
   detailsRow: {
@@ -308,7 +308,7 @@ const styles = StyleSheet.create({
   },
   vehicleDetailTitle: {
     fontSize: 16,
-    fontWeight: 'bold',
+    fontWeight: '900',
   },
   vehicleDetailValue: {
     fontSize: 30,
@@ -337,7 +337,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'flex-end',
     marginTop: 8,
-    fontWeight: 600,
+    fontWeight: '600',
   },
   RenterName: {
     fontSize: 18,
@@ -359,7 +359,7 @@ const styles = StyleSheet.create({
     marginLeft: 100,
     fontSize: 19,
     color: '#04AD4C',
-    fontWeight: 600,
+    fontWeight: '600',
   },
   titleBar: {
     flexDirection: 'row',
@@ -427,7 +427,7 @@ const styles = StyleSheet.create({
   },
   heading: {
     fontSize: 24,
-    fontWeight: 'bold',
+    fontWeight: '900',
     marginBottom: 16,
     color: 'black',
   },

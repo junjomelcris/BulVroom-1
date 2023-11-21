@@ -63,7 +63,7 @@ const DashBoardScreen = () => {
       })
       .catch((error) => {
         console.error('Error fetching approved vehicles:', error);
-        setLoading(true);
+        setLoading(false);
       });
   };
 
@@ -211,14 +211,14 @@ const DashBoardScreen = () => {
         </View>
       </View>
       {loading ? (
-         <View style={styles.cardContainer}>
-         <PlaceholderCard />
-         <PlaceholderCard />
-         <PlaceholderCard />
-         <PlaceholderCard />
-         <PlaceholderCard />
-         <PlaceholderCard />
-       </View>
+        <View style={styles.cardContainer}>
+          <PlaceholderCard />
+          <PlaceholderCard />
+          <PlaceholderCard />
+          <PlaceholderCard />
+          <PlaceholderCard />
+          <PlaceholderCard />
+        </View>
       ) : (
         <ScrollView
           ref={scrollViewRef}
@@ -253,22 +253,22 @@ const DashBoardScreen = () => {
                 }}
               >
                 <PaperCard key={vehicle.id} style={styles.card}>
-                <Image source={{ uri: vehicle.vehicle_image }} style={styles.VecImage} />
-                <Text style={styles.vehicleName}>
-                  {vehicle.make} {vehicle.model}
-                </Text>
-                <View style={styles.ratings}>
-                  <Icon name="star" style={styles.star}></Icon>
-                  <Icon name="star" style={styles.star}></Icon>
-                  <Icon name="star" style={styles.star}></Icon>
-                  <Icon name="star" style={styles.star}></Icon>
-                  <Icon name="star" style={styles.star}></Icon>
-                </View>
-                <Text style={styles.seater}>{vehicle.seatingCapacity}-Seater</Text>
-                <View style={styles.saveContainer}>
-                  <Text style={styles.price}>P{vehicle.rate}/DAY</Text>
-                </View>
-              </PaperCard>
+                  <Image source={{ uri: vehicle.vehicle_image }} style={styles.VecImage} />
+                  <Text style={styles.vehicleName}>
+                    {vehicle.make} {vehicle.model}
+                  </Text>
+                  <View style={styles.ratings}>
+                    <Icon name="star" style={styles.star}></Icon>
+                    <Icon name="star" style={styles.star}></Icon>
+                    <Icon name="star" style={styles.star}></Icon>
+                    <Icon name="star" style={styles.star}></Icon>
+                    <Icon name="star" style={styles.star}></Icon>
+                  </View>
+                  <Text style={styles.seater}>{vehicle.seatingCapacity}-Seater</Text>
+                  <View style={styles.saveContainer}>
+                    <Text style={styles.price}>P{vehicle.rate}/DAY</Text>
+                  </View>
+                </PaperCard>
               </TouchableOpacity>
             ))}
           </View>
@@ -305,7 +305,7 @@ const styles = StyleSheet.create({
   container: {
     height: '102%',
     width: '100%',
-    backgroundColor: 'rgba(0, 0, 0, 0)', 
+    backgroundColor: 'rgba(0, 0, 0, 0)',
     // Transparent background
   },
   swiperContainer: {
@@ -345,7 +345,7 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     marginHorizontal: 10,
     backgroundColor: '#ddd',
-    
+
     elevation: 9,
   },
   selectedButton: {

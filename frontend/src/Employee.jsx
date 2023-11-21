@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { Link, useNavigate } from 'react-router-dom';
 import ReactModal from 'react-modal';
-import { BsEye, BsCheck, BsX, BsSlash } from 'react-icons/bs';
+
 function Employee() {
   const [data, setData] = useState([]);
   const [filter, setFilter] = useState('all');
@@ -10,7 +10,6 @@ function Employee() {
   const [modalIsOpen, setModalIsOpen] = useState(false);
   const [modalImage, setModalImage] = useState('');
   const [modalTitle, setModalTitle] = useState('');
-  const [viewDataModalData, setViewDataModalData] = useState({});
 
   useEffect(() => {
     axios
@@ -105,12 +104,6 @@ function Employee() {
     setModalIsOpen(false);
   };
 
-  const handleOpenViewDataModal = (userData) => {
-    setViewDataModalData(userData);
-    setModalTitle('User Data');
-    setModalIsOpen(true);
-  };
-
   const filteredData = data.filter((user) => {
     if (filter === 'all') return true;
     if (filter === 'approved' && user.status === 'approved') return true;
@@ -124,6 +117,9 @@ function Employee() {
       <div className='d-flex justify-content-center mt-2'>
         <h3>USER MANAGEMENT</h3>
       </div>
+      <Link to="/employee/create" className='btn btn-success'>
+        Add Users
+      </Link>
       <div className='d-flex justify-content-start mt-2'>
         <div className='dropdown'>
           <button
@@ -160,7 +156,11 @@ function Employee() {
               <th>First Name</th>
               <th>Last Name</th>
               <th>Image</th>
-              <th>Driver's License</th>
+              <th>Username</th>
+              <th>Email</th>
+              <th>Address</th>
+              <th>Contact</th>
+              <th>Driver's License 1</th>
               <th>Valid ID</th>
               <th>Status</th>
               <th>Action</th>
@@ -179,35 +179,38 @@ function Employee() {
                     onClick={() => handleOpenModal(user.profile_pic, "Driver's License 1")}
                   />
                 </td>
+                <td>{user.username}</td>
+                <td>{user.email}</td>
+                <td>{user.address}</td>
+                <td>{user.contact}</td>
                 <td>
                   <button
                     onClick={() => handleOpenModal(user.driver_license_1, "Driver's License 1")}
-                    className='btn btn-sm btn-success me-2'
+                    className='btn btn-sm btn-light me-2'
                   >
-                    <BsEye />
+                    <span style={{ textDecoration: 'underline' }}>View Image</span>
                   </button>
                 </td>
                 <td>
                   <button
                     onClick={() => handleOpenModal(user.valid_id, 'Valid ID')}
-                    className='btn btn-sm btn-success me-2'
+                    className='btn btn-sm btn-light me-2'
                   >
-                    <BsEye />
+                    <span style={{ textDecoration: 'underline' }}>View Image</span>
                   </button>
                 </td>
                 <td>{user.status}</td>
                 <td>
                   <div className="mt-2">
-                  <button onClick={() => handleOpenViewDataModal(user)} className='btn btn-sm btn-success me-2'>
-                      View Data
-                    </button>
                     <button onClick={() => handleVerify(user.id)} className='btn btn-sm btn-success me-2'>
                       Approve
                     </button>
-                    <button onClick={() => handleDisApp(user.id)} className='btn btn-sm btn-success me-2'>
+                    <button onClick={() => handleDisApp(user.id)} className='btn btn-sm btn-dark me-2'>
                       Disapprove
                     </button>
-                    
+                    <button onClick={() => handleDelete(user.id)} className='btn btn-sm btn-danger'>
+                      Delete
+                    </button>
                   </div>
                 </td>
               </tr>
@@ -239,62 +242,6 @@ function Employee() {
         }}
       >
         <img src={modalImage} alt={modalTitle} style={{ maxWidth: '100%', maxHeight: '80vh' }} />
-        <button onClick={handleCloseModal} className="btn btn-danger mt-3">
-          Close
-        </button>
-      </ReactModal>
-
-      <ReactModal
-        isOpen={modalIsOpen && modalTitle === 'User Data'}
-        onRequestClose={handleCloseModal}
-        contentLabel="User Data Modal"
-        style={{
-          overlay: {
-            backgroundColor: 'rgba(0, 0, 0, 0.8)',
-          },
-          content: {
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            justifyContent: 'center',
-            top: '50%',
-            left: '50%',
-            right: 'auto',
-            bottom: 'auto',
-            marginRight: '-50%',
-            transform: 'translate(-50%, -50%)',
-          },
-        }}
-      >
-        <h2>User Data</h2>
-        <table className='table'>
-          <tbody>
-            <tr>
-              <td>First Name:</td>
-              <td>{viewDataModalData.fName}</td>
-            </tr>
-            <tr>
-              <td>Last Name:</td>
-              <td>{viewDataModalData.lName}</td>
-            </tr><tr>
-              <td>Username:</td>
-              <td>{viewDataModalData.username}</td>
-            </tr><tr>
-              <td>Email:</td>
-              <td>{viewDataModalData.email}</td>
-            </tr><tr>
-              <td>Address:</td>
-              <td>{viewDataModalData.address}</td>
-            </tr><tr>
-              <td>Contact:</td>
-              <td>{viewDataModalData.contact}</td>
-            </tr>
-            <tr>
-              <td>Status:</td>
-              <td>{viewDataModalData.status}</td>
-            </tr>
-          </tbody>
-        </table>
         <button onClick={handleCloseModal} className="btn btn-danger mt-3">
           Close
         </button>

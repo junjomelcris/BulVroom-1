@@ -1,54 +1,117 @@
-import React from 'react';
+import React, { useRef, useState } from 'react';
 import { View, Text, StyleSheet, Dimensions, TouchableOpacity } from 'react-native';
-import LottieView from 'lottie-react-native'; // Import LottieView
-import CustomButton from '../../components/CustomButton/CustomButton';
+import LottieView from 'lottie-react-native';
+import Swiper from 'react-native-swiper';
 import { useNavigation } from '@react-navigation/native';
 
-const GetStarted = () => {
+const OnboardingScreen = () => {
   const navigation = useNavigation();
+  const swiperRef = useRef(null);
+  const [activeSlide, setActiveSlide] = useState(0);
 
-  const onGetStartedPressed = () => {
-    navigation.navigate('Started2');
+  const slides = [
+    {
+      title: 'RENTING MADE EASY',
+      description: 'Your Key to Easy Vehicle Rentals',
+      animation: require('../../../assets/images/car.json'),
+      nextScreen: 'Started2',
+    },
+    {
+      title: 'DIVERSE FLEET',
+      description: 'No more hassles in finding the perfect vehicle for your trip',
+      animation: require('../../../assets/images/vehicle.json'),
+      nextScreen: 'Started3',
+    },
+    {
+      title: "LET'S RIDE",
+      description: "Let us put you in the driver's seat of your adventure",
+      animation: require('../../../assets/images/ride.json'),
+      nextScreen: 'Homes',
+    },
+  ];
+
+  const onGetStartedPressed = (nextScreen) => {
+    navigation.navigate(nextScreen);
   };
+
   const onSkipButtonPressed = () => {
     navigation.navigate('SignIn');
   };
 
+  const onIndexChanged = (index) => {
+    setActiveSlide(index);
+  };
+
+  const onNextButtonPressed = () => {
+    const nextIndex = activeSlide + 1;
+    if (nextIndex < slides.length) {
+      swiperRef.current.scrollBy(1);
+    } else {
+      onGetStartedPressed(slides[activeSlide].nextScreen);
+    }
+  };
+
   return (
-    <View style={styles.root}>
-      <View style={styles.circlenimage}>
-        <View style={styles.circleBackground}>
-          <View style={styles.circle} />
-        </View>
-        <View style={styles.imageContainer}>
-          {/* Replace the Image with LottieView */}
-          <LottieView
-            source={require('../../../assets/images/car.json')} // Replace with the path to your Lottie JSON file
-            autoPlay
-            loop={true} // Make the animation loop
-            style={styles.lottieAnimation} // Add a style for your Lottie animation
-          />
-        </View>
-      </View>
-      <View style={styles.textContainer}>
-        <Text style={styles.appName}>RENTING MADE EASY</Text>
-        <Text style={styles.appDescription}>Your Key to Easy Vehicle Rentals</Text>
-        <Text style={styles.appContent}>
-          The premier vehicle renting application designed to simplify the process of finding and booking rental cars. With Bulvroom, your journey begins with convenience and ease, as we redefine your travel experience.
-        </Text>
-      </View>
+    <View style={styles.container}>
+      <Swiper
+        ref={swiperRef}
+        style={styles.wrapper}
+        loop={false}
+        showsButtons={false}
+        showsPagination={false}
+        onIndexChanged={onIndexChanged}
+      >
+        {slides.map((slide, index) => (
+          <View key={index} style={styles.slide}>
+            <View style={styles.circlenimage}>
+              
+              <View style={styles.imageContainer}>
+                <LottieView
+                  source={slide.animation}
+                  autoPlay
+                  loop={true}
+                  style={styles.lottieAnimation}
+                />
+              </View>
+            </View>
+            <View style={styles.textContainer}>
+              <Text style={styles.appName}>{slide.title}</Text>
+              <Text style={styles.appDescription}>{slide.description}</Text>
+              <Text style={styles.appContent}>
+  Explore a wide range of vehicles tailored to your journey at BULVROOM. Find the perfect ride for your every adventure, ensuring a seamless and comfortable travel experience.
+</Text>
+
+
+            </View>
+          </View>
+        ))}
+      </Swiper>
       <View style={styles.bottomContainer}>
-        <View style={{ flexDirection: 'row', marginTop: 50, }}>
-          <Text style={styles.dot}>•</Text>
-          <Text style={styles.dot2}>•</Text>
-          <Text style={styles.dot2}>•</Text>
+        <View style={{ flexDirection: 'row', marginTop: 20 }}>
+          {slides.map((_, i) => (
+            <Text key={i} style={i === activeSlide ? styles.dot : styles.dot2}>
+              •
+            </Text>
+          ))}
         </View>
-        <TouchableOpacity onPress={onGetStartedPressed} style={styles.nextButton}>
-          <Text style={styles.nextButtonText}>Next</Text>
-        </TouchableOpacity>
-        <TouchableOpacity onPress={onSkipButtonPressed} style={styles.skipButton}>
-          <Text style={styles.skipButtonText}>SKIP</Text>
-        </TouchableOpacity>
+        {activeSlide === slides.length - 1 ? (
+          <TouchableOpacity onPress={() => onGetStartedPressed(slides[activeSlide].nextScreen)} style={styles.nextButton}>
+            <Text style={styles.nextButtonText}>Get Started</Text>
+          </TouchableOpacity>
+        ) : (
+          <TouchableOpacity onPress={onNextButtonPressed} style={styles.nextButton}>
+            <Text style={styles.nextButtonText}>Next</Text>
+          </TouchableOpacity>
+        )}
+        {activeSlide === slides.length - 1 ? (
+          <TouchableOpacity onPress={onSkipButtonPressed} style={styles.skipButton}>
+            <Text style={styles.skipButtonText}></Text>
+          </TouchableOpacity>
+        ) : (
+          <TouchableOpacity onPress={onSkipButtonPressed} style={styles.skipButton}>
+            <Text style={styles.skipButtonText}>SKIP</Text>
+          </TouchableOpacity>
+        )}
       </View>
     </View>
   );
@@ -58,14 +121,19 @@ const windowWidth = Dimensions.get('window').width;
 const windowHeight = Dimensions.get('window').height;
 
 const styles = StyleSheet.create({
-  root: {
+  container: {
+    flex: 1,
+    backgroundColor: 'white',
+  },
+  wrapper: {},
+  slide: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
   },
   circleBackground: {
     position: 'absolute',
-    top: windowHeight * .10 - windowWidth * 0.4,
+    top: windowHeight * 0.1 - windowWidth * 0.4,
     left: windowWidth * 0.1,
     width: windowWidth * 0.8,
     height: windowWidth * 0.8,
@@ -77,7 +145,7 @@ const styles = StyleSheet.create({
   dot: {
     fontSize: 45,
     marginHorizontal: 15,
-    color: '#2ec771'
+    color: '#2ec771',
   },
   dot2: {
     fontSize: 45,
@@ -89,9 +157,8 @@ const styles = StyleSheet.create({
     borderBottomLeftRadius: windowWidth * 0.9,
     borderBottomRightRadius: windowWidth * 0.9,
     backgroundColor: '#FFFDD0',
-    transform: [{ rotate: '180deg' }] // Rotate the half-circle 180 degrees
+    transform: [{ rotate: '180deg' }],
   },
-  
   imageContainer: {
     top: windowHeight * 0.109 - windowWidth * 0.35,
     left: windowWidth * 0.0,
@@ -114,27 +181,26 @@ const styles = StyleSheet.create({
   },
   appName: {
     color: '#333',
-    fontFamily: 'Poppins-Bold',
+    fontFamily: 'Roboto',
     fontSize: windowWidth * 0.08,
     marginBottom: 10,
   },
   appDescription: {
     color: '#555',
-    fontFamily: 'Poppins-Regular',
+    fontFamily: 'Roboto',
     fontSize: windowWidth * 0.04,
     marginBottom: 20,
   },
   appContent: {
     fontSize: windowWidth * 0.04,
     color: '#777',
-    fontFamily: 'Poppins-Light',
+    fontFamily: 'Roboto',
     textAlign: 'center',
   },
   bottomContainer: {
     position: 'absolute',
-    top: 350,
-    bottom: 20,
-    width: '80%',
+    bottom: 60,
+    width: '100%',
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -144,10 +210,11 @@ const styles = StyleSheet.create({
     borderRadius: 30,
     alignItems: 'center',
     paddingHorizontal: 35,
+    marginTop: 20,
   },
   nextButtonText: {
     color: 'white',
-    fontFamily: 'Poppins-Bold',
+    fontFamily: 'Roboto',
     fontSize: 20,
   },
   skipButton: {
@@ -155,16 +222,14 @@ const styles = StyleSheet.create({
     borderRadius: 30,
     alignItems: 'center',
     paddingHorizontal: 35,
+    marginTop: 10,
   },
   skipButtonText: {
-    position: 'absolute',
-    left: 150,
     color: 'black',
     textDecorationLine: 'underline',
-    fontFamily: 'Poppins-Bold',
+    fontFamily: 'Roboto',
     fontSize: 15,
-    top: 100
   },
 });
 
-export default GetStarted;
+export default OnboardingScreen;

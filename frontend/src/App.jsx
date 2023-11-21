@@ -1,42 +1,50 @@
-import React from 'react'
-import Login from './Login'
-import { BrowserRouter, Routes, Route } from 'react-router-dom'
-import Dashboard from './Dashboard'
-import Employee from './Employee'
-import Profile from './Profile'
-import Home from './Home'
-import AddEmployee from './AddEmployee'
-import EditEmployee from './EditEmployee'
-import Start from './Start'
-import EmployeeDetail from './EmployeeDetail'
-import EmployeeLogin from './EmployeeLogin'
-import Vehicles from './Vehicles'
-import AddVehicle from './AddVehicle'
-import Transactions from './Transactions'
+import React from 'react';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import Dashboard from './Dashboard';
+import Home from './Home';
+import Employee from './Employee';
+import Vehicles from './Vehicles';
+import Profile from './Profile';
+import AddEmployee from './AddEmployee';
+import EditEmployee from './EditEmployee';
+import AddVehicle from './AddVehicle';
+import Transactions from './Transactions';
+import Login from './Login';
+import Start from './Start';
+import EmployeeLogin from './EmployeeLogin';
 
 function App() {
-  return (
-    <BrowserRouter>
-      <Routes>
-        <Route path='/' element={<Dashboard />}>
-          <Route path='' element={<Home />}></Route>
-          <Route path='/employee' element={<Employee />}></Route>
-          <Route path='/vehicles' element={<Vehicles />}></Route>
-          <Route path='/profile' element={<Profile />}></Route>
-          <Route path='/saveData' element={<Profile />}></Route>
-          <Route path='/create' element={<AddEmployee />}></Route>
-          <Route path='/addvehicle' element={<AddVehicle />}></Route>
-          <Route path='/employeeEdit/:id' element={<EditEmployee />}></Route>
-          <Route path='/create' element={<AddEmployee />}></Route>
-          <Route path='/transactions' element={<Transactions />}></Route>
-        </Route>
-        <Route path='/login' element={<Login />}></Route>
-        <Route path='/start' element={<Start />}></Route>
-        <Route path='/employeeLogin' element={<EmployeeLogin />}></Route>
+  const isAuthenticated = localStorage.getItem('auth') === 'true';
 
+  const PrivateRoute = ({ element, ...props }) => {
+    return isAuthenticated ? element : <Navigate to="/login" />;
+  };
+
+  return (
+    <Router>
+      <Routes>
+        <Route path="login" element={<Login />} />
+        <Route path="start" element={<Start />} />
+        <Route path="employeeLogin" element={<EmployeeLogin />} />
+
+        <Route
+          path="/"
+          element={<PrivateRoute element={<Dashboard />} />}
+        >
+          <Route index element={<Home />} />
+          <Route path="employee" element={<Employee />}>
+            <Route path="create" element={<AddEmployee />} />
+            <Route path="edit/:id" element={<EditEmployee />} />
+          </Route>
+          <Route path="vehicles" element={<Vehicles />}>
+            <Route path="add" element={<AddVehicle />} />
+          </Route>
+          <Route path="profile" element={<Profile />} />
+          <Route path="transactions" element={<Transactions />} />
+        </Route>
       </Routes>
-    </BrowserRouter>
-  )
+    </Router>
+  );
 }
 
-export default App
+export default App;

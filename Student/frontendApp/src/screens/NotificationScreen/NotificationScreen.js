@@ -1,104 +1,86 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { View, StyleSheet, Image, ScrollView, Dimensions, Text, TouchableOpacity } from 'react-native';
 import { Searchbar, Card as PaperCard } from 'react-native-paper';
 import Icon from 'react-native-vector-icons/Ionicons';
 import { useNavigation } from '@react-navigation/native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import axios from 'axios';
+import { RefreshControl } from 'react-native';
 
 const { width, height } = Dimensions.get('window');
 
-const MyComponent = ({ imageSource, label, label2, rate, itemData, onToggleFavorite }) => {
+const MyComponent = ({ label, label2, date_time, itemData, onToggleFavorite }) => {
   const [isFavorite, setIsFavorite] = useState(true);
+  const navigation = useNavigation();
 
   const toggleFavorite = () => {
     setIsFavorite((prevIsFavorite) => !prevIsFavorite);
     onToggleFavorite(itemData, !isFavorite);
   };
 
-  return (
-<PaperCard style={styles.card}>
-  <View style={styles.fave}>
-    {/* Container for text elements */}
-    <View style={styles.textContainer}>
-      <Text style={styles.label}>{label}</Text>
-      <Text style={styles.label2}>{label2}</Text>
-      <Text style={styles.rate}>{rate}</Text>
-    </View>
-  </View>
-</PaperCard>
+  function formatDateTime(dateTimeString) {
+    const options = { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit', second: '2-digit', timeZoneName: 'short' };
+    const formattedDate = new Date(dateTimeString).toLocaleDateString('en-US', options);
+    return formattedDate;
+  }
 
+  const onPress = () => {
+    navigation.navigate('RenterBookings');
+  };
+
+  return (
+    <TouchableOpacity onPress={() => onPress()}>
+      <PaperCard style={styles.card}>
+        <View style={styles.fave}>
+          {/* Container for text elements */}
+          <View style={styles.textContainer}>
+            <Text style={styles.label}>{label}</Text>
+            <Text style={styles.label2}>{label2}</Text>
+            <Text style={styles.date_time}>{formatDateTime(date_time)}</Text>
+          </View>
+        </View>
+      </PaperCard>
+    </TouchableOpacity>
   );
 };
 
 const DashBoardScreen = () => {
   const navigation = useNavigation();
+  const [cardData, setCardData] = useState([]);
+  const [refreshing, setRefreshing] = useState(false);
 
-  const [cardData, setCardData] = useState([
-    {
-      id: '1',
-      label: 'This is a sample Notification',
-      label2: 'This is a sample notification only for front-end testing purposes.',
-      rate: '1:43 AM',
-    },
-    {
-        id: '2',
-        label: 'This is a sample Notification',
-        label2: 'This is a sample notification only for front-end testing purposes.',
-        rate: '1:43 AM',
-      },
-      {
-        id: '3',
-        label: 'This is a sample Notification',
-        label2: 'This is a sample notification only for front-end testing purposes.',
-        rate: '1:43 AM',
-      },
-      {
-          id: '4',
-          label: 'This is a sample Notification',
-          label2: 'This is a sample notification only for front-end testing purposes.',
-          rate: '1:43 AM',
-        },
-        {
-            id: '5',
-            label: 'This is a sample Notification',
-            label2: 'This is a sample notification only for front-end testing purposes.',
-            rate: '1:43 AM',
-          },
-          {
-              id: '6',
-              label: 'This is a sample Notification',
-              label2: 'This is a sample notification only for front-end testing purposes.',
-              rate: '1:43 AM',
-            },
-            {
-              id: '7',
-              label: 'This is a sample Notification',
-              label2: 'This is a sample notification only for front-end testing purposes.',
-              rate: '1:43 AM',
-            },
-            {
-                id: '8',
-                label: 'This is a sample Notification',
-                label2: 'This is a sample notification only for front-end testing purposes.',
-                rate: '1:43 AM',
-              },
-  ]);
+  useEffect(() => {
+    getNotifications();
+  }, [])
 
+  const getNotifications = async () => {
+    const user_id = await AsyncStorage.getItem('id');
+    try {
+      const response = await axios.get(`https://bulvroom.onrender.com/notifications/${user_id}`);
+      setCardData(response.data);
+      setRefreshing(false);
+    } catch (error) {
+      console.log('Failed to fetch notifications data:', error);
+      setRefreshing(false);
+    }
+  }
 
-
-  const 
-  onBackPressed = () => {
+  const onBackPressed = () => {
     navigation.navigate('Homes');
+  };
+
+  const onRefresh = () => {
+    setRefreshing(true);
+    getNotifications();
   };
 
   const myComponents = cardData.map((item) => (
     <MyComponent
       key={item.id}
-      imageSource={item.imageSource}
-      label={item.label}
-      label2={item.label2}
-      rate={item.rate}
+      label={item.title}
+      label2={item.label}
+      date_time={item.date_time}
       itemData={item}
-
     />
   ));
 
@@ -113,17 +95,17 @@ const DashBoardScreen = () => {
 
   return (
     <View style={styles.container}>
-<View style={styles.title}>
-  <TouchableOpacity onPress={onBackPressed}>
-    <Icon name="arrow-back" style={styles.back}></Icon>
-  </TouchableOpacity>
-  <View style={styles.titleCenter}>
-    <Icon name="notifications" style={styles.title2}></Icon>
-    <Text style={styles.titleText}>Notifications</Text>
-  </View>
-</View>
+      <View style={styles.title}>
+        <TouchableOpacity onPress={onBackPressed}>
+          <Icon name="arrow-back" style={styles.back}></Icon>
+        </TouchableOpacity>
+        <View style={styles.titleCenter}>
+          <Icon name="notifications" style={styles.title2}></Icon>
+          <Text style={styles.titleText}>Notifications</Text>
+        </View>
+      </View>
 
-      <ScrollView style={styles.scrollView}>
+      <ScrollView style={styles.scrollView} refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}>
         {pairs}
       </ScrollView>
     </View>
@@ -159,7 +141,7 @@ const styles = StyleSheet.create({
     flexDirection: 'column',
     // Add any other styles you need for spacing, alignment, etc.
   },
-  
+
   fave: {
     flexDirection: 'row',
     marginRight: 15,
@@ -196,10 +178,10 @@ const styles = StyleSheet.create({
   titleText: {
     marginLeft: 5,
     fontSize: 20,
-    fontWeight: 'bold',
+    fontWeight: '900',
     color: 'black', // Adjust the color as needed
   },
-  rate: {
+  date_time: {
     fontSize: 15,
     color: '#1b944e',
     fontWeight: '800',

@@ -128,7 +128,7 @@ const styles = StyleSheet.create({
   },
   makeModelText: {
     fontSize: 18,
-    fontWeight: 'bold',
+    fontWeight: '900',
   },
   typeText: {
     color: 'gray',

@@ -5,33 +5,34 @@ import axios from 'axios'
 import KeepAlive from './KeepAlive';
 function Dashboard() {
 	const navigate = useNavigate()
-	useEffect(()=>{
+	useEffect(() => {
 		axios.get('https://bulvroom.onrender.com/dashboard')
-		.then(res => {
-			if(res.data.Status === "Success") {
-				if(res.data.role === "admin") {
-					navigate('/');
-				} else {
-					const id = res.data.id;
-					navigate('/employeedetail/'+id)
+			.then(res => {
+				if (res.data.Status === "Success") {
+					if (res.data.role === "admin") {
+						navigate('/');
+					} else {
+						const id = res.data.id;
+						navigate('/employeedetail/' + id)
+					}
 				}
-			} 
-		})
+			})
 	}, [])
 
 	const handleLogout = () => {
 		const confirmLogout = window.confirm("Are you sure you want to logout?");
-	  
+
 		if (confirmLogout) {
-		  axios
-			.get('https://bulvroom.onrender.com/logout')
-			.then((res) => {
-			  navigate('/login');
-			})
-			.catch((err) => console.log(err));
+			axios
+				.get('https://bulvroom.onrender.com/logout')
+				.then((res) => {
+					localStorage.clear();
+					navigate('/login');
+				})
+				.catch((err) => console.log(err));
 		}
-	  };
-	  
+	};
+
 	return (
 		<div className="container-fluid">
 			<div className="row flex-nowrap">
@@ -55,12 +56,12 @@ function Dashboard() {
 									<i className="fs-4 bi-car-front"></i> <span className="ms-1 d-none d-sm-inline">Manage Vehicles</span> </Link>
 							</li>
 							<li>
-							<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" integrity="sha512-...." crossorigin="anonymous" />
+								<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" integrity="sha512-...." crossorigin="anonymous" />
 
-        <Link to="/transactions" className="nav-link px-0 align-middle text-white">
-            <i className="fs-4 fas fa-book"></i> <span className="ms-1 d-none d-sm-inline">Transactions</span>
-        </Link>
-    </li>
+								<Link to="/transactions" className="nav-link px-0 align-middle text-white">
+									<i className="fs-4 fas fa-book"></i> <span className="ms-1 d-none d-sm-inline">Transactions</span>
+								</Link>
+							</li>
 							{/*<li>
 								<Link to="profile" className="nav-link px-0 align-middle text-white">
 									<i className="fs-4 bi-person"></i> <span className="ms-1 d-none d-sm-inline">Profile</span></Link>
@@ -74,7 +75,7 @@ function Dashboard() {
 				</div>
 				<div className="col p-0 m-0">
 					<div className='p-2 d-flex justify-content-center shadow text-success'>
-						<h4 >BULVROOM MANAGEMENT SYSTEM</h4>						
+						<h4 >BULVROOM MANAGEMENT SYSTEM</h4>
 					</div>
 					<Outlet /><KeepAlive />
 				</div>

@@ -159,7 +159,7 @@ const styles = StyleSheet.create({
   },
   titleText: {
     fontSize: 20,
-    fontWeight: 'bold',
+    fontWeight: '900',
     color: 'white',
   },
   addButton: {
@@ -175,7 +175,7 @@ const styles = StyleSheet.create({
   addButtonText: {
     color: 'white',
     fontSize: 16,
-    fontWeight: 'bold',
+    fontWeight: '900',
   },
   scrollView: {
     flex: 1,
@@ -191,7 +191,7 @@ const styles = StyleSheet.create({
   },
   vehicleTitle: {
     fontSize: 18,
-    fontWeight: 'bold',
+    fontWeight: '900',
     marginBottom: 8,
   },
   vehicleInfo: {
@@ -214,7 +214,7 @@ const styles = StyleSheet.create({
   approveButtonText: {
     color: 'white',
     fontSize: 16,
-    fontWeight: 'bold',
+    fontWeight: '900',
   },
   filterButtons: {
     flexDirection: 'row',

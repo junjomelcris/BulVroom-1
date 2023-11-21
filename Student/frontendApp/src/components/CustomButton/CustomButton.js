@@ -16,7 +16,7 @@ const CustomButton = ({ mode, onPress, text, style, labelStyle }) => {
 };
 const styles = StyleSheet.create({
     btn:{
-    backgroundColor: 'white', 
+    backgroundColor: '#2ecc71', 
     borderRadius: 50,  
     width: '95%',
     padding:5,
@@ -29,8 +29,8 @@ const styles = StyleSheet.create({
     elevation: 5,
     },
     label: {
-      color: '#2ecc71',
-      fontWeight: 'bold',
+      color: 'white',
+      fontWeight: '900',
       fontSize: 16,
     },
 })

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import Icons from 'react-native-vector-icons/FontAwesome'; 
+import Icons from 'react-native-vector-icons/FontAwesome';
 import {
   View,
   Text, Alert,
@@ -8,7 +8,7 @@ import {
   ScrollView,
   TouchableOpacity,
   Dimensions, RefreshControl,
-  Modal,ActivityIndicator
+  Modal, ActivityIndicator
 } from 'react-native';
 import {
   Provider,
@@ -18,7 +18,7 @@ import {
   Dialog,
   Snackbar,
 } from 'react-native-paper';
-import ImagePicker ,{launchCamera, launchImageLibrary} from 'react-native-image-picker';
+import * as ImagePicker from 'react-native-image-picker';
 import Icon from 'react-native-vector-icons/Ionicons';
 import { useNavigation } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -48,7 +48,7 @@ const SignUpScreen = () => {
   const [validIdImage, setValidIdImage] = useState(null);
   const onRefresh = () => {
     setRefreshing(true);
-  
+
     // Fetch your data here
     axios
       .get(`https://bulvroom.onrender.com/user/${userId}`)
@@ -60,248 +60,221 @@ const SignUpScreen = () => {
         console.error('Error fetching approved vehicles:', error);
         setRefreshing(false); // Ensure refreshing is set to false even if there's an error
       });
-      
+
   };
-  let options = {
-    mediaType: 'photo', // You can set 'photo' or 'video' based on your requirements
-    allowsEditing: true,
-    aspect: [4, 3], // Aspect ratio (for photos)
-    quality: 1, // Image quality, where 1 is the highest quality
-  };
+
   const selectImage = async () => {
-    const options = {
-      mediaType: 'mixed', // Allow all media types
-      allowsEditing: true,
+    let result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      allowsEditing: false,
       aspect: [4, 3],
       quality: 1,
-    };
-  
-    launchImageLibrary(options, (response) => {
-      if (response.didCancel) {
-        console.log('Image selection canceled');
-      } else if (response.error) {
-        console.error('Image selection error: ', response.error);
-        alert('Error selecting image');
-      } else if (response.assets.length > 0) {
-        setGalleryPhoto(response.assets[0].uri);
-        console.log(response); // Log the response, not 'result'
-        Alert.alert(
-          'Update Images',
-          'Are you sure you want to update your Profile Picture?',
-          [
-            {
-              text: 'Cancel',
-              style: 'cancel',
-            },
-            {
-              text: 'OK',
-              onPress: () => Upload(),
-            },
-          ],
-          { cancelable: false }
-        );
-      } else {
-        alert('No file selected');
-      }
     });
+
+    if (!result.canceled) {
+      setGalleryPhoto(result.assets[0].uri);
+      Alert.alert(
+        'Update Images',
+        'Are you sure you want to update your Profile Picture?',
+        [
+          {
+            text: 'Cancel',
+            style: 'cancel',
+          },
+          {
+            text: 'OK',
+            onPress: () => Upload(),
+          },
+        ],
+        { cancelable: false }
+      );
+    }
   };
 
   const selectLicense = async () => {
-    const result = await launchImageLibrary(options, (response) => {
-      if (response.didCancel) {
-        console.log('Image selection canceled');
-      } else if (response.error) {
-        console.error('Image selection error: ', response.error);
-        alert('Error selecting image');
-      } else if (response.assets.length > 0) {
-        setViewLicense(response.assets[0].uri);
-        console.log(result);
-        Alert.alert(
-          'Update Images',
-          "Are you sure you want to Upload your Driver's License",
-          [
-            {
-              text: 'Cancel',
-              style: 'cancel',
-            },
-            {
-              text: 'OK',
-              onPress: () => License(),
-            },
-          ],
-          { cancelable: false }
-        );
-      } else {
-        // No file was selected
-        // Do not proceed with the upload and show a message to the user.
-        alert('No file selected');
-      }
-    });
-  };
-  
-  const selectValid = async () => {
-    const options = {
-      mediaType: 'mixed', // Allow all media types
-      allowsEditing: true,
+    let result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      allowsEditing: false,
       aspect: [4, 3],
       quality: 1,
-    };
-  
-    launchImageLibrary(options, (response) => {
-      if (response.didCancel) {
-        console.log('Image selection canceled');
-      } else if (response.error) {
-        console.error('Image selection error: ', response.error);
-        alert('Error selecting image');
-      } else if (response.assets.length > 0) {
-        setValidIdImage(response.assets[0].uri);
-        console.log(response); // Log the response, not 'result'
-        Alert.alert(
-          'Update Images',
-          'Are you sure you want to Upload your Valid Id?',
-          [
-            {
-              text: 'Cancel',
-              style: 'cancel',
-            },
-            {
-              text: 'OK',
-              onPress: () => Valid(),
-            },
-          ],
-          { cancelable: false }
-        );
-      } else {
-        alert('No file selected');
-      }
     });
+
+    if (!result.canceled) {
+      console.log(result.assets[0].uri);
+      setViewLicense(result.assets[0].uri);
+      Alert.alert(
+        'Update Images',
+        "Are you sure you want to Upload your Driver's License",
+        [
+          {
+            text: 'Cancel',
+            style: 'cancel',
+          },
+          {
+            text: 'OK',
+            onPress: () => License(),
+          },
+        ],
+        { cancelable: false }
+      );
+    }
   };
 
-const Upload = async () => {
-  setLoading(true);
-  if (galleryPhoto) {
-    const imagePath = `profile_pic/${userId}/${galleryPhoto.fileName}`;
-    const storageRef = ref(storage, imagePath);
+  const selectValid = async () => {
+    let result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      allowsEditing: false,
+      aspect: [4, 3],
+      quality: 1,
+    });
 
-    try {
-      const response = await fetch(galleryPhoto);
-      const blob = await response.blob();
-      const uploadTask = uploadBytesResumable(storageRef, blob);
-
-      uploadTask.on("state_changed", (snapshot) => {
-        // Calculate the progress percentage and update the state
-        const progressPercentage = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-        setProgress(progressPercentage);
-      }, (error) => {
-        console.error("Error uploading image: ", error);
-        setLoading(false);
-      }, () => {
-        getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
-          axios
-            .put(`https://bulvroom.onrender.com/Upload/${userId}`, { image: downloadURL })
-            .then((res) => {
-              console.log(res);
-            })
-            .catch((err) => console.log(err));
-            setLoading(false);
-          alert('Image uploaded successfully');
-          console.log(userData.profile_pic);
-          // Reload your data or update the UI as needed
-        });
-      });
-    } catch (error) {
-      console.error("Error while processing the image: ", error);
-      setLoading(false);
+    if (!result.canceled) {
+      console.log(result.assets[0].uri);
+      setValidIdImage(result.assets[0].uri);
+      Alert.alert(
+        'Update Images',
+        'Are you sure you want to Upload your Valid Id?',
+        [
+          {
+            text: 'Cancel',
+            style: 'cancel',
+          },
+          {
+            text: 'OK',
+            onPress: () => Valid(),
+          },
+        ],
+        { cancelable: false }
+      );
     }
+  };
+
+  const Upload = async () => {
+    setLoading(true);
+    console.log(galleryPhoto)
+    if (galleryPhoto) {
+      const imagePath = `profile_pic/${userId}/${galleryPhoto.fileName}`;
+      const storageRef = ref(storage, imagePath);
+
+      try {
+        const response = await fetch(galleryPhoto);
+        const blob = await response.blob();
+        const uploadTask = uploadBytesResumable(storageRef, blob);
+
+        uploadTask.on("state_changed", (snapshot) => {
+          // Calculate the progress percentage and update the state
+          const progressPercentage = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+          setProgress(progressPercentage);
+        }, (error) => {
+          console.error("Error uploading image: ", error);
+          setLoading(false);
+        }, () => {
+          getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
+            axios
+              .put(`https://bulvroom.onrender.com/Upload/${userId}`, { image: downloadURL })
+              .then((res) => {
+                console.log(res);
+              })
+              .catch((err) => console.log(err));
+            setLoading(false);
+            alert('Image uploaded successfully');
+            console.log(userData.profile_pic);
+            // Reload your data or update the UI as needed
+          });
+        });
+      } catch (error) {
+        console.error("Error while processing the image: ", error);
+        setLoading(false);
+      }
     } else {
       setLoading(false);
       alert('No file selected');
     }
-};
-//------------------------------valid-----------
-const Valid = async () => {
-  setLoading(true);
-  if (validIdImage) {
-    const imagePath = `images/valid/${userId}/${validIdImage.fileName}`;
-    const storageRef = ref(storage, imagePath);
+  };
+  //------------------------------valid-----------
+  const Valid = async () => {
+    setLoading(true);
+    if (validIdImage) {
+      const imagePath = `images/valid/${userId}/${validIdImage.fileName}`;
+      const storageRef = ref(storage, imagePath);
 
-    try {
-      const response = await fetch(validIdImage);
-      const blob = await response.blob();
-      const uploadTask = uploadBytesResumable(storageRef, blob);
+      try {
+        const response = await fetch(validIdImage);
+        const blob = await response.blob();
+        const uploadTask = uploadBytesResumable(storageRef, blob);
 
-      uploadTask.on("state_changed", (snapshot) => {
-        // Calculate the progress percentage and update the state
-        const progressPercentage = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-        setProgress(progressPercentage);
-      }, (error) => {
-        console.error("Error uploading image: ", error);
-        setLoading(false);
-      }, () => {
-        getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
-          axios
-            .put(`https://bulvroom.onrender.com/Valid/${userId}`, { image: downloadURL })
-            .then((res) => {
-              console.log(res);
-            })
-            .catch((err) => console.log(err));
+        uploadTask.on("state_changed", (snapshot) => {
+          // Calculate the progress percentage and update the state
+          const progressPercentage = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+          setProgress(progressPercentage);
+        }, (error) => {
+          console.error("Error uploading image: ", error);
+          setLoading(false);
+        }, () => {
+          getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
+            axios
+              .put(`https://bulvroom.onrender.com/Valid/${userId}`, { image: downloadURL })
+              .then((res) => {
+                console.log(res);
+              })
+              .catch((err) => console.log(err));
             setLoading(false);
-          alert('Image uploaded successfully');
-          console.log(userData.valid_id);
-          // Reload your data or update the UI as needed
+            alert('Image uploaded successfully');
+            console.log(userData.valid_id);
+            // Reload your data or update the UI as needed
+          });
         });
-      });
-    } catch (error) {
-      console.error("Error while processing the image: ", error);
-      setLoading(false);
-    }
-  } else {
-    setLoading(false);
-    alert('No file selected or userData.image_file is null');
-  }
-};
-//------------------------------license-----------
-const License = async () => {
-  setLoading(true);
-  if (viewLicense) {
-    const imagePath = `images/license/${userId}/${viewLicense.fileName}`;
-    const storageRef = ref(storage, imagePath);
-
-    try {
-      const response = await fetch(viewLicense);
-      const blob = await response.blob();
-      const uploadTask = uploadBytesResumable(storageRef, blob);
-
-      uploadTask.on("state_changed", (snapshot) => {
-        // Calculate the progress percentage and update the state
-        const progressPercentage = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-        setProgress(progressPercentage);
-      }, (error) => {
-        console.error("Error uploading image: ", error);
+      } catch (error) {
+        console.error("Error while processing the image: ", error);
         setLoading(false);
-      }, () => {
-        getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
-          axios
-            .put(`https://bulvroom.onrender.com/License/${userId}`, { image: downloadURL })
-            .then((res) => {
-              console.log(res);
-            })
-            .catch((err) => console.log(err));
-            setLoading(false);
-          alert('Image uploaded successfully');
-          console.log(userData.driver_license_1);
-          // Reload your data or update the UI as needed
-        });
-      });
-    } catch (error) {
-      console.error("Error while processing the image: ", error);
+      }
+    } else {
       setLoading(false);
+      alert('No file selected or userData.image_file is null');
     }
-  } else {
-    setLoading(false);
-    alert('No file selected or userData.image_file is null');
-  }
-};
+  };
+  //------------------------------license-----------
+  const License = async () => {
+    setLoading(true);
+    if (viewLicense) {
+      const imagePath = `images/license/${userId}/${viewLicense.fileName}`;
+      const storageRef = ref(storage, imagePath);
+
+      try {
+        const response = await fetch(viewLicense);
+        const blob = await response.blob();
+        const uploadTask = uploadBytesResumable(storageRef, blob);
+
+        uploadTask.on("state_changed", (snapshot) => {
+          // Calculate the progress percentage and update the state
+          const progressPercentage = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+          setProgress(progressPercentage);
+        }, (error) => {
+          console.error("Error uploading image: ", error);
+          setLoading(false);
+        }, () => {
+          getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
+            axios
+              .put(`https://bulvroom.onrender.com/License/${userId}`, { image: downloadURL })
+              .then((res) => {
+                console.log(res);
+              })
+              .catch((err) => console.log(err));
+            setLoading(false);
+            alert('Image uploaded successfully');
+            console.log(userData.driver_license_1);
+            // Reload your data or update the UI as needed
+          });
+        });
+      } catch (error) {
+        console.error("Error while processing the image: ", error);
+        setLoading(false);
+      }
+    } else {
+      setLoading(false);
+      alert('No file selected or userData.image_file is null');
+    }
+  };
 
   const fetchUserData = async (userId) => {
     try {
@@ -365,7 +338,7 @@ const License = async () => {
       if (response.data.Status === 'Success') {
         setLoading(false); // User data updated successfully
         alert('Update successful');
-        
+
       } else {
         console.log('Failed to update user data');
         setLoading(false);
@@ -394,7 +367,7 @@ const License = async () => {
   };
 
   return (
-    
+
     <Provider>
       <View>
         <View style={styles.container}>
@@ -409,130 +382,130 @@ const License = async () => {
           </View>
         </View>
         <ScrollView
-      refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
-    >
+          refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
+        >
           <View style={styles.content}>
-          
-          <View style={styles.imageContainer}>
-  <TouchableOpacity onPress={toggleModal}>
-    <Image
-      source={userData && userData.profile_pic ? { uri: userData.profile_pic } : require('../../../assets/images/bulv.png')}
-      resizeMode="contain"
-      style={styles.image}
-    />
-  </TouchableOpacity>
-  <Modal
-  transparent={true}
-  visible={isModalVisible}
-  onRequestClose={toggleModal}
->
-  <View style={styles.modalOverlay}>
-    <View style={styles.modalContent}>
-      <TouchableOpacity onPress={toggleModal} style={styles.closeButton}>
-        <Icon name="close" style={styles.closeIcon} />
-      </TouchableOpacity>
-      {userData && userData.profile_pic ? (
-        <Image
-          source={{ uri: userData.profile_pic }}
-          resizeMode="contain"
-          style={styles.image2}
-        />
-      ) : (
-        <Text>No uploaded Picture</Text> // Display this message if valid_id is not available
-      )}
-    </View>
-  </View>
-</Modal>
+
+            <View style={styles.imageContainer}>
+              <TouchableOpacity onPress={toggleModal}>
+                <Image
+                  source={userData && userData.profile_pic ? { uri: userData.profile_pic } : require('../../../assets/images/bulv.png')}
+                  resizeMode="contain"
+                  style={styles.image}
+                />
+              </TouchableOpacity>
+              <Modal
+                transparent={true}
+                visible={isModalVisible}
+                onRequestClose={toggleModal}
+              >
+                <View style={styles.modalOverlay}>
+                  <View style={styles.modalContent}>
+                    <TouchableOpacity onPress={toggleModal} style={styles.closeButton}>
+                      <Icon name="close" style={styles.closeIcon} />
+                    </TouchableOpacity>
+                    {userData && userData.profile_pic ? (
+                      <Image
+                        source={{ uri: userData.profile_pic }}
+                        resizeMode="contain"
+                        style={styles.image2}
+                      />
+                    ) : (
+                      <Text>No uploaded Picture</Text> // Display this message if valid_id is not available
+                    )}
+                  </View>
+                </View>
+              </Modal>
 
 
-<TouchableOpacity onPress={selectImage}>
-  <View style={styles.centeredTextContainer}>
-    <Icons name="pencil" size={15} marginRight={5}color="#2ecc71"  /> 
-    <Text style={styles.centeredText}>Change Profile Picture</Text>
-  </View>
-</TouchableOpacity>
-<View style={styles.selectedImageContainer}>
-        
-      </View>
-<View style={styles.uploadButtonContainer1}>
-   
-        <TouchableOpacity
-            style={styles.underlineText}
-            onPress={toggleModal1}
-        >
-            
-            <Text style={styles.underlineTextText}><Icon name="eye" size={15}  color="#000"  /> View Driver's License</Text>
-        </TouchableOpacity>
-    
-</View>
-<Modal
-  transparent={true}
-  visible={isModalVisible1}
-  onRequestClose={toggleModal1}
->
-  <View style={styles.modalOverlay}>
-    <View style={styles.modalContent}>
-      <TouchableOpacity onPress={toggleModal1} style={styles.closeButton}>
-        <Icon name="close" style={styles.closeIcon} />
-      </TouchableOpacity>
-      {userData && userData.driver_license_1 ? (
-        <Image
-          source={{ uri: userData.driver_license_1 }}
-          resizeMode="contain"
-          style={styles.image2}
-        />
-      ) : (
-        <Text>No uploaded Picture</Text> // Display this message if valid_id is not available
-      )}
-    </View>
-  </View>
-</Modal>
-<View style={styles.uploadButtonContainer2}>
-    
-        <TouchableOpacity
-            style={styles.underlineText}
-            onPress={toggleModal2}
-        >
-            
-            <Text style={styles.underlineTextText}><Icon name="eye" size={15} textDecorationLine={"none"} color="#000"  /> View Valid ID</Text>
-        </TouchableOpacity>
-</View>
-<Modal
-  transparent={true}
-  visible={isModalVisible2}
-  onRequestClose={toggleModal2}
->
-  <View style={styles.modalOverlay}>
-    <View style={styles.modalContent}>
-      <TouchableOpacity
-        onPress={toggleModal2}
-        style={styles.closeButton}
-      >
-        <Icon name="close" style={styles.closeIcon} />
-      </TouchableOpacity>
-      <Image
-      source={userData && userData.valid_id ? { uri: userData.valid_id } : 'Loading...'}
-      resizeMode="contain"
-      style={styles.image2}
-    />
-    </View>
-  </View>
-</Modal>
-        
-<View style={styles.uploadButtonContainer}>
-        
-        <TouchableOpacity onPress={selectLicense} style={styles.uploadButton}>
-            <Text style={styles.uploadButtonText}>Upload Driver's License</Text>
-        </TouchableOpacity>
-        
-        <TouchableOpacity onPress={selectValid} style={styles.uploadButton}>
-            <Text style={styles.uploadButtonText}>Upload Valid ID</Text>
-        </TouchableOpacity>
-    </View>
-      
+              <TouchableOpacity onPress={selectImage}>
+                <View style={styles.centeredTextContainer}>
+                  <Icons name="pencil" size={15} marginRight={5} color="#2ecc71" />
+                  <Text style={styles.centeredText}>Change Profile Picture</Text>
+                </View>
+              </TouchableOpacity>
+              <View style={styles.selectedImageContainer}>
 
-</View>
-  
+              </View>
+              <View style={styles.uploadButtonContainer1}>
+
+                <TouchableOpacity
+                  style={styles.underlineText}
+                  onPress={toggleModal1}
+                >
+
+                  <Text style={styles.underlineTextText}><Icon name="eye" size={15} color="#000" /> View Driver's License</Text>
+                </TouchableOpacity>
+
+              </View>
+              <Modal
+                transparent={true}
+                visible={isModalVisible1}
+                onRequestClose={toggleModal1}
+              >
+                <View style={styles.modalOverlay}>
+                  <View style={styles.modalContent}>
+                    <TouchableOpacity onPress={toggleModal1} style={styles.closeButton}>
+                      <Icon name="close" style={styles.closeIcon} />
+                    </TouchableOpacity>
+                    {userData && userData.driver_license_1 ? (
+                      <Image
+                        source={{ uri: userData.driver_license_1 }}
+                        resizeMode="contain"
+                        style={styles.image2}
+                      />
+                    ) : (
+                      <Text>No uploaded Picture</Text> // Display this message if valid_id is not available
+                    )}
+                  </View>
+                </View>
+              </Modal>
+              <View style={styles.uploadButtonContainer2}>
+
+                <TouchableOpacity
+                  style={styles.underlineText}
+                  onPress={toggleModal2}
+                >
+
+                  <Text style={styles.underlineTextText}><Icon name="eye" size={15} textDecorationLine={"none"} color="#000" /> View Valid ID</Text>
+                </TouchableOpacity>
+              </View>
+              <Modal
+                transparent={true}
+                visible={isModalVisible2}
+                onRequestClose={toggleModal2}
+              >
+                <View style={styles.modalOverlay}>
+                  <View style={styles.modalContent}>
+                    <TouchableOpacity
+                      onPress={toggleModal2}
+                      style={styles.closeButton}
+                    >
+                      <Icon name="close" style={styles.closeIcon} />
+                    </TouchableOpacity>
+                    <Image
+                      source={userData && userData.valid_id ? { uri: userData.valid_id } : 'Loading...'}
+                      resizeMode="contain"
+                      style={styles.image2}
+                    />
+                  </View>
+                </View>
+              </Modal>
+
+              <View style={styles.uploadButtonContainer}>
+
+                <TouchableOpacity onPress={selectLicense} style={styles.uploadButton}>
+                  <Text style={styles.uploadButtonText}>Upload Driver's License</Text>
+                </TouchableOpacity>
+
+                <TouchableOpacity onPress={selectValid} style={styles.uploadButton}>
+                  <Text style={styles.uploadButtonText}>Upload Valid ID</Text>
+                </TouchableOpacity>
+              </View>
+
+
+            </View>
+
 
             <View style={styles.container1}>
               <TextInput
@@ -560,7 +533,7 @@ const License = async () => {
                 label="Email"
                 value={userData ? userData.email : ''}
                 editable={false}
-                style={{ pointerEvents: 'none',  marginBottom: 20 }}
+                style={{ pointerEvents: 'none', marginBottom: 20 }}
               />
 
               <TextInput
@@ -637,13 +610,13 @@ const styles = StyleSheet.create({
   backButton: {
     marginRight: 10, // Margin between the back button and the title
   },
-  container1:{
-    width:'90%',
-    borderColor:'#e8e8e8',
-    borderRadius:5,
-    paddingHorizontal:10,
-    marginVertical:5,
-    marginTop:20,
+  container1: {
+    width: '90%',
+    borderColor: '#e8e8e8',
+    borderRadius: 5,
+    paddingHorizontal: 10,
+    marginVertical: 5,
+    marginTop: 20,
   },
   title: {
     flexDirection: 'row',
@@ -676,12 +649,12 @@ const styles = StyleSheet.create({
   saveButtonText: {
     color: 'white', // Text color
     fontSize: 18, // Font size
-    fontWeight: 'bold', // Bold text
+    fontWeight: '900', // Bold text
   },
   changeButtonText: {
     color: 'black', // Text color
     fontSize: 18, // Font size
-    fontWeight: 'bold', // Bold text
+    fontWeight: '900', // Bold text
     textDecorationLine: 'underline',
   },
   back: {
@@ -751,7 +724,7 @@ const styles = StyleSheet.create({
   titleText: {
     marginLeft: 5,
     fontSize: 20,
-    fontWeight: 'bold',
+    fontWeight: '900',
     color: 'white', // Adjust the color as neededupload dr
   },
   header: {
@@ -816,7 +789,7 @@ const styles = StyleSheet.create({
     paddingBottom: 15,
   },
   text1: {
-    fontFamily: 'poppins',
+    fontFamily: 'Roboto',
     fontSize: 14,
     color: 'white',
     letterSpacing: 1.5,
@@ -851,7 +824,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  
+
   modalContent: {
     width: '90%',
     backgroundColor: 'white',
@@ -860,7 +833,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     borderRadius: 10,
   },
-  
+
   fullSizeImage: {
     width: '100%',
     height: '100%',
@@ -883,11 +856,11 @@ const styles = StyleSheet.create({
     alignItems: 'center', // Center the text horizontally
     marginVertical: 16, // Vertical margin
   },
-  
+
   selectImageButtonText: {
     color: 'white', // Text color
     fontSize: 18, // Font size
-    fontWeight: 'bold', // Bold text
+    fontWeight: '900', // Bold text
   },
   uploadButtonContainer: {
     flexDirection: 'row',
@@ -908,14 +881,14 @@ const styles = StyleSheet.create({
   uploadButtonText: {
     color: 'white', // Text color
     fontSize: 10.5, // Font size
-    fontWeight: 'bold', // Bold text
+    fontWeight: '900', // Bold text
   },
   underlineText: {
     marginTop: 10,
     marginLeft: 10,
     padding: 5,
     alignSelf: 'flex-start',
-   
+
   },
   underlineTextText: {
     textDecorationLine: 'underline',
