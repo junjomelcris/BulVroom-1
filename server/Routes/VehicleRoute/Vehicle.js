@@ -218,11 +218,12 @@ router.post('/createVehicle/app', (req, res) => {
     dateAdded,
     status,
     pickupDropoffLocation, // Add pickupDropoffLocation to the request body
+    chassis_number
   } = req.body;
 
   // Construct the INSERT SQL query with the pickupDropoffLocation field
-  const insertQuery = `INSERT INTO vehicles (id, make, model, type, vehicle_image, seatingCapacity, transmission, gas, features, plate, description, phone, rate, deposit, dateAdded, status, pickupDropoffLocation) 
-                         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
+  const insertQuery = `INSERT INTO vehicles (id, make, model, type, chassis_number, vehicle_image, seatingCapacity, transmission, gas, features, plate, description, phone, rate, deposit, dateAdded, status, pickupDropoffLocation) 
+                         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
 
   // Define the values to be inserted into the database, including pickupDropoffLocation
   const values = [
@@ -230,6 +231,7 @@ router.post('/createVehicle/app', (req, res) => {
     make,
     model,
     type,
+    chassis_number,
     vehicle_image,
     seatingCapacity,
     transmission,

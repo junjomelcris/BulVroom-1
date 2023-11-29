@@ -420,7 +420,7 @@ router.post('/verification', (req, res) => {
 
 router.get('/notifications/:user_id', (req, res) => {
   const userId = req.params.user_id;
-  const query = 'SELECT notifications.*, vehicles.* FROM notifications LEFT JOIN vehicles ON notifications.vehicle_id = vehicles.vehicle_id WHERE notifications.user_id = ? OR (notifications.is_admin_made = 1 AND notifications.user_id = ?)';
+  const query = 'SELECT notifications.*, notifications.id AS notification_id, vehicles.* FROM notifications LEFT JOIN vehicles ON notifications.vehicle_id = vehicles.vehicle_id WHERE notifications.user_id = ? OR (notifications.is_admin_made = 1 AND notifications.user_id = ?)';
 
   con.query(query, [userId, userId], (error, results) => {
     if (error) {
@@ -442,6 +442,36 @@ router.post('/notifications', (req, res) => {
       res.sendStatus(500);
     } else {
       res.sendStatus(201);
+    }
+  });
+});
+
+router.put('/notifications/:notificationId', (req, res) => {
+  const notificationId = req.params.notificationId;
+  const query = 'UPDATE notifications SET is_read = 1 WHERE id = ?';
+
+  con.query(query, [notificationId], (error, results) => {
+    if (error) {
+      console.error('Failed to update notification:', error);
+      res.sendStatus(500);
+    } else {
+      res.sendStatus(200);
+    }
+  });
+});
+
+router.get('/notifications/count/:user_id', (req, res) => {
+  const userId = req.params.user_id;
+  const query = 'SELECT COUNT(*) AS unreadCount FROM notifications WHERE (user_id = ? OR (is_admin_made = 1 AND user_id = ?)) AND is_read = 0';
+
+  con.query(query, [userId, userId], (error, results) => {
+    if (error) {
+      console.error('Failed to fetch unread notification count:', error);
+      res.sendStatus(500);
+    } else {
+      // Assuming there's always one result with the count
+      const unreadCount = results[0].unreadCount;
+      res.json({ unreadCount });
     }
   });
 });
