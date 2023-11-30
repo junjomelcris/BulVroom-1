@@ -718,6 +718,23 @@ router.get('/reset-code/:code', (req, res) => {
     }
   });
 });
+router.get('/bookedvehicle/count/:user_id', (req, res) => {
+  const user_id = req.params.user_id;
+  const query = `
+    SELECT COUNT(*) AS booking_count
+    FROM transactions
+    WHERE owner_id = ${user_id} AND status = 1`;
 
+  con.query(query, (error, results) => {
+    if (error) {
+      console.error('Failed to fetch data:', error);
+      res.sendStatus(500);
+    } else {
+      // The result will be an array with a single object containing the booking count
+      const bookingCount = results[0].booking_count;
+      res.json({ booking_count: bookingCount });
+    }
+  });
+});
 
 export default router;
