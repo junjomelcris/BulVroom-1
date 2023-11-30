@@ -812,18 +812,45 @@ router.post('/renterLocation', (req, res) => {
   const { user_id, latitude, longitude, timestamp } = req.body;
 
   // Replace 'renter_locations' with your actual table name
-  const sql = `
-    INSERT INTO renter_locations (user_id, latitude, longitude, timestamp)
-    VALUES (?, ?, ?, ?);
-  `;
-
-  con.query(sql, [user_id, latitude, longitude, timestamp], (err, result) => {
-    if (err) {
-      console.error('Error running query:', err);
-      return res.json({ error: 'Error in running query' });
+  const checkUserSql = 'SELECT COUNT(*) as count FROM renter_locations WHERE user_id = ?';
+  con.query(checkUserSql, [user_id], (checkErr, checkResult) => {
+    if (checkErr) {
+      console.error('Error checking user in renter_locations:', checkErr);
+      return res.json({ error: 'Error in checking user' });
     }
 
-    return res.json({ message: 'Location updated successfully' });
+    if (checkResult[0].count > 0) {
+      // If user already has a location, update it
+      const updateSql = `
+        UPDATE renter_locations
+        SET latitude = ?, longitude = ?, timestamp = ?
+        WHERE user_id = ?;
+      `;
+
+      con.query(updateSql, [latitude, longitude, timestamp, user_id], (updateErr, updateResult) => {
+        if (updateErr) {
+          console.error('Error updating location:', updateErr);
+          return res.json({ error: 'Error updating location' });
+        }
+
+        return res.json({ message: 'Location updated successfully' });
+      });
+    } else {
+      // If user doesn't have a location, insert a new record
+      const insertSql = `
+        INSERT INTO renter_locations (user_id, latitude, longitude, timestamp)
+        VALUES (?, ?, ?, ?);
+      `;
+
+      con.query(insertSql, [user_id, latitude, longitude, timestamp], (insertErr, insertResult) => {
+        if (insertErr) {
+          console.error('Error inserting location:', insertErr);
+          return res.json({ error: 'Error inserting location' });
+        }
+
+        return res.json({ message: 'Location updated successfully' });
+      });
+    }
   });
 });
 
