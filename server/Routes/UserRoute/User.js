@@ -738,4 +738,37 @@ router.get('/bookedvehicle/count/:user_id', (req, res) => {
   });
 });
 
+router.get('/renterLocation/:userId', (req, res) => {
+  const userId = req.params.userId;
+
+  // Replace 'renter_locations' with your actual table name
+  const sql = `
+    SELECT user_id, latitude, longitude, timestamp
+    FROM renter_locations
+    WHERE user_id = ?
+    ORDER BY timestamp DESC
+    LIMIT 1;
+  `;
+
+  con.query(sql, [userId], (err, result) => {
+    if (err) {
+      console.error('Error running query:', err);
+      return res.json({ error: 'Error in running query' });
+    }
+
+    if (result.length > 0) {
+      const latestLocation = {
+        user_id: result[0].user_id,
+        latitude: result[0].latitude,
+        longitude: result[0].longitude,
+        timestamp: result[0].timestamp,
+      };
+
+      return res.json(latestLocation);
+    } else {
+      return res.json({ error: 'No location data available for the specified user' });
+    }
+  });
+});
+
 export default router;
