@@ -771,4 +771,23 @@ router.get('/renterLocation/:userId', (req, res) => {
   });
 });
 
+router.post('/renterLocation', (req, res) => {
+  const { user_id, latitude, longitude, timestamp } = req.body;
+
+  // Replace 'renter_locations' with your actual table name
+  const sql = `
+    INSERT INTO renter_locations (user_id, latitude, longitude, timestamp)
+    VALUES (?, ?, ?, ?);
+  `;
+
+  pool.query(sql, [user_id, latitude, longitude, timestamp], (err, result) => {
+    if (err) {
+      console.error('Error running query:', err);
+      return res.json({ error: 'Error in running query' });
+    }
+
+    return res.json({ message: 'Location updated successfully' });
+  });
+});
+
 export default router;
