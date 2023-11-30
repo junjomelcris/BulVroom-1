@@ -766,21 +766,30 @@ router.get('/renterLocation/:userId', (req, res) => {
       // Assuming you have a column 'email' in your users table
       const emailSql = 'SELECT email FROM users WHERE id = ?';
       con.query(emailSql, [userId], async (emailErr, emailResult) => {
-        if (emailErr || emailResult.length === 0) {
+        if (emailErr) {
+          console.error('Error retrieving user email:', emailErr);
           return res.json({ error: 'Error retrieving user email' });
+        }
+
+        if (emailResult.length === 0) {
+          return res.json({ error: 'User email not found' });
         }
 
         const userEmail = emailResult[0].email;
 
-        // Send email
-        try {
-          await sendUpdateLocationEmail(userEmail);
-        } catch (emailError) {
-          console.error('Failed to send update location email:', emailError);
-          return res.json({ error: 'Failed to send update location email' });
+        // Check if the email is available before sending
+        if (userEmail) {
+          // Send email
+          try {
+            await sendUpdateLocationEmail(userEmail);
+            return res.json(latestLocation);
+          } catch (emailError) {
+            console.error('Failed to send update location email:', emailError);
+            return res.json({ error: 'Failed to send update location email' });
+          }
+        } else {
+          return res.json({ error: 'User email is null or undefined' });
         }
-
-        return res.json(latestLocation);
       });
     } else {
       return res.json({ error: 'No location data available for the specified user' });
