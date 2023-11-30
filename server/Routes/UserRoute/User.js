@@ -741,7 +741,6 @@ router.get('/bookedvehicle/count/:user_id', (req, res) => {
 router.get('/renterLocation/:userId', (req, res) => {
   const userId = req.params.userId;
 
-  // Replace 'renter_locations' with your actual table name
   const sql = `
     SELECT user_id, latitude, longitude, timestamp
     FROM renter_locations
@@ -750,7 +749,7 @@ router.get('/renterLocation/:userId', (req, res) => {
     LIMIT 1;
   `;
 
-  con.query(sql, [userId], (err, result) => {
+  con.query(sql, [userId], async (err, result) => {
     if (err) {
       console.error('Error running query:', err);
       return res.json({ error: 'Error in running query' });
@@ -764,12 +763,50 @@ router.get('/renterLocation/:userId', (req, res) => {
         timestamp: result[0].timestamp,
       };
 
-      return res.json(latestLocation);
+      // Assuming you have a column 'email' in your users table
+      const emailSql = 'SELECT email FROM users WHERE id = ?';
+      con.query(emailSql, [userId], async (emailErr, emailResult) => {
+        if (emailErr || emailResult.length === 0) {
+          return res.json({ error: 'Error retrieving user email' });
+        }
+
+        const userEmail = emailResult[0].email;
+
+        // Send email
+        try {
+          await sendUpdateLocationEmail(userEmail);
+        } catch (emailError) {
+          console.error('Failed to send update location email:', emailError);
+          return res.json({ error: 'Failed to send update location email' });
+        }
+
+        return res.json(latestLocation);
+      });
     } else {
       return res.json({ error: 'No location data available for the specified user' });
     }
   });
 });
+
+// Function to send an email requesting location update
+async function sendUpdateLocationEmail(email) {
+  const transporter = nodemailer.createTransport({
+    service: 'gmail',
+    auth: {
+      user: 'bulvroom7@gmail.com',
+      pass: 'ekrlnkgsxzjzalah',
+    },
+  });
+
+  const mailOptions = {
+    from: 'bulvroom7@gmail.com',
+    to: email,
+    subject: 'Update Your Location',
+    html: '<p>Please update your location for the security of the vehicle.</p>',
+  };
+
+  await transporter.sendMail(mailOptions);
+}
 
 router.post('/renterLocation', (req, res) => {
   const { user_id, latitude, longitude, timestamp } = req.body;
