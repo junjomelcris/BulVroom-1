@@ -780,7 +780,7 @@ router.post('/renterLocation', (req, res) => {
     VALUES (?, ?, ?, ?);
   `;
 
-  pool.query(sql, [user_id, latitude, longitude, timestamp], (err, result) => {
+  con.query(sql, [user_id, latitude, longitude, timestamp], (err, result) => {
     if (err) {
       console.error('Error running query:', err);
       return res.json({ error: 'Error in running query' });
