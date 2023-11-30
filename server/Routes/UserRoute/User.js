@@ -139,6 +139,7 @@ router.post('/register/app', (req, res) => {
   const password = req.body.password;
   const address = req.body.address;
   const contact = req.body.contact;
+  const profile_pic = req.body.profile_pic;
 
   const checkEmailQuery = 'SELECT * FROM users WHERE email = ?';
   const checkUsernameQuery = 'SELECT * FROM users WHERE username = ?';
@@ -171,10 +172,10 @@ router.post('/register/app', (req, res) => {
                 } else {
                   const verificationToken = generateVerificationToken();
                   const insertUserQuery =
-                    'INSERT INTO users (fName, lName, email, username, password, address, contact, verificationToken) VALUES (?, ?, ?, ?, ?, ?, ?, ?)';
+                    'INSERT INTO users (fName, lName, email, username, password, address, contact, verificationToken, profile_pic) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)';
                   con.query(
                     insertUserQuery,
-                    [fName, lName, email, username, hashedPassword, address, contact, verificationToken],
+                    [fName, lName, email, username, hashedPassword, address, contact, verificationToken, profile_pic],
                     (insertErr, insertResult) => {
                       if (insertErr) {
                         console.error('Failed to register user:', insertErr);
