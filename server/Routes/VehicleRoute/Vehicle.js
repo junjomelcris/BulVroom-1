@@ -60,17 +60,21 @@ async function getOwnerEmail(transactionId) {
   `;
 
   try {
+    console.log('Executing SQL query:', con.format(query, [transactionId]));
+
     const result = await con.query(query, [transactionId]);
+
+    console.log('Query result:', result);
 
     if (result && result.length > 0) {
       return result[0].email;
     } else {
       console.error('No owner email found for transaction ID:', transactionId);
-      throw new Error('No owner email found');
+      throw new Error('No owner email found for transaction ID: ' + transactionId);
     }
   } catch (error) {
     console.error('Error fetching owner email:', error);
-    throw new Error('Error fetching owner email');
+    throw new Error('Error fetching owner email for transaction ID: ' + transactionId);
   }
 }
 
