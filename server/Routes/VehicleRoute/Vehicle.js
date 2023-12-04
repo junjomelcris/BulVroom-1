@@ -84,6 +84,8 @@ getOwnerEmail(29, (error, email) => {
   } else {
     // Use the email
     console.log('Owner email:', email);
+
+    // Continue with the rest of your code here
   }
 });
 
