@@ -51,7 +51,7 @@ async function updateGcashReference(transactionId, gcashRefNo) {
 }
 
 // Function to fetch the owner's email from the database
-async function getOwnerEmail(transactionId) {
+function getOwnerEmail(transactionId, callback) {
   const query = `
     SELECT users.email
     FROM transactions
@@ -59,22 +59,33 @@ async function getOwnerEmail(transactionId) {
     WHERE transactions.id = ?
   `;
 
-  try {
-    const [result] = await con.promise().query(query, [transactionId]);
-
-    console.log('Query result:', result);
-
-    if (result && result.length > 0) {
-      return result[0].email;
+  con.query(query, [transactionId], (error, result) => {
+    if (error) {
+      console.error('Error fetching owner email:', error);
+      callback(error, null);
     } else {
-      console.error('No owner email found for transaction ID:', transactionId);
-      return null; // or throw new Error('Owner email not found');
+      console.log('Query result:', result);
+
+      if (result && result.length > 0) {
+        callback(null, result[0].email);
+      } else {
+        console.error('No owner email found for transaction ID:', transactionId);
+        callback(new Error('No owner email found'), null);
+      }
     }
-  } catch (error) {
-    console.error('Error fetching owner email:', error);
-    throw new Error('Error fetching owner email');
-  }
+  });
 }
+
+// Example usage:
+getOwnerEmail(29, (error, email) => {
+  if (error) {
+    // Handle the error
+    console.error('Error:', error);
+  } else {
+    // Use the email
+    console.log('Owner email:', email);
+  }
+});
 
 // Function to send the email to the owner
 async function sendGcashReferenceEmail(email, referenceNumber) {
