@@ -57,7 +57,7 @@ async function getOwnerEmail(transactionId) {
 
     const [result, fields] = await con.query(query, [transactionId]);
 
-    if (result.length > 0) {
+    if (result&&result.length > 0) {
       const ownerEmail = result[0].email;
       console.log('Owner Email:', ownerEmail);
       return ownerEmail;
