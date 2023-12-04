@@ -12,6 +12,71 @@ const router = express.Router();
 import con from '../database.js';
 
 
+router.put('/api/validate-gcash/:transactionId', async (req, res) => {
+  const { gcash_ref_no } = req.body;
+  const { transactionId } = req.params;
+
+  // Perform validation logic (e.g., check against a database)
+  const validationPassed = await validateGcashReference(gcash_ref_no);
+
+  if (validationPassed) {
+    try {
+      // Fetch the owner's email from the database
+      const ownerEmail = await getOwnerEmail(transactionId);
+
+      // Update the transaction status
+      // Send an email to the owner
+      await sendGcashReferenceEmail(ownerEmail);
+
+      res.status(200).json({ message: 'Reference number validated successfully' });
+    } catch (error) {
+      console.error('Error sending email:', error);
+      res.status(500).json({ message: 'Error sending email' });
+    }
+  } else {
+    res.status(400).json({ message: 'Invalid reference number' });
+  }
+});
+
+// Function to fetch the owner's email from the database
+async function getOwnerEmail(transactionId) {
+  const query = `
+    SELECT users.email
+    FROM transactions
+    JOIN users ON transactions.owner_id = users.id
+    WHERE transactions.id = ?
+  `;
+
+  const [result] = await con.promise().query(query, [transactionId]);
+
+  if (result.length > 0) {
+    return result[0].email;
+  } else {
+    throw new Error('Owner email not found');
+  }
+}
+
+// Function to send the email to the owner
+// Function to send the email to the owner
+async function sendGcashReferenceEmail(email, referenceNumber) {
+  const transporter = nodemailer.createTransport({
+    service: 'gmail',
+    auth: {
+      user: 'bulvroom7@gmail.com',
+      pass: 'ekrlnkgsxzjzalah',
+    },
+  });
+
+  const mailOptions = {
+    from: 'bulvroom7@gmail.com',
+    to: email,
+    subject: 'GCash Reference Number Update',
+    html: `<p>Your GCash reference number ${referenceNumber} has been received. Please check your GCash account.</p>`,
+  };
+
+  await transporter.sendMail(mailOptions);
+}
+
 
 router.post('/api/transaction', async (req, res) => {
   const {
