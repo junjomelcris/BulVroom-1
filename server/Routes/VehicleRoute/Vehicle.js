@@ -30,7 +30,7 @@ router.put('/api/validate-gcash/:transactionId', async (req, res) => {
     const ownerEmail = await getOwnerEmail(transactionId);
 
     // Update the transaction status
-    await con.promise().query(updateQuery, updateValues);
+    await con.query(updateQuery, updateValues);
 
     // Send an email to the owner
     await sendGcashReferenceEmail(ownerEmail, gcash_ref_no);
@@ -51,7 +51,7 @@ async function getOwnerEmail(transactionId) {
     WHERE transactions.id = ?
   `;
 
-  const [result] = await con.promise().query(query, [transactionId]);
+  const [result] = await con.query(query, [transactionId]);
 
   if (result.length > 0) {
     return result[0].email;
