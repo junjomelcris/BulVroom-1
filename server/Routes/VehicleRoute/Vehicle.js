@@ -64,7 +64,7 @@ async function getOwnerEmail(transactionId) {
 
     const result = await con.query(query, [transactionId]);
 
-    console.log('Query result:', result);
+    console.log('Query result:', result); // Log the entire result object
 
     // Access the result set using the `result[0]` property
     const resultSet = result[0];
@@ -80,6 +80,7 @@ async function getOwnerEmail(transactionId) {
     throw new Error('Error fetching owner email for transaction ID: ' + transactionId);
   }
 }
+
 
 
 
