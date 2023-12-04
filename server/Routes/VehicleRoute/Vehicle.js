@@ -57,14 +57,15 @@ async function getOwnerEmail(transactionId) {
   `;
 
   try {
-    const [result] = await con.query(query, [transactionId]);
-    
+    const result = await con.query(query, [transactionId]);
     console.log('Query result:', result);
 
-    if (result && result.length > 0) {
-      return result[0].email;
+
+    if (Array.isArray(result) && result.length > 0) {
+      const [firstResult] = result;
+      console.log('Query result:', firstResult);
+      return firstResult.email;
     } else {
-      // Owner email not found, throw a custom error
       console.error('Owner email not found for transaction ID:', transactionId);
       throw new Error('Owner email not found');
     }
