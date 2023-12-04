@@ -48,6 +48,7 @@ router.put('/api/validate-gcash/:transactionId', async (req, res) => {
 
 
 // Function to fetch the owner's email from the database
+// Function to fetch the owner's email from the database
 async function getOwnerEmail(transactionId) {
   const query = `
     SELECT users.email
@@ -57,17 +58,20 @@ async function getOwnerEmail(transactionId) {
   `;
 
   try {
-    const [rows] = await con.query(query, [transactionId]);
+    const [result] = await con.query(query, [transactionId]);
 
-    if (rows && rows.length > 0) {
-      return rows[0].email;
+    if (result.length > 0) {
+      return result[0].email;
     } else {
       throw new Error('Owner email not found');
     }
   } catch (error) {
-    throw error;
+    // Log the error for debugging
+    console.error('Error fetching owner email:', error);
+    throw new Error('Error fetching owner email');
   }
 }
+
 // Function to send the email to the owner
 async function sendGcashReferenceEmail(email, referenceNumber) {
   const transporter = nodemailer.createTransport({
