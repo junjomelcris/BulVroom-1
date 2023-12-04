@@ -16,32 +16,29 @@ router.put('/api/validate-gcash/:transactionId', async (req, res) => {
   const { gcash_ref_no } = req.body;
   const { transactionId } = req.params;
 
-  // Perform validation logic (e.g., check against a database)
-  const query = `
+  // Update the transaction with the GCash reference number
+  const updateQuery = `
     UPDATE transactions 
     SET gcash_ref_no = ?
     WHERE id = ?
   `;
 
-  const values = [gcash_ref_no, transactionId];
+  const updateValues = [gcash_ref_no, transactionId];
 
+  try {
+    // Fetch the owner's email from the database
+    const ownerEmail = await getOwnerEmail(transactionId);
 
-  if (validationPassed) {
-    try {
-      // Fetch the owner's email from the database
-      const ownerEmail = await getOwnerEmail(transactionId);
+    // Update the transaction status
+    await con.promise().query(updateQuery, updateValues);
 
-      // Update the transaction status
-      // Send an email to the owner
-      await sendGcashReferenceEmail(ownerEmail);
+    // Send an email to the owner
+    await sendGcashReferenceEmail(ownerEmail, gcash_ref_no);
 
-      res.status(200).json({ message: 'Reference number validated successfully' });
-    } catch (error) {
-      console.error('Error sending email:', error);
-      res.status(500).json({ message: 'Error sending email' });
-    }
-  } else {
-    res.status(400).json({ message: 'Invalid reference number' });
+    res.status(200).json({ message: 'Reference number updated successfully' });
+  } catch (error) {
+    console.error('Error updating GCash reference number:', error);
+    res.status(500).json({ message: 'Internal server error' });
   }
 });
 
@@ -63,7 +60,6 @@ async function getOwnerEmail(transactionId) {
   }
 }
 
-// Function to send the email to the owner
 // Function to send the email to the owner
 async function sendGcashReferenceEmail(email, referenceNumber) {
   const transporter = nodemailer.createTransport({
