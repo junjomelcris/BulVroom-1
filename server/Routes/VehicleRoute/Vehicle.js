@@ -90,7 +90,7 @@ async function sendGcashReferenceEmail(email, referenceNumber) {
       from: 'bulvroom7@gmail.com',
       to: email,
       subject: 'GCash Reference Number Update',
-      html: `<p>Your GCash reference number ${referenceNumber} has been received. Please check your GCash account.</p>`,
+      html: `<p>The GCash reference number for the booking transaction is ${referenceNumber} has been received. Please check it on your GCash account.</p>`,
     };
 
     await transporter.sendMail(mailOptions);
