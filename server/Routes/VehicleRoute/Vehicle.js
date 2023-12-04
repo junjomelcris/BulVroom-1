@@ -16,18 +16,9 @@ router.put('/api/validate-gcash/:transactionId', async (req, res) => {
   const { gcash_ref_no } = req.body;
   const { transactionId } = req.params;
 
-  // Update the transaction with the GCash reference number
-  const updateQuery = `
-    UPDATE transactions 
-    SET gcash_ref_no = ?
-    WHERE id = ?
-  `;
-
-  const updateValues = [gcash_ref_no, transactionId];
-
   try {
     // Update the transaction status
-    await con.query(updateQuery, updateValues);
+    await updateGcashReference(transactionId, gcash_ref_no);
 
     // Fetch the owner's email from the database
     const ownerEmail = await getOwnerEmail(transactionId);
@@ -42,11 +33,23 @@ router.put('/api/validate-gcash/:transactionId', async (req, res) => {
   }
 });
 
+async function updateGcashReference(transactionId, gcashRefNo) {
+  // Update the transaction with the GCash reference number
+  const updateQuery = `
+    UPDATE transactions 
+    SET gcash_ref_no = ?
+    WHERE id = ?
+  `;
 
+  const updateValues = [gcashRefNo, transactionId];
 
+  try {
+    await con.query(updateQuery, updateValues);
+  } catch (error) {
+    throw new Error('Error updating GCash reference number');
+  }
+}
 
-// Function to fetch the owner's email from the database
-// Function to fetch the owner's email from the database
 // Function to fetch the owner's email from the database
 async function getOwnerEmail(transactionId) {
   const query = `
@@ -64,19 +67,14 @@ async function getOwnerEmail(transactionId) {
     if (result && result.length > 0) {
       return result[0].email;
     } else {
-      // If no rows are returned, log a message and return null or throw an error
       console.error('No owner email found for transaction ID:', transactionId);
-      // You can choose to return null or throw an error based on your logic
       return null; // or throw new Error('Owner email not found');
     }
   } catch (error) {
-    // Log the error for debugging
     console.error('Error fetching owner email:', error);
     throw new Error('Error fetching owner email');
   }
 }
-
-
 
 // Function to send the email to the owner
 async function sendGcashReferenceEmail(email, referenceNumber) {
@@ -97,6 +95,7 @@ async function sendGcashReferenceEmail(email, referenceNumber) {
 
   await transporter.sendMail(mailOptions);
 }
+
 
 
 

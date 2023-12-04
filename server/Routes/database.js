@@ -5,7 +5,6 @@ dotenv.config();
 
 function handleDisconnect() {
   const con = mysql.createConnection({
-    connectionLimit: 10,
     host: process.env.HOST,
     user: process.env.USER,
     password: process.env.PASSWORD,
@@ -20,17 +19,6 @@ function handleDisconnect() {
       console.log('Reconnected to the database');
     }
   });
-  con.promise = () => {
-    return new Promise((resolve, reject) => {
-      con.getConnection((err, connection) => {
-        if (err) {
-          reject(err);
-          return;
-        }
-        resolve(connection);
-      });
-    });
-  };
 
   con.on('error', (err) => {
     console.error('Database error (reconnect):', err);
