@@ -57,17 +57,17 @@ async function getOwnerEmail(transactionId) {
   `;
 
   try {
-    const result = await con.query(query, [transactionId]);
+    const [result] = await con.query(query, [transactionId]);
+
     console.log('Query result:', result);
 
-
-    if (Array.isArray(result) && result.length > 0) {
-      const [firstResult] = result;
-      console.log('Query result:', firstResult);
-      return firstResult.email;
+    if (result && result.length > 0) {
+      return result[0].email;
     } else {
-      console.error('Owner email not found for transaction ID:', transactionId);
-      throw new Error('Owner email not found');
+      // If no rows are returned, log a message and return null or throw an error
+      console.error('No owner email found for transaction ID:', transactionId);
+      // You can choose to return null or throw an error based on your logic
+      return null; // or throw new Error('Owner email not found');
     }
   } catch (error) {
     // Log the error for debugging
@@ -75,6 +75,7 @@ async function getOwnerEmail(transactionId) {
     throw new Error('Error fetching owner email');
   }
 }
+
 
 // Function to send the email to the owner
 async function sendGcashReferenceEmail(email, referenceNumber) {
