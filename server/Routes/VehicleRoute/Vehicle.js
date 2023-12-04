@@ -26,6 +26,9 @@ router.put('/api/validate-gcash/:transactionId', async (req, res) => {
   const updateValues = [gcash_ref_no, transactionId];
 
   try {
+    // Log the result of con.query
+    console.log(await con.query(updateQuery, updateValues));
+
     // Fetch the owner's email from the database
     const ownerEmail = await getOwnerEmail(transactionId);
 
@@ -41,7 +44,8 @@ router.put('/api/validate-gcash/:transactionId', async (req, res) => {
     res.status(500).json({ message: 'Internal server error' });
   }
 });
-console.log(await con.query(query, [transactionId]));
+
+
 
 // Function to fetch the owner's email from the database
 async function getOwnerEmail(transactionId) {
