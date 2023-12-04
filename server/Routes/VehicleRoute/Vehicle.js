@@ -63,7 +63,7 @@ async function getOwnerEmail(transactionId) {
           const ownerEmail = result[0].email;
           console.log('Owner Email:', ownerEmail);
           // Process the owner email as needed
-          // Example: sendGcashReferenceEmail(ownerEmail);
+          sendGcashReferenceEmail(ownerEmail);
         } else {
           console.log('No owner email found for transaction ID:', transactionId);
         }
