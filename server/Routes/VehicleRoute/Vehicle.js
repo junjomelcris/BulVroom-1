@@ -51,7 +51,7 @@ async function updateGcashReference(transactionId, gcashRefNo) {
 }
 
 // Function to fetch the owner's email from the database
-async function getOwnerEmail(transactionId) {
+async function getOwnerEmail(transactionId, gcash_ref_no) {
   try {
     const query = 'SELECT users.email FROM transactions JOIN users ON transactions.owner_id = users.id WHERE transactions.id = ?';
 
@@ -63,7 +63,7 @@ async function getOwnerEmail(transactionId) {
           const ownerEmail = result[0].email;
           console.log('Owner Email:', ownerEmail);
           // Process the owner email as needed
-          await sendGcashReferenceEmail(ownerEmail, gcash_ref_no);
+          await sendGcashReferenceEmail(ownerEmail, gcash_ref_no); // Pass gcash_ref_no here
         } else {
           console.log('No owner email found for transaction ID:', transactionId);
         }
@@ -71,7 +71,7 @@ async function getOwnerEmail(transactionId) {
     });
   } catch (error) {
     console.error('Error fetching owner email:', error);
-    res.status(500).json({ message: 'Internal server error' });
+    // Consider handling the error appropriately
   }
 }
 
