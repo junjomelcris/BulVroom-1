@@ -53,16 +53,11 @@ async function updateGcashReference(transactionId, gcashRefNo) {
 // Function to fetch the owner's email from the database
 async function getOwnerEmail(transactionId) {
   try {
-    const query = `
-      SELECT users.email
-      FROM transactions
-      JOIN users ON transactions.owner_id = users.id
-      WHERE transactions.id = ?
-    `;
+    const query = 'SELECT users.email FROM transactions JOIN users ON transactions.owner_id = users.id WHERE transactions.id = ?';
+    
+    const [result] = await con.execute(query, [transactionId]);
 
-    const [result] = await con.query(query, [transactionId]);
-
-    if (result.length > 0) {
+    if (result&&result.length > 0) {
       const ownerEmail = result[0].email;
       console.log('Owner Email:', ownerEmail);
       return ownerEmail;
@@ -75,6 +70,7 @@ async function getOwnerEmail(transactionId) {
     throw error;
   }
 }
+
 
 
 
