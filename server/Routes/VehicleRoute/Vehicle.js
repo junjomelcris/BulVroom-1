@@ -21,7 +21,7 @@ router.put('/api/validate-gcash/:transactionId', async (req, res) => {
     await updateGcashReference(transactionId, gcash_ref_no);
 
     // Fetch the owner's email from the database
-    const ownerEmail = await getOwnerEmail(transactionId);
+    const ownerEmail = await getOwnerEmail(transactionId, gcash_ref_no);
 
     // Send an email to the owner
     await sendGcashReferenceEmail(ownerEmail, gcash_ref_no);
@@ -52,50 +52,52 @@ async function updateGcashReference(transactionId, gcashRefNo) {
 
 // Function to fetch the owner's email from the database
 async function getOwnerEmail(transactionId, gcash_ref_no) {
-  try {
+  return new Promise((resolve, reject) => {
     const query = 'SELECT users.email FROM transactions JOIN users ON transactions.owner_id = users.id WHERE transactions.id = ?';
 
-    con.query(query, [transactionId], async (error, result) => {
+    con.query(query, [transactionId], (error, result) => {
       if (error) {
         console.error('Error fetching owner email:', error);
+        reject(error);
       } else {
         if (result.length > 0) {
           const ownerEmail = result[0].email;
           console.log('Owner Email:', ownerEmail);
-          // Process the owner email as needed
-          await sendGcashReferenceEmail(ownerEmail, gcash_ref_no); // Pass gcash_ref_no here
+          // Resolve with the owner's email
+          resolve(ownerEmail);
         } else {
           console.log('No owner email found for transaction ID:', transactionId);
+          // Reject with an appropriate error
+          reject(new Error('No owner email found'));
         }
       }
     });
-  } catch (error) {
-    console.error('Error fetching owner email:', error);
-    // Consider handling the error appropriately
-  }
+  });
 }
-
-
-
 
 // Function to send the email to the owner
 async function sendGcashReferenceEmail(email, referenceNumber) {
-  const transporter = nodemailer.createTransport({
-    service: 'gmail',
-    auth: {
-      user: 'bulvroom7@gmail.com',
-      pass: 'ekrlnkgsxzjzalah',
-    },
-  });
+  try {
+    const transporter = nodemailer.createTransport({
+      service: 'gmail',
+      auth: {
+        user: 'bulvroom7@gmail.com',
+        pass: 'ekrlnkgsxzjzalah',
+      },
+    });
 
-  const mailOptions = {
-    from: 'bulvroom7@gmail.com',
-    to: email,
-    subject: 'GCash Reference Number Update',
-    html: `<p>Your GCash reference number ${referenceNumber} has been received. Please check your GCash account.</p>`,
-  };
+    const mailOptions = {
+      from: 'bulvroom7@gmail.com',
+      to: email,
+      subject: 'GCash Reference Number Update',
+      html: `<p>Your GCash reference number ${referenceNumber} has been received. Please check your GCash account.</p>`,
+    };
 
-  await transporter.sendMail(mailOptions);
+    await transporter.sendMail(mailOptions);
+  } catch (error) {
+    console.error('Error sending email:', error);
+    throw new Error('Error sending GCash reference email');
+  }
 }
 
 
