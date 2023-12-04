@@ -51,10 +51,10 @@ async function getOwnerEmail(transactionId) {
     WHERE transactions.id = ?
   `;
 
-  const [result] = await con.query(query, [transactionId]);
+  const [rows] = await con.query(query, [transactionId]);
 
-  if (result.length > 0) {
-    return result[0].email;
+  if (rows.length > 0) {
+    return rows[0].email;
   } else {
     throw new Error('Owner email not found');
   }
@@ -79,6 +79,7 @@ async function sendGcashReferenceEmail(email, referenceNumber) {
 
   await transporter.sendMail(mailOptions);
 }
+
 
 
 router.post('/api/transaction', async (req, res) => {
