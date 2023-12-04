@@ -57,7 +57,7 @@ async function getOwnerEmail(transactionId) {
   `;
 
   try {
-    const [result] = await con.query(query, [transactionId]);
+    const [result] = await con.promise().query(query, [transactionId]);
 
     console.log('Query result:', result);
 
@@ -75,6 +75,7 @@ async function getOwnerEmail(transactionId) {
     throw new Error('Error fetching owner email');
   }
 }
+
 
 
 // Function to send the email to the owner
