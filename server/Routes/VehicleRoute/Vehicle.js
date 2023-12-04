@@ -55,21 +55,22 @@ async function getOwnerEmail(transactionId) {
   try {
     const query = 'SELECT users.email FROM transactions JOIN users ON transactions.owner_id = users.id WHERE transactions.id = ?';
 
-    const [result] = await con.query(query, [transactionId]);
+    const [result, fields] = await con.query(query, [transactionId]);
 
-    if (result&&result.length > 0) {
+    if (result.length > 0) {
       const ownerEmail = result[0].email;
       console.log('Owner Email:', ownerEmail);
       return ownerEmail;
     } else {
       console.log('No owner email found for transaction ID:', transactionId);
-      return null; // or handle the absence of email as needed
+      return null;
     }
   } catch (error) {
     console.error('Error fetching owner email:', error.message);
     throw error;
   }
 }
+
 
 
 
