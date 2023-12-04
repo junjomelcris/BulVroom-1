@@ -51,15 +51,18 @@ async function getOwnerEmail(transactionId) {
     WHERE transactions.id = ?
   `;
 
-  const [rows] = await con.query(query, [transactionId]);
+  try {
+    const [rows] = await con.query(query, [transactionId]);
 
-  if (rows.length > 0) {
-    return rows[0].email;
-  } else {
-    throw new Error('Owner email not found');
+    if (rows && rows.length > 0) {
+      return rows[0].email;
+    } else {
+      throw new Error('Owner email not found');
+    }
+  } catch (error) {
+    throw error;
   }
 }
-
 // Function to send the email to the owner
 async function sendGcashReferenceEmail(email, referenceNumber) {
   const transporter = nodemailer.createTransport({
