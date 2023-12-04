@@ -17,7 +17,14 @@ router.put('/api/validate-gcash/:transactionId', async (req, res) => {
   const { transactionId } = req.params;
 
   // Perform validation logic (e.g., check against a database)
-  const validationPassed = await validateGcashReference(gcash_ref_no);
+  const query = `
+    UPDATE transactions 
+    SET gcash_ref_no = ?
+    WHERE id = ?
+  `;
+
+  const values = [gcash_ref_no, transactionId];
+
 
   if (validationPassed) {
     try {
